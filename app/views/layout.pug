@@ -1,0 +1,24 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Mi Aplicación Médica
+    link(rel="stylesheet" href="/css/style.css")
+  body
+    header
+      h1 Aplicación Médica
+      nav
+        ul
+          li
+            a(href="/patients") Pacientes
+          li
+            a(href="/medicos") Médicos
+          li
+            a(href="/citas") Citas
+          li
+            a(href="/historias_clinicas") Historias Clínicas
+    main
+      block content
+    footer
+      p Derechos reservados © #{new Date().getFullYear()}

@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  h1 Crear Nueva Cita
+
+  form(action="/citas" method="POST")
+    label(for="idMedico") Médico
+    input(type="text" name="idMedico" required)
+
+    label(for="idPaciente") Paciente
+    input(type="text" name="idPaciente" required)
+
+    label(for="fechaHora") Fecha y Hora
+    input(type="datetime-local" name="fechaHora" required)
+
+    label(for="motivoConsulta") Motivo de la Consulta
+    textarea(name="motivoConsulta" required)
+
+    button(type="submit") Crear Cita

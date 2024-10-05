@@ -1,0 +1,14 @@
+form(action=`/citas/update/${cita.idCita}` method="POST")
+    label(for="idMedico") Médico:
+    select(name="idMedico")
+        each medico in medicos
+            option(value=medico.idMedico selected=cita.idMedico == medico.idMedico)= medico.nombre
+    label(for="idPaciente") Paciente:
+    select(name="idPaciente")
+        each paciente in pacientes
+            option(value=paciente.idPaciente selected=cita.idPaciente == paciente.idPaciente)= paciente.nombre
+    label(for="fechaHora") Fecha y Hora:
+    input(type="datetime-local" name="fechaHora" value=cita.fechaHora.toISOString().slice(0, 16))
+    label(for="motivoConsulta") Motivo de la Consulta:
+    input(type="text" name="motivoConsulta" value=cita.motivoConsulta)
+    button(type="submit") Actualizar Cita

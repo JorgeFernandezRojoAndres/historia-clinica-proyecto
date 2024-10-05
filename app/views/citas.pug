@@ -1,0 +1,27 @@
+extends layout
+
+block content
+  h2 Listado de Citas
+  a(href="/citas/new" class="btn btn-primary") Nueva Cita
+
+  table
+    thead
+      tr
+        th ID
+        th Médico
+        th Paciente
+        th Fecha y Hora
+        th Motivo de Consulta
+        th Estado
+    tbody
+      each cita in citas
+        tr
+          td= cita.idCita
+          td= cita.medico
+          td= cita.paciente
+          td= cita.fechaHora
+          td= cita.motivoConsulta
+          td= cita.estado
+          td 
+                a(href=`/citas/edit/${cita.idCita}`) Editar
+                a(href=`/citas/delete/${cita.idCita}`) Eliminar

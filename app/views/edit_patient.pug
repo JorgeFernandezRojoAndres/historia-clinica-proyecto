@@ -1,0 +1,23 @@
+extends layout.pug
+
+block content
+  h1 Editar Paciente
+
+  form(action=`/patients/update/${patient.idPaciente}` method="POST")
+    div
+      label(for="nombre") Nombre:
+      input(type="text" name="nombre" value=patient.nombre required)
+    div
+      label(for="fechaNacimiento") Fecha de Nacimiento:
+      input(type="date" name="fechaNacimiento" value=`${new Date(patient.fechaNacimiento).toISOString().split('T')[0]}` required)
+    div
+      label(for="dni") DNI:
+      input(type="text" name="dni" value=patient.dni required)
+    div
+      label(for="direccion") Dirección:
+      input(type="text" name="direccion" value=patient.direccion required)
+    div
+      label(for="telefono") Teléfono:
+      input(type="text" name="telefono" value=patient.telefono required)
+    div
+      button(type="submit") Actualizar Paciente
