@@ -5,6 +5,17 @@ block content
   form(action="/medicos" method="POST")
     label(for="nombre") Nombre:
     input(type="text" name="nombre" required)
+    
+    br
+    label(for="dni") DNI:
+    input(type="text" name="dni" required)
+    br
+    label(for="telefono") Teléfono:
+    input(type="text" name="telefono" required)
+    br
+
+    label(for="email") Email:
+    input(type="email" name="email" required)
     br
 
     label(for="especialidad") Especialidad:

@@ -2,29 +2,40 @@ extends layout.pug
 
 block content
   h1 Listado de Médicos 
+  form(action="/medicos/search" method="GET")
+    input(type="text" id="buscarMedico" name="query" placeholder="Buscar médico por apellido")
+
   a(href="/medicos/new") Agregar Nuevo Médico
 
 
   table
     thead
       tr
-        th ID
+        
         th Nombre
         th Especialidad
+        
         th Teléfono
         th Email
         th DNI
         th Acciones
-    tbody
+    tbody(id="resultadosBusqueda")
       each medico in medicos
         tr
-          td= medico.idMedico
+          
           td= medico.nombre
           td= medico.especialidad
           td= medico.telefono
           td= medico.email
           td= medico.dni
           td
-            a(href=`/medicos/edit/${medico.idMedico}`) Editar
+
+          
+            
+
+            a(href=`/medicos/edit/${medico.idMedico}` class="btn btn-info" ) Editar
             |  
-            a(href=`/medicos/delete/${medico.idMedico}` onclick="return confirm('¿Estás seguro de que deseas eliminar a este médico?');") Eliminar
+            a(href=`/medicos/delete/${medico.idMedico}` class="btn btn-info" onclick="return confirm('¿Estás seguro de que deseas eliminar a este médico?');") Eliminar
+
+             a(href=`/medicos/${medico.idMedico}/agenda` class="btn btn-info") Ver Agenda
+

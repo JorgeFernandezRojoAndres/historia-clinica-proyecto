@@ -19,5 +19,11 @@ router.post('/update/:id', medicosController.update);
 
 // Ruta para eliminar un médico
 router.get('/delete/:id', medicosController.delete);
+//Ruta para ver agenda del medico
+router.get('/:id/agenda', medicosController.verAgenda);
+//Ruta para buscar un medico
+router.get('/search', medicosController.search);
+
+
 
 module.exports = router;

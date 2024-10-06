@@ -15,6 +15,7 @@ header, main, footer {
     background: #fff;
     border: 1px solid #ccc;
     margin-top: 20px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 header {
@@ -55,17 +56,21 @@ table {
 }
 
 table, th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    border: 1px solid #bbb;
+    padding: 12px;
 }
 
 th {
     background-color: #333;
     color: white;
 }
+td a {
+    margin-right: 10px; /* Añadir espacio entre los botones */
+}
+
 
 tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: #f9f9f9;
 }
 
 tr:hover {
@@ -80,6 +85,7 @@ tr:hover {
     text-decoration: none;
     border-radius: 5px;
     border: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .btn-primary {
@@ -89,6 +95,7 @@ tr:hover {
 .btn:hover {
     background-color: #0056b3;
     color: white;
+    transform: scale(1.05);
 }
 form {
     margin: 20px 0;
@@ -100,8 +107,13 @@ input[type="text"], input[type="date"], textarea {
     margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    transition: border-color 0.3s ease;
 }
 
-input[type="submit"], .btn {
-    cursor: pointer;
+
+input[type="text"]:focus, input[type="date"]:focus, textarea:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0px 1px 3px rgba(0, 123, 255, 0.5); /* Color destacado */
 }

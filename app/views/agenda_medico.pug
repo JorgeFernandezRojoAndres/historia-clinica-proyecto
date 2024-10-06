@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  h2 Agenda del Dr. o la Dra. #{nombreMedico}
+
+  table
+    thead
+      tr
+        th Paciente
+        th Fecha y Hora
+        th Motivo
+        th Estado
+    tbody
+      each cita in citas
+        tr
+          td= cita.nombrePaciente
+          td= cita.fechaHora
+          td= cita.motivoConsulta
+          td= cita.estado
