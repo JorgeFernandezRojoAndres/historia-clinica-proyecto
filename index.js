@@ -3,7 +3,7 @@ const config = require('./config/config');
 const mysql = require('mysql2');
 // Inicializa la aplicación
 const app = express();
-const port = 3000;
+const port = 3306;
 
 // Configuración del motor de vistas
 app.use(express.static('public'));
