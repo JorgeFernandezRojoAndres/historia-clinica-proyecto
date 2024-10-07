@@ -7,7 +7,11 @@ const connection = mysql.createConnection({
     host: config.options.host,
     user: config.username,
     database: config.database,
-    password: config.password
+    password: config.password,
+    port: 3306, // Asegúrate de que el puerto es correcto
+    ssl: { 
+        rejectUnauthorized: false // Esta opción desactiva la verificación del certificado SSL
+    }
 });
 
 connection.connect(error => {
