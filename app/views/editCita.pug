@@ -1,0 +1,27 @@
+extends layout
+
+block content
+  h2 Editar Cita
+
+  form(action=`/citas/update/${cita.idCita}` method="POST")
+    div
+      label(for="nombreMedico") Médico:
+      select(name="idMedico")
+        each medico in medicos
+          option(value=medico.idMedico selected=(medico.idMedico == cita.idMedico))= medico.nombre
+    div
+      label(for="nombrePaciente") Paciente:
+      select(name="idPaciente")
+        each paciente in pacientes
+          option(value=paciente.idPaciente selected=(paciente.idPaciente == cita.idPaciente))= paciente.nombre
+    div
+      label(for="fechaHora") Fecha y Hora:
+      input(type="datetime-local" name="fechaHora" value=cita.fechaHora)
+    div
+      label(for="motivoConsulta") Motivo de Consulta:
+      input(type="text" name="motivoConsulta" value=cita.motivoConsulta)
+    div
+      label(for="estado") Estado:
+      input(type="text" name="estado" value=cita.estado)
+
+    button(type="submit") Guardar Cambios
