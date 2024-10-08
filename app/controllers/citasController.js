@@ -2,7 +2,12 @@ const db = require('../../config/database');
 
 // Listar todas las citas
 exports.listAll = (req, res) => {
-    const sql = 'SELECT idCita, idMedico, idPaciente, fechaHora, motivoConsulta, estado FROM citas';
+    const sql = `
+        SELECT citas.idCita, medicos.nombre AS nombreMedico, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado
+        FROM citas
+        JOIN medicos ON citas.idMedico = medicos.idMedico
+        JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+    `;
     db.query(sql, (error, results) => {
         if (error) {
             console.error('Error al obtener las citas:', error);
@@ -17,6 +22,7 @@ exports.listAll = (req, res) => {
         }
     });
 };
+
 // Mostrar formulario para una nueva cita
 exports.showNewForm = (req, res) => {
     res.render('newCita'); // Asegúrate de tener la vista 'newCita.pug' creada en la carpeta de vistas
@@ -67,8 +73,7 @@ exports.create = (req, res) => {
   };
   
 
-// Mostrar formulario de edición de cita
-exports.showEditForm = (req, res) => {
+  exports.showEditForm = (req, res) => {
     const id = req.params.id;
 
     const sqlCita = 'SELECT * FROM citas WHERE idCita = ?';
@@ -77,16 +82,44 @@ exports.showEditForm = (req, res) => {
             console.error('Error al obtener la cita:', errorCita);
             return res.status(500).send("Error al obtener la cita");
         }
+        // Formatear la fecha al formato compatible con datetime-local
+        resultsCita[0].fechaHora = new Date(resultsCita[0].fechaHora).toISOString().slice(0, 16);
 
-        // Renderizar el formulario con la cita que se va a editar
-        res.render('editCita', { cita: resultsCita[0] });
+        const sqlMedicos = 'SELECT * FROM medicos';
+        const sqlPacientes = 'SELECT * FROM pacientes';
+
+        db.query(sqlMedicos, (errorMedicos, resultsMedicos) => {
+            if (errorMedicos) {
+                console.error('Error al obtener los médicos:', errorMedicos);
+                return res.status(500).send("Error al obtener los médicos");
+            }
+            
+
+            db.query(sqlPacientes, (errorPacientes, resultsPacientes) => {
+                if (errorPacientes) {
+                    console.error('Error al obtener los pacientes:', errorPacientes);
+                    return res.status(500).send("Error al obtener los pacientes");
+                }
+
+                // Renderizar la vista con cita, médicos y pacientes
+                res.render('editCita', {
+                    cita: resultsCita[0],
+                    medicos: resultsMedicos,
+                    pacientes: resultsPacientes
+                });
+            });
+        });
     });
 };
+
+
+
 
 // Actualizar una cita
 exports.update = (req, res) => {
     const id = req.params.id;
     const { idMedico, idPaciente, fechaHora, motivoConsulta } = req.body;
+    
     const sql = 'UPDATE citas SET idMedico = ?, idPaciente = ?, fechaHora = ?, motivoConsulta = ? WHERE idCita = ?';
     db.query(sql, [idMedico, idPaciente, fechaHora, motivoConsulta, id], (error, results) => {
         if (error) {
