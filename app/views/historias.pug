@@ -3,19 +3,16 @@ extends layout
 block content
   h2 Listado de Historias Clínicas
 
-  a(href="/historias_clinicas/new" class="btn btn-primary") Nueva Historia Clínica
-
+  a(href="/historias/new" class="btn btn-primary") Nueva Historia Clínica
 
   table
     tr
-      th ID
       th Paciente
       th Detalles
       th Acciones
     each historia in historias
       tr
-        td= historia.idHistoria
-        td= historia.idPaciente
+        td= historia.nombrePaciente 
         td= historia.detalles
         td
           a(href=`/historias/edit/${historia.idHistoria}`) Editar

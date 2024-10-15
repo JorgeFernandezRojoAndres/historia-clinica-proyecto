@@ -1,19 +1,40 @@
 extends layout
 
 block content
-  h1 Crear Nueva Cita
+  h2 Nueva Cita
 
-  form(action="/citas" method="POST")
-    label(for="idMedico") Médico
-    input(type="text" name="idMedico" required)
+  form(action="/citas/new" method="POST")
+    label(for="idMedico") Médico:
+    select(name="idMedico" id="idMedico" required)
+      option(value="") -- Selecciona un médico --
+      each medico in medicos
+        option(value=medico.idMedico data-especialidad=medico.especialidad) #{medico.nombre}
+    br
 
-    label(for="idPaciente") Paciente
-    input(type="text" name="idPaciente" required)
+    label(for="especialidad") Especialidad:
+    input(type="text" id="especialidadMedico" readonly)
+    br
 
-    label(for="fechaHora") Fecha y Hora
+    label(for="buscarPaciente") Buscar Paciente:
+    input(type="text" id="buscarPaciente" placeholder="Ingresa nombre o DNI" autocomplete="off")
+
+    ul#listaResultados // Contenedor para sugerencias dinámicas
+
+    label(for="idPaciente") ID Paciente:
+    input(type="text" name="idPaciente" id="idPaciente" readonly required)
+    br
+
+    label(for="fechaHora") Fecha y Hora:
     input(type="datetime-local" name="fechaHora" required)
+    br
 
-    label(for="motivoConsulta") Motivo de la Consulta
-    textarea(name="motivoConsulta" required)
+    label(for="motivoConsulta") Motivo de Consulta:
+    input(type="text" name="motivoConsulta")
+    br
 
     button(type="submit") Crear Cita
+
+    a#verAgendaButton.btn.btn-primary(href="#", style="display: none;") Ver Agenda del Médico
+
+  script(src="/botondinamicoAgendaEnCita.js")
+  script(src="/searchPaciente.js")

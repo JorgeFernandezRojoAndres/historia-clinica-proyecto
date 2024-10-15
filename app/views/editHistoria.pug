@@ -3,13 +3,14 @@ extends layout
 block content
   h2 Editar Historia Clínica
 
-  form(action="/historias_clinicas/update/#{historia.idHistoria}" method="POST")
+  form(action=`/historias/update/${historia.idHistoria}` method="POST")
+
     div
       label(for="dni") DNI del Paciente
-      textarea(name="dni" id="dni")= historia.dni 
+      input(type="text" name="dni" id="dni" value=historia.dniPaciente readonly) 
     div
       label(for="nombre") Nombre del Paciente
-      textarea(name="nombre" id="nombre")= historia.nombre
+      input(type="text" name="nombre" id="nombre" value=historia.nombrePaciente readonly)
     div   
       label(for="detalles") Detalles
       textarea(name="detalles" id="detalles")= historia.detalles
