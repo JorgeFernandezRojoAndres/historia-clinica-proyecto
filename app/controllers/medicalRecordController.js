@@ -6,7 +6,7 @@ const MedicalRecord = require('../models/medicalRecord');
 // Función para crear un nuevo registro médico
 exports.addMedicalRecord = (req, res) => {
     const newRecord = {
-        patientName: req.body.patientName,
+        pacientesName: req.body.pacientesName,
         condition: req.body.condition,
         treatment: req.body.treatment,
         dateOfVisit: req.body.dateOfVisit || new Date(),

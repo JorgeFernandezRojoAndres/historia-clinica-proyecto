@@ -1,0 +1,43 @@
+extends layout
+
+block content
+  h1 Bienvenido, #{user.nombre}
+  nav
+    ul
+      li
+        a(href="/medicos/agenda") Ver Agenda
+      li
+        a(href="/pacientes") Gestionar Pacientes
+      li
+        a(href="/historias") Historial Clínico
+      li
+        a(href="/logout") Cerrar Sesión
+
+  main
+    h2 Información del Médico
+    p
+      strong ID:
+      | #{user.id}
+    p
+      strong Nombre:
+      | #{user.nombre}
+    p
+      strong Especialidad:
+      | #{user.especialidad}
+    p
+      strong Teléfono:
+      | #{user.telefono}
+    p
+      strong Correo Electrónico:
+      | #{user.email}
+      
+    // Aquí puedes agregar un formulario si es necesario
+    form(action="/medicos/update" method="POST")
+      div
+        label(for="especialidad") Especialidad:
+        input(type="text" id="especialidad" name="especialidad" value=user.especialidad required)
+      div
+        label(for="telefono") Teléfono:
+        input(type="text" id="telefono" name="telefono" value=user.telefono required)
+      div
+        button(type="submit") Actualizar Información

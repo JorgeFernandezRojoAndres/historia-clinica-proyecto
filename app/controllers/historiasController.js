@@ -1,7 +1,11 @@
 const db = require('../../config/database');
 
 exports.listAll = (req, res) => {
-  const sql = 'SELECT idHistoria, idPaciente, detalles FROM historias_clinicas';
+  const sql = `
+    SELECT hc.idHistoria, p.nombre AS nombrePaciente, hc.detalles
+    FROM historias_clinicas hc
+    JOIN pacientes p ON hc.idPaciente = p.idPaciente
+  `;
   db.query(sql, (error, results) => {
     if (error) {
       console.error('Error al obtener las historias clínicas:', error);
@@ -11,6 +15,9 @@ exports.listAll = (req, res) => {
     }
   });
 };
+
+
+
 exports.showNewForm = (req, res) => {
   res.render('newHistoria');  
 };
@@ -45,9 +52,33 @@ exports.create = (req, res) => {
 
 exports.update = (req, res) => {
   const id = req.params.id;
-  const { idPaciente, detalles } = req.body;
-  const sql = 'UPDATE historias_clinicas SET idPaciente = ?, detalles = ? WHERE idHistoria = ?';
-  db.query(sql, [idPaciente, detalles, id], (error, results) => {
+
+  // Verifica si las fechas están vacías y las asigna a NULL si es necesario
+  const fechaDiagnostico = req.body.fechaDiagnostico ? req.body.fechaDiagnostico : null;
+  const fechaProximaCita = req.body.fechaProximaCita ? req.body.fechaProximaCita : null;
+
+  const {
+      idPaciente,
+      detalles,
+      medicamentos,
+      alergias,
+      condicionActual,
+      pruebasDiagnosticas,
+      especialistaReferido,
+      urlDocumento,
+      notasMedicas
+  } = req.body;
+
+  const sql = `
+      UPDATE historias_clinicas
+      SET idPaciente = ?, detalles = ?, fechaDiagnostico = ?, medicamentos = ?, alergias = ?, condicionActual = ?, 
+      pruebasDiagnosticas = ?, fechaProximaCita = ?, especialistaReferido = ?, urlDocumento = ?, notasMedicas = ?
+      WHERE idHistoria = ?`;
+
+  db.query(sql, [
+      idPaciente, detalles, fechaDiagnostico, medicamentos, alergias, condicionActual,
+      pruebasDiagnosticas, fechaProximaCita, especialistaReferido, urlDocumento, notasMedicas, id
+  ], (error, results) => {
       if (error) {
           console.error('Error al actualizar la historia clínica:', error);
           res.status(500).send('Error al actualizar la historia clínica');
@@ -56,6 +87,8 @@ exports.update = (req, res) => {
       }
   });
 };
+
+
 
 exports.delete = (req, res) => {
   const id = req.params.id;
@@ -73,19 +106,26 @@ exports.delete = (req, res) => {
 
 exports.showEditForm = (req, res) => {
   const id = req.params.id;
-  const sql = 'SELECT * FROM historias_clinicas WHERE idHistoria = ?';
+  const sql = `
+    SELECT hc.*, p.nombre AS nombrePaciente, p.dni AS dniPaciente
+    FROM historias_clinicas hc
+    JOIN pacientes p ON hc.idPaciente = p.idPaciente
+    WHERE hc.idHistoria = ?
+  `;
   db.query(sql, [id], (error, results) => {
-      if (error) {
-          console.error('Error al obtener la historia clínica:', error);
-          res.status(500).send('Error al obtener la historia clínica');
+    if (error) {
+      console.error('Error al obtener la historia clínica:', error);
+      res.status(500).send('Error al obtener la historia clínica');
+    } else {
+      if (results.length === 0) {
+        res.status(404).send('Historia clínica no encontrada');
       } else {
-          if (results.length === 0) {
-              res.status(404).send('Historia clínica no encontrada');
-          } else {
-              res.render('editHistoria', { historia: results[0] });
-          }
+        res.render('editHistoria', { historia: results[0] });
       }
+    }
   });
 };
+
+
 
 

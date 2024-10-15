@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h2 Iniciar Sesión Médico
+  form(action="/login/medico" method="POST")
+    div
+      label(for="username") Nombre de Usuario
+      input(type="text" id="username" name="username" required)
+    div
+      label(for="password") Contraseña
+      input(type="password" id="password" name="password" required)
+    div
+      button(type="submit") Iniciar Sesión

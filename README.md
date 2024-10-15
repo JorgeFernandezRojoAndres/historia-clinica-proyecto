@@ -6,16 +6,16 @@ El proyecto es un **sistema de historia clínica electrónica** que permite gest
 ### Estructura del Proyecto
 - **app/**: Contiene los controladores de las diferentes funcionalidades del proyecto.
   - **controllers/**: Contiene la lógica de cada controlador.
-    - `patientsController.js`: Controlador para manejar todas las operaciones relacionadas con los pacientes.
+    - `pacientesController.js`: Controlador para manejar todas las operaciones relacionadas con los pacientes.
     - `historiasController.js`: Controlador para manejar todas las operaciones relacionadas con las historias clínicas.
   - **views/**: Contiene las plantillas Pug para las vistas del proyecto.
     - `newHistoria.pug`: Formulario para crear una nueva historia clínica.
-    - `patients.pug`: Vista para listar pacientes.
+    - `pacientes.pug`: Vista para listar pacientes.
     - `layout.pug`: Plantilla base del sitio web.
 - **config/**: Contiene los archivos de configuración de la base de datos.
   - `database.js`: Archivo para configurar la conexión a la base de datos MySQL.
 - **routes/**: Define las rutas del proyecto.
-  - `patients.js`: Rutas para manejar las operaciones de los pacientes.
+  - `pacientes.js`: Rutas para manejar las operaciones de los pacientes.
   - `historias.js`: Rutas para manejar las operaciones de las historias clínicas.
   - `citas.js`, `medicos.js`: Manejan las operaciones de citas y médicos, respectivamente.
 

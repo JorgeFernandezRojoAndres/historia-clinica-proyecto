@@ -1,19 +1,11 @@
-extends layout
-
-block content
-  h2 Agenda del Dr. o la Dra. #{nombreMedico}
-
-  table
-    thead
-      tr
-        th Paciente
-        th Fecha y Hora
-        th Motivo
-        th Estado
-    tbody
-      each cita in citas
-        tr
-          td= cita.nombrePaciente
-          td= cita.fechaHora
-          td= cita.motivoConsulta
-          td= cita.estado
+doctype html
+html
+  head
+    title Agenda del Médico
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/main.min.css")
+    script(src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/main.min.js")
+    script(src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/main.min.js")
+  body
+    h2 Agenda del Médico
+    #calendar
+    script(src="/dist/bundle.js")

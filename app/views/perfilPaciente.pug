@@ -1,0 +1,46 @@
+doctype html 
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Perfil de Paciente
+    link(rel="stylesheet" href="/css/style.css")
+  
+  body
+    header
+      h1 Perfil de Paciente
+      nav
+        ul
+          li
+            a(href="/turnos") Ver Mis Turnos
+          li
+            a(href="/historias") Ver Mi Historial Clínico
+          li
+            a(href="/sacar-turno") Sacar Turno por Mail
+          li
+            a(href="/logout") Cerrar Sesión
+
+    main
+      h2 Información del Paciente
+      div
+        p
+          strong Nombre:
+          | #{paciente.nombre}
+        p
+          strong Fecha de Nacimiento:
+          | #{new Date(paciente.fechaNacimiento).toLocaleDateString('es-ES')}  
+        p
+          strong DNI:
+          | #{paciente.dni}
+        p
+          strong Dirección:
+          | #{paciente.direccion}
+        p
+          strong Teléfono:
+          | #{paciente.telefono}
+
+      // Aquí puedes agregar más detalles o permitir al paciente editar su información
+      a(href=`/pacientes/edit/${paciente.idPaciente}`) Editar Información
+
+    footer
+      p Derechos reservados © #{new Date().getFullYear()}

@@ -1,26 +1,28 @@
 extends layout
 
 block content
-  h2 Editar Médico
-  form(action=`/medicos/update/${medico.idMedico}` method="POST")
+  h2 Listado de Médicos
 
-    label(for="nombre") Nombre:
-    input(type="text" name="nombre" value=medico.nombre required)
-    br
-    label(for="dni") DNI:
-    input(type="text" name="dni" value=medico.dni required)
-    br
-
-    label(for="especialidad") Especialidad:
-    input(type="text" name="especialidad" value=medico.especialidad required)
-    br
-
-    label(for="telefono") Teléfono:
-    input(type="text" name="telefono" value=medico.telefono required)
-    br
-
-    label(for="email") Email:
-    input(type="email" name="email" value=medico.email required)
-    br
-
-    button(type="submit") Actualizar Médico
+  table
+    thead
+      tr
+        th ID
+        th Nombre
+        th Especialidad
+        th Teléfono
+        th Email
+        th DNI
+        th Acciones
+    tbody
+      each medico in medicos
+        tr
+          td= medico.idMedico
+          td= medico.nombre
+          td= medico.especialidad
+          td= medico.telefono
+          td= medico.email
+          td= medico.dni
+          td
+            a.btn.btn-warning(href=`/medicos/${medico.idMedico}/edit`) Editar
+            a.btn.btn-danger(href=`/medicos/${medico.idMedico}/delete`) Eliminar
+            a.btn.btn-primary(href=`/medicos/${medico.idMedico}/agenda`) Ver Agenda
