@@ -164,15 +164,19 @@ exports.search = (req, res) => {
 
 
 exports.showProfile = (req, res) => { 
+    console.log('Sesión del usuario:', req.session.user);
     const idPaciente = req.session.user.id; // Obtener el ID del paciente de la sesión
 
     const sql = 'SELECT * FROM pacientes WHERE idPaciente = ?';
     db.query(sql, [idPaciente], (error, results) => {
         if (error) {
+            console.error('Error al buscar paciente:', error);
             return res.status(500).send('Error al buscar paciente');
         }
+        console.log('Resultados de la consulta:', results);
         if (results.length > 0) {
             res.render('perfilPaciente', { paciente: results[0] }); // Renderiza la vista de perfil del paciente
+            
         } else {
             res.status(404).send('Paciente no encontrado');
         }

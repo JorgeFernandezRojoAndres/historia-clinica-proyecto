@@ -1,8 +1,6 @@
 extends layout
 
 block content
-  h2 Iniciar Sesión
-  div
-    a(href="/login/paciente") Soy Paciente
-    a(href="/login/medico") Soy Médico
-    a(href="/login/secretaria") Soy Secretaria
+  h1 Bienvenido, seleccione su clínica
+  button(onclick="window.location.href='/login'") Clínica Integral SaludPlus
+  button(onclick="window.location.href='/login'") Centro Médico Vida Total
