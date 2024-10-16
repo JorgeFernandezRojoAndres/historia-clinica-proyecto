@@ -8,47 +8,57 @@ html(lang="en")
     link(rel="icon" href="/favicon.ico" type="image/x-icon")
 
   body
-    header
-      h1 Aplicación Médica
-      nav
-        ul
-          if !user
-            li
-              a(href="/login/paciente") Soy Paciente
-            li
-              a(href="/login/medico") Soy Médico
-            li
-              a(href="/login/secretaria") Soy Secretaria
-          else
-            if user.role === 'secretaria'
+    if !clinicaSeleccionada
+      main.contenedor
+        h1 Seleccione su Clínica
+        div.botones
+          button.btn-clinica(onclick="location.href='/saludplus'")
+            img(src="/images/saludplus.png" alt="SaludPlus Logo")
+            | Clínica Integral SaludPlus
+          button.btn-clinica(onclick="location.href='/vidatotal'")
+            img(src="/images/vidatotal.png" alt="Vida Total Logo")
+            | Centro Médico Vida Total
+    else
+      header
+        h1 Aplicación Médica
+        nav
+          ul
+            if !user
               li
-                a(href="/secretaria/pacientes") Pacientes
+                a(href="/login/paciente") Soy Paciente
               li
-                a(href="/secretaria/medicos") Médicos
+                a(href="/login/medico") Soy Médico
               li
-                a(href="/secretaria/citas") Citas
-            if user.role === 'medico'
+                a(href="/login/secretaria") Soy Secretaria
+            else
+              if user.role === 'secretaria'
+                li
+                  a(href="/secretaria/pacientes") Pacientes
+                li
+                  a(href="/secretaria/medicos") Médicos
+                li
+                  a(href="/secretaria/citas") Citas
+              if user.role === 'medico'
+                li
+                  a(href="/medicos") Médicos
+                li
+                  a(href="/medicos/citas") Mis Citas
+              if user.role === 'paciente'
+                li
+                  a(href="/paciente/mi-perfil") Mi Perfil
               li
-                a(href="/medicos") Médicos
-              li
-                a(href="/medicos/citas") Mis Citas
-            if user.role === 'paciente'
-              li
-                a(href="/paciente/mi-perfil") Mi Perfil
-            li
-              a(href="/logout") Cerrar Sesión
+                a(href="/logout") Cerrar Sesión
 
-    //- Sección de Accesos Rápidos
-    if user && user.role === 'secretaria'
-      section.accesos-rapidos
-        h2.accesos-titulo Accesos rápidos
-        div.botones-rapidos
-          button.btn-rapido(onclick="window.location.href='/secretaria/pacientes/new'") Agregar Paciente
-          button.btn-rapido(onclick="window.location.href='/secretaria/medicos/new'") Agregar Médico
-          button.btn-rapido(onclick="window.location.href='/secretaria/citas/new'") Nueva Cita
+      if user && user.role === 'secretaria'
+        section.accesos-rapidos
+          h2.accesos-titulo Accesos rápidos
+          div.botones-rapidos
+            button.btn-rapido(onclick="window.location.href='/secretaria/pacientes/new'") Agregar Paciente
+            button.btn-rapido(onclick="window.location.href='/secretaria/medicos/new'") Agregar Médico
+            button.btn-rapido(onclick="window.location.href='/secretaria/citas/new'") Nueva Cita
 
-    main
-      block content
+      main
+        block content
 
     footer
       p Derechos reservados © #{new Date().getFullYear()}

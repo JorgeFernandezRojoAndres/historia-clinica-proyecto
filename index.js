@@ -45,8 +45,21 @@ app.use((req, res, next) => {
 });
 // Definir rutas
 app.get('/', (req, res) => {
-    res.render('layout', { title: 'Aplicación Médica' });
+    res.render('layout', { title: 'TurnoExpress' });
 });
+app.get('/saludplus', (req, res) => {
+    req.session.clinicaSeleccionada = true;
+    res.render('layout', { title: 'Clínica Integral SaludPlus', clinicaSeleccionada: true });
+  });
+
+  app.get('/vidatotal', (req, res) => {
+    req.session.clinicaSeleccionada = true;
+    res.render('layout', { title: 'Centro Médico Vida Total', clinicaSeleccionada: true });
+  });
+  app.use((req, res, next) => {
+    res.locals.clinicaSeleccionada = req.session.clinicaSeleccionada || false;
+    next();
+  });
 
 // Importa las rutas de secretaria
 const secretariaRoutes = require('./routes/secretaria');

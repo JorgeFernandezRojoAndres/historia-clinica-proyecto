@@ -5,6 +5,6 @@ const express = require('express');
 exports.index = (req, res) => {
     // Renderiza una vista llamada 'index' y pasa variables de título para usar en la plantilla
     res.render('index', {
-        title: 'Bienvenido a Mi Aplicación Médica'
+        title: 'Bienvenido a TurnoExpress'
     });
 };

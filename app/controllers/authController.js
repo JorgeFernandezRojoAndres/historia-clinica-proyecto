@@ -26,7 +26,7 @@
                     nombre: results[0].nombre,
                     role: 'paciente'
                 };
-                res.redirect('/pacientes'); // Asegúrate de que esta ruta exista
+                res.redirect('/paciente/mi-perfil'); // Asegúrate de que esta ruta exista
             } else {
                 res.status(401).send('Paciente no encontrado');
             }
@@ -158,6 +158,7 @@
                 } else {
                     return res.redirect('/paciente/dashboard');
                 }
+                    console.log("🚀 ~ bcrypt.compare ~ paciente:", paciente)
             });
         });
     };

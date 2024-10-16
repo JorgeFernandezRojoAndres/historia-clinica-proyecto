@@ -9,7 +9,10 @@ router.get('/mi-perfil', authMiddleware.isAuthenticated, authMiddleware.isPacien
 // Redirigir a los pacientes que acceden a /pacientes a su perfil
 router.get('/', authMiddleware.isAuthenticated, authMiddleware.isPaciente, (req, res) => {
     res.redirect('/paciente/mi-perfil');
+    console.log("🚀 ~ router.get ~ perfil:", mi-perfil)
 });
+    
+    
 
 // Ruta para mostrar el formulario de editar un paciente (acceso solo para el paciente)
 router.get('/edit/:id', authMiddleware.isAuthenticated, authMiddleware.isPaciente, pacientesController.showEditForm);
