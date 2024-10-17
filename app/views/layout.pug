@@ -3,7 +3,7 @@ html(lang="en")
   head
     meta(charset="UTF-8")
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
-    title Aplicación Médica
+    title TurnoExpress
     link(rel="stylesheet" href="/css/style.css")
     link(rel="icon" href="/favicon.ico" type="image/x-icon")
 
@@ -20,7 +20,7 @@ html(lang="en")
             | Centro Médico Vida Total
     else
       header
-        h1 Aplicación Médica
+        h1 TurnoExpress
         nav
           ul
             if !user
@@ -61,4 +61,8 @@ html(lang="en")
         block content
 
     footer
-      p Derechos reservados © #{new Date().getFullYear()}
+      p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}
+
+    // Agregar tus scripts aquí
+    script(src="/botondinamicoAgendaEnCita.js")
+    script(src="/searchPaciente.js")

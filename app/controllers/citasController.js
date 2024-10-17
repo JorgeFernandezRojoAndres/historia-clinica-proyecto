@@ -22,21 +22,7 @@ exports.listAll = (req, res) => {
         }
     });
 };
-// Obtener citas en formato JSON para FullCalendar
-exports.obtenerCitasJSON = async (req, res) => {
-    try {
-      const medicoId = req.query.id; // Ajuste aquí para recibir el ID desde el query
-      const [citas] = await db.promise().query(
-        `SELECT fechaHora AS start, motivoConsulta AS title 
-         FROM citas 
-         WHERE idMedico = ?`, [medicoId]
-      );
-      res.json(citas);
-    } catch (error) {
-      console.error('Error al obtener citas:', error);
-      res.status(500).send('Error al obtener citas');
-    }
-  };
+
 // Mostrar formulario para una nueva cita
 exports.showNewForm = (req, res) => {
     const sqlMedicos = 'SELECT * FROM medicos';
@@ -57,7 +43,7 @@ exports.showNewForm = (req, res) => {
     });
 };
 // Crear una nueva cita
-exports.create = (req, res) => {
+exports.createHistoriaClinica = (req, res) => {
     const {
       dniPaciente,
       detalles,
@@ -159,35 +145,8 @@ exports.createCita = (req, res) => {
         });
     });
 };
-exports.verAgenda = (req, res) => {
-    const idMedico = req.params.id;
 
-    const sql = `
-        SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado 
-        FROM citas
-        JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
-        WHERE citas.idMedico = ?
-    `;
 
-    db.query(sql, [idMedico], (error, results) => {
-        if (error) {
-            console.error('Error al obtener la agenda del médico:', error);
-            return res.status(500).send('Error al obtener la agenda del médico');
-        }
-
-        // Formatear la fecha y hora para mostrar correctamente en la vista
-        results.forEach(cita => {
-            const fecha = new Date(cita.fechaHora);
-            cita.fechaHora = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} 
-                              ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
-        });
-
-        res.render('agenda_medico', {
-            citas: results,
-            nombreMedico: results.length > 0 ? results[0].nombreMedico : 'Médico sin citas'
-        });
-    });
-};
 // Actualizar una cita
 exports.update = (req, res) => {
     const id = req.params.id;

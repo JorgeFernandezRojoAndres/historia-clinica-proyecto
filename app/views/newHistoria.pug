@@ -62,6 +62,7 @@ block content
         fetch(`/historias_clinicas/buscarPaciente/${dni}`)
           .then(response => response.json())
           .then(data => {
+            
             if (data.success) {
               document.getElementById('nombrePaciente').value = data.nombre;
               document.getElementById('detalles').value = data.detalles || ''; // Si tiene historial, lo mostramos

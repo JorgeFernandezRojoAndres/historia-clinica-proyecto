@@ -12,7 +12,7 @@ exports.isAuthenticated = (req, res, next) => {
 // Middleware genérico para verificación de roles
 exports.checkRole = (role) => {
     return (req, res, next) => {
-        console.log(`Verificando rol de ${role}:`, req.session.user);
+        console.log(`Verificando rol de ${role}:`, req.session.user);  // Verifica el rol del usuario
         if (req.session.user && req.session.user.role === role) {
             console.log(`Acceso concedido a ${role}:`, req.session.user);
             return next();
@@ -21,6 +21,8 @@ exports.checkRole = (role) => {
         return res.status(403).send(`Acceso denegado: Solo para ${role}s`);
     };
 };
+
+
 
 // Definición específica de los roles usando checkRole
 exports.isDoctor = exports.checkRole('doctor');

@@ -36,38 +36,46 @@
 
 
     exports.loginMedico = (req, res) => {
+        console.log("Inicio del proceso de login");
+        console.log("Datos ingresados:", req.body);
         const { username, password } = req.body;
-
-        // Consulta para buscar el médico por nombre de usuario
-        const sql = 'SELECT * FROM medicos WHERE username = ?';
+    
+        const sql = 'SELECT * FROM medicos WHERE nombre = ?';
         db.query(sql, [username], (error, results) => {
             if (error || results.length === 0) {
+                console.log('Error o credenciales incorrectas');
                 return res.status(401).render('loginmedicos', { message: 'Credenciales incorrectas' });
             }
-
+    
             const user = results[0];
-
+            console.log("Usuario encontrado:", user);
+            console.log("Contraseña ingresada:", password);
+    
             // Verifica si la contraseña ingresada es el DNI
             if (password === user.dni) {
-                // Iniciar sesión
-                req.session.user = { id: user.idMedico, role: 'medico', nombre: user.nombre };
-
-                // Verificar si necesita cambiar la contraseña
+                req.session.user = { id: user.idMedico, role: 'doctor', nombre: user.nombre };
+    
+                console.log("Sesión guardada:", req.session.user);
+    
                 if (user.password_change_required) {
-                    return res.redirect('/cambiar-contrasena'); // Redirige a la página de cambio de contraseña
+                    console.log("Redirigiendo al cambio de contraseña");
+                    return res.redirect('/cambiar-contrasena'); // Cambia esta línea si estás usando render
+                } else {
+                    console.log("Redirigiendo al perfil del médico");
+                    return res.redirect('/medicos/perfil');
                 }
-
-                // Redirigir al perfil del médico
-                return res.redirect('/medicos/perfil'); // Cambia esto para redirigir al perfil
             } else if (!bcrypt.compareSync(password, user.password)) {
                 return res.status(401).render('loginmedicos', { message: 'Credenciales incorrectas' });
             }
-
-            // Si la contraseña es correcta y no es el DNI
-            req.session.user = { id: user.idMedico, role: 'medico', nombre: user.nombre };
-            res.redirect('/medicos/perfil'); // Cambia esto para redirigir al perfil
+    
+            req.session.user = { id: user.idMedico, role: 'doctor', nombre: user.nombre };
+            console.log("Sesión guardada con hash de contraseña:", req.session.user);
+            res.redirect('/medicos/perfil');
         });
     };
+    
+    
+    
 
 
 
@@ -114,68 +122,73 @@
 
 
         
-    exports.login = (req, res) => {
+    exports.loginMedico = (req, res) => {
+        console.log("Inicio del proceso de login");
+        console.log("Datos ingresados:", req.body);
         const { username, password } = req.body;
-
-        // Verificar si el usuario existe en la base de datos
-        const sql = 'SELECT * FROM usuarios WHERE username = ?';
+    
+        const sql = 'SELECT * FROM medicos WHERE nombre = ?';
         db.query(sql, [username], (error, results) => {
-            if (error) {
-                console.error('Error al buscar el usuario:', error);
-                return res.status(500).send('Error del servidor');
+            if (error || results.length === 0) {
+                console.log('Error o credenciales incorrectas');
+                return res.status(401).render('loginmedicos', { message: 'Credenciales incorrectas' });
             }
-
-            if (results.length === 0) {
-                // Si el usuario no existe
-                return res.status(401).render('login', { message: 'Usuario no encontrado' });
-            }
-
+    
             const user = results[0];
-
-            // Verificar la contraseña
-            bcrypt.compare(password, user.password, (err, isMatch) => {
-                if (err) {
-                    console.error('Error al verificar la contraseña:', err);
-                    return res.status(500).send('Error del servidor');
-                }
-
-                if (!isMatch) {
-                    return res.status(401).render('login', { message: 'Contraseña incorrecta' });
-                }
-
-                // Si la contraseña es correcta, iniciar sesión
-                req.session.user = {
-                    id: user.idUsuario,
-                    username: user.username,
-                    role: user.role
-                };
-
-                // Redirigir al área adecuada dependiendo del rol
-                if (user.role === 'doctor') {
-                    return res.redirect('/doctor/dashboard');
-                } else if (user.role === 'secretaria') {
-                    return res.redirect('/secretaria/dashboard');
+            console.log("Usuario encontrado:", user);
+            console.log("Contraseña ingresada:", password);
+    
+            // Verifica si la contraseña ingresada es el DNI
+            if (password === user.dni) {
+                req.session.user = { id: user.idMedico, role: 'doctor', nombre: user.nombre };
+                console.log("Sesión guardada:", req.session.user);
+    
+                // Verificar si necesita cambiar la contraseña
+                if (user.password_change_required) {
+                    console.log("Redirigiendo al cambio de contraseña");
+                    return res.redirect('/cambiar-contrasena'); // Redirige a la vista de cambio de contraseña
                 } else {
-                    return res.redirect('/paciente/dashboard');
+                    console.log("Redirigiendo al perfil del médico");
+                    return res.redirect('/medicos/perfil'); // Redirige al perfil del médico
                 }
-                    console.log("🚀 ~ bcrypt.compare ~ paciente:", paciente)
+            } else if (!bcrypt.compareSync(password, user.password)) {
+                return res.status(401).render('loginmedicos', { message: 'Credenciales incorrectas' });
+            }
+    
+            // Si la contraseña es correcta y no es el DNI
+            req.session.user = { id: user.idMedico, role: 'doctor', nombre: user.nombre };
+            console.log("Sesión guardada con hash de contraseña:", req.session.user);
+            res.redirect('/medicos/perfil');
+        });
+    };
+    
+    
+    exports.cambiarContrasena = (req, res) => {
+        const newPassword = req.body.newPassword;
+        const userId = req.session.user.id;
+    
+        console.log('ID del médico:', userId);
+    
+        // Actualiza la contraseña en la tabla usuarios
+        const sqlUpdatePassword = 'UPDATE usuarios SET password = ? WHERE id = ?';
+        db.query(sqlUpdatePassword, [bcrypt.hashSync(newPassword, 10), userId], (error) => {
+            if (error) {
+                console.error('Error al cambiar la contraseña:', error);
+                return res.status(500).send('Error al cambiar la contraseña');
+            }
+    
+            // Actualiza el flag de password_change_required en la tabla medicos
+            const sqlUpdateMedicos = 'UPDATE medicos SET password_change_required = ? WHERE idMedico = ?';
+            db.query(sqlUpdateMedicos, [0, userId], (error) => {
+                if (error) {
+                    return res.status(500).send('Error al actualizar el médico');
+                }
+                res.redirect('/medico/escritorio'); // Redirige después de cambiar la contraseña
             });
         });
     };
-    exports.cambiarContrasena = (req, res) => {
-        const newPassword = req.body.newPassword; // Nueva contraseña proporcionada por el usuario
-        const userId = req.session.user.id; // ID del médico que está cambiando la contraseña
-
-        const sql = 'UPDATE medicos SET password = ?, password_change_required = ? WHERE idMedico = ?';
-        db.query(sql, [bcrypt.hashSync(newPassword, 10), false, userId], (error, results) => {
-            if (error) {
-                return res.status(500).send('Error al cambiar la contraseña');
-            }
-            res.redirect('/medico/dashboard'); // Redirige después de cambiar la contraseña
-        });
-    };
-
-
+    
+    
     exports.logout = (req, res) => {
         req.session.destroy();
         res.redirect('/');

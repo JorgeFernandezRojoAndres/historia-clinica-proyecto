@@ -5,39 +5,51 @@ block content
   nav
     ul
       li
-        a(href="/medicos/agenda") Ver Agenda
-      li
-        a(href="/pacientes") Gestionar Pacientes
+        a(href="/medicos/#{user.id}/agenda") Ver Agenda
       li
         a(href="/historias") Historial Clínico
       li
         a(href="/logout") Cerrar Sesión
 
   main
-    h2 Información del Médico
-    p
-      strong ID:
-      | #{user.id}
-    p
-      strong Nombre:
-      | #{user.nombre}
-    p
-      strong Especialidad:
-      | #{user.especialidad}
-    p
-      strong Teléfono:
-      | #{user.telefono}
-    p
-      strong Correo Electrónico:
-      | #{user.email}
-      
-    // Aquí puedes agregar un formulario si es necesario
-    form(action="/medicos/update" method="POST")
-      div
-        label(for="especialidad") Especialidad:
-        input(type="text" id="especialidad" name="especialidad" value=user.especialidad required)
-      div
-        label(for="telefono") Teléfono:
-        input(type="text" id="telefono" name="telefono" value=user.telefono required)
-      div
-        button(type="submit") Actualizar Información
+    section.accesos-rapidos
+      h2 Accesos Rápidos
+      div.botones-rapidos
+        button.btn-rapido(onclick=`window.location.href='/medicos/${user.id}/agenda'`)
+          img(src="/images/btnConADD.png" alt="Consultar Agenda del Día")
+
+          
+        button.btn-rapido(onclick="window.location.href='/medicos/filtrar-turnos'")
+          img(src="/images/btnfiltrPF.png" alt="Filtrar Turnos por Fecha")
+          
+        button.btn-rapido(onclick="window.location.href='/medicos/iniciar-consulta'")
+          img(src="/images/btnIniCon.png" alt="Iniciar Consulta") 
+
+        button.btn-rapido(onclick="window.location.href='/medicos/historial'")
+          img(src="/images/btnHDA.png" alt="Historial de Atenciones")  
+
+        button.btn-rapido(onclick="window.location.href='/medicos/registrar-evolucion'")
+          img(src="/images/btnREvo.png" alt="Registrar Evolución")
+
+        button.btn-rapido(onclick="window.location.href='/medicos/agregar-diagnostico'")
+          img(src="/images/btnAgDiag.png" alt="Agregar Diagnostico")
+
+        button.btn-rapido(onclick="window.location.href='/medicos/agregar-alergias'") 
+          img(src="/images/btnAGALE.png" alt="Agregar Alergias")
+
+        button.btn-rapido(onclick="window.location.href='/medicos/registrar-antecedentes'") 
+          img(src="/images/btnREGant.png" alt="Registrar Antecedentes")
+
+        button.btn-rapido(onclick="window.location.href='/medicos/registrar-habitos'") 
+          img(src="/images/btnREHABB.png" alt="Registrar Hábitos")
+
+        button.btn-rapido(onclick="window.location.href='/medicos/medicamentos'") 
+          img(src="/images/btnMEENus.png" alt="Registrar Medicamentos en Uso")
+        
+        button.btn-rapido(onclick="window.location.href='/medicos/template-nota'") 
+          img(src="/images/templatebtn.png" alt="Usar Template de Nota Clínica")
+        
+        
+
+    footer
+      p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}
