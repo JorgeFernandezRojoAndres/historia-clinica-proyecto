@@ -3,44 +3,50 @@ const express = require('express');
 const router = express.Router();
 const medicosController = require('../app/controllers/medicosController');
 const authMiddleware = require('../middleware/roleMiddleware');
-const citasController = require('../app/controllers/citasController');
 
-// Definir la ruta para obtener las citas en formato JSON para FullCalendar
-router.get('/agenda', citasController.obtenerCitasJSON);
-// Ver la agenda del médico (para secretarias y médicos)
+// **Ruta para obtener citas en formato JSON (FullCalendar)**
+router.get('/api/medicos/:id/agenda', medicosController.obtenerCitasJSON);
+
+
+
+
+
+// **Ver la agenda del médico (accesible para secretarias y médicos)** 
+// Usamos el controlador medicosController.verAgenda
 router.get(
     '/:id/agenda',
     authMiddleware.isAuthenticated,
     (req, res, next) => {
-      const userRole = req.session.user?.role;
-      if (userRole === 'doctor' || userRole === 'secretaria') {
-        next(); // Permitir acceso
-      } else {
-        return res.status(403).send('No tienes permiso para acceder a esta página.');
-      }
+        const userRole = req.session.user?.role;
+        if (userRole === 'doctor' || userRole === 'secretaria') {
+            next(); // Permitir acceso si es doctor o secretaria
+        } else {
+            return res.status(403).send('No tienes permiso para acceder a esta página.');
+        }
     },
-    async (req, res) => {
-      const medicoId = req.params.id;
-      try {
-        const [citas] = await db.promise().query(`
-          SELECT fechaHora AS start, motivoConsulta AS title 
-          FROM citas 
-          WHERE idMedico = ?
-        `, [medicoId]);
-        res.render('agenda_medico', { citas }); // Renderiza la vista Pug con las citas
-      } catch (error) {
-        console.error('Error al obtener la agenda del médico:', error);
-        res.status(500).send('Error al obtener la agenda');
-      }
-    }
-  );
-  
+    medicosController.verAgenda
+);
 
-// Ruta para actualizar un médico por su ID
+// **Ruta para ver el perfil del médico**
+router.get('/perfil', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
+    const user = req.session.user;
+
+    if (user.password_change_required) {
+        console.log("Redirigiendo al cambio de contraseña");
+        return res.render('CDC', { user }); // Redirige al cambio de contraseña si es necesario
+    } else {
+        console.log("Redirigiendo al perfil del médico");
+        return res.render('escritorioMedico', { user }); // Redirige al escritorio del médico
+    }
+});
+
+// **Ruta para actualizar un médico por su ID**
 router.post('/:id', medicosController.update);
-// Listar todos los médicos
+
+// **Listar todos los médicos**
 router.get('/', medicosController.listAll);
-// Ruta del escritorio del médico (solo accesible por médicos autenticados)
+
+// **Escritorio del médico (solo accesible para médicos autenticados)**
 router.get(
     '/escritorio',
     authMiddleware.isAuthenticated,
@@ -49,31 +55,22 @@ router.get(
         res.render('escritorioMedicos', { user: req.session.user });
     }
 );
-// Ver la agenda del médico con sus citas del día (accesible solo para médicos)
-router.get(
-    '/:id/agenda',
-    authMiddleware.isAuthenticated,
-    (req, res, next) => {
-        const userRole = req.session.user?.role;
-        if (userRole === 'doctor' || userRole === 'secretaria') {
-            next(); // Permitir acceso si es médico o secretaria
-        } else {
-            return res.status(403).send('No tienes permiso para acceder a esta página.');
-        }
-    },
-    medicosController.verAgenda
-);
-// Ruta para cambiar la contraseña del médico
-router.post(
-    '/change-password',
-    authMiddleware.isAuthenticated,
-    medicosController.changePassword
-);
-// Ruta para buscar médicos (accesible para secretarias)
+
+// **Ruta para cambiar la contraseña del médico**
+router.post('/cambiar-contrasena', authMiddleware.isAuthenticated, medicosController.changePassword);
+
+// **Ruta GET para renderizar el formulario de cambio de contraseña**
+router.get('/cambiar-contrasena', authMiddleware.isAuthenticated, (req, res) => {
+    console.log("Renderizando vista de cambio de contraseña");
+    res.render('CDC'); // Renderiza la vista de cambio de contraseña
+});
+
+// **Ruta para buscar médicos (accesible para secretarias)**
 router.get(
     '/search',
     authMiddleware.isAuthenticated,
     authMiddleware.isSecretaria,
     medicosController.search
 );
+
 module.exports = router;

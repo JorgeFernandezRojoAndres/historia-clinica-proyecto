@@ -1,11 +1,9 @@
-doctype html
-html
-  head
-    title Agenda del Médico
-    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/main.min.css")
-    script(src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/main.min.js")
-    script(src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/main.min.js")
-  body
-    h2 Agenda del Médico
-    #calendar
-    script(src="/dist/bundle.js")
+extends layout
+
+block content
+  h2 Agenda del Médico
+  #calendar
+  p#citas-mensaje Cargando citas...
+
+  // Incluye el archivo bundle.js que debería contener el código JavaScript
+  script(src="/dist/bundle.js")

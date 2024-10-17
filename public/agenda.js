@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', function () {
     initialView: 'dayGridMonth',
     locale: 'es',
     events: function (info, successCallback, failureCallback) {
-      fetch(`/citas/api/medicos/${idMedico}/agenda`)
+      fetch(`/api/medicos/${idMedico}/agenda`)
+
         .then(response => {
           if (!response.ok) throw new Error('Error al obtener las citas');
           return response.json();
