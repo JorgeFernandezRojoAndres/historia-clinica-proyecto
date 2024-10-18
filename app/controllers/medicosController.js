@@ -1,5 +1,7 @@
 const moment = require('moment'); 
 const db = require('../../config/database');
+const citasController = require('./citasController');
+
 
 // Listar todos los médicos, manejando nulos con IFNULL
 exports.listAll = (req, res) => {
@@ -33,6 +35,9 @@ exports.create = (req, res) => {
             res.redirect('/medicos');
         }
     });
+};
+exports.obtenerCitasDesdeMedico = (req, res) => {
+    citasController.obtenerCitasJSON(req, res);
 };
 
 // Mostrar formulario para editar un médico
@@ -164,21 +169,6 @@ exports.changePassword = async (req, res) => {
     } catch (error) {
         console.error('Error en el proceso de cambio de contraseña:', error);
         res.status(500).send('Error interno');
-    }
-};
-// Obtener las citas en formato JSON (para FullCalendar o similar)
-exports.obtenerCitasJSON = async (req, res) => {
-    const medicoId = req.session.user.id; // Obtener el ID del médico desde la sesión
-    try {
-        const [citas] = await db.promise().query(
-            `SELECT fechaHora AS start, motivoConsulta AS title 
-             FROM citas 
-             WHERE idMedico = ?`, [medicoId]
-        );
-        res.json(citas); // Enviar las citas en formato JSON
-    } catch (error) {
-        console.error('Error al obtener las citas en formato JSON:', error);
-        res.status(500).send('Error al obtener las citas');
     }
 };
 
