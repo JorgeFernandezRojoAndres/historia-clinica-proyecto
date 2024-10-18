@@ -18,9 +18,6 @@ app.set('views', './app/views');
 
 // Configurar la carpeta de archivos estáticos
 app.use(express.static('public'));
-// Ruta para obtener los eventos del calendario del médico
-app.get('/api/medicos/:id/agenda', (req, res) => {res.redirect(`/api/medicos/${req.query.id}/agenda`);
-});
 
 
 // Middlewares adicionales
@@ -77,7 +74,11 @@ app.use('/paciente', pacientesRoutes);
 const medicosRoutes = require('./routes/medicos');
 app.use('/medicos', medicosRoutes);
 
+
 // Importa las rutas de citas
+const citasController = require('./app/controllers/citasController');
+app.get('/api/medicos/:id/agenda', citasController.obtenerCitasJSON);
+
 const citasRoutes = require('./routes/citas');
 app.use('/citas', citasRoutes);
 

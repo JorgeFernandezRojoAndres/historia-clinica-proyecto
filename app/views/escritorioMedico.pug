@@ -15,23 +15,24 @@ block content
     section.accesos-rapidos
       h2 Accesos Rápidos
       div.botones-rapidos
-        button.btn-rapido(onclick=`window.location.href='/medicos/${user.id}/agenda'`)
-          img(src="/images/btnConADD.png" alt="Consultar Agenda del Día")
 
+        //- Botón para abrir la agenda en una nueva ventana emergente
+        button.btn-rapido(onclick=`window.open('/medicos/${user.id}/agenda', 'Agenda del Médico', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
+          img(src="/images/btnConADD.png" alt="Consultar Agenda del Día")
           
-        button.btn-rapido(onclick="window.location.href='/medicos/filtrar-turnos'")
+        button.btn-rapido(onclick="window.location.href='/medicos/filtrar-turnos'") 
           img(src="/images/btnfiltrPF.png" alt="Filtrar Turnos por Fecha")
           
-        button.btn-rapido(onclick="window.location.href='/medicos/iniciar-consulta'")
-          img(src="/images/btnIniCon.png" alt="Iniciar Consulta") 
+        button.btn-rapido(onclick="window.location.href='/medicos/iniciar-consulta'") 
+          img(src="/images/btnIniCon.png" alt="Iniciar Consulta")
 
-        button.btn-rapido(onclick="window.location.href='/medicos/historial'")
-          img(src="/images/btnHDA.png" alt="Historial de Atenciones")  
+        button.btn-rapido(onclick="window.location.href='/medicos/historial'") 
+          img(src="/images/btnHDA.png" alt="Historial de Atenciones")
 
-        button.btn-rapido(onclick="window.location.href='/medicos/registrar-evolucion'")
+        button.btn-rapido(onclick="window.location.href='/medicos/registrar-evolucion'") 
           img(src="/images/btnREvo.png" alt="Registrar Evolución")
 
-        button.btn-rapido(onclick="window.location.href='/medicos/agregar-diagnostico'")
+        button.btn-rapido(onclick="window.location.href='/medicos/agregar-diagnostico'") 
           img(src="/images/btnAgDiag.png" alt="Agregar Diagnostico")
 
         button.btn-rapido(onclick="window.location.href='/medicos/agregar-alergias'") 
@@ -45,11 +46,9 @@ block content
 
         button.btn-rapido(onclick="window.location.href='/medicos/medicamentos'") 
           img(src="/images/btnMEENus.png" alt="Registrar Medicamentos en Uso")
-        
+
         button.btn-rapido(onclick="window.location.href='/medicos/template-nota'") 
           img(src="/images/templatebtn.png" alt="Usar Template de Nota Clínica")
         
-        
-
     footer
       p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}

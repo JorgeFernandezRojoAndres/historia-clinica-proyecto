@@ -1,25 +1,29 @@
-// config/database.js
-
 const mysql = require('mysql2');
 const config = require('./config').db; // Asegúrate de que la ruta es correcta para importar config.js
 
-const connection = mysql.createConnection({
+// Crear un pool de conexiones
+const pool = mysql.createPool({
     host: config.options.host,
     user: config.username,
     database: config.database,
     password: config.password,
-    port: 3306, // Asegúrate de que el puerto es correcto
+    port: 3306,
     ssl: { 
-        rejectUnauthorized: false // Esta opción desactiva la verificación del certificado SSL
-    }
+        rejectUnauthorized: false 
+    },
+    waitForConnections: true,
+    connectionLimit: 10,  // Número máximo de conexiones simultáneas
+    queueLimit: 0  // No limitar las solicitudes en cola
 });
 
-connection.connect(error => {
+// Verificar que la conexión sea exitosa
+pool.getConnection((error, connection) => {
     if (error) {
         console.error('Error conectando a la base de datos:', error);
         return;
     }
-    console.log('Conexión establecida con la base de datos');
+    if (connection) connection.release();
+    console.log('Conexión establecida con el pool');
 });
 
-module.exports = connection;
+module.exports = pool;

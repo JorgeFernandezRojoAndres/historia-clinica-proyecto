@@ -13,11 +13,13 @@ exports.listAll = (req, res) => {
             console.error('Error al obtener las citas:', error);
             res.status(500).send("Error al obtener las citas");
         } else {
-            // Formatear las fechas
+            console.log('Citas obtenidas:', results);
+            // Formatear las fechas para mostrarlas en el frontend
             results.forEach(cita => {
                 const fecha = new Date(cita.fechaHora);
                 cita.fechaHora = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
             });
+            // Renderizar en el frontend (lista o tabla de citas)
             res.render('citas', { citas: results });
         }
     });
@@ -42,52 +44,12 @@ exports.showNewForm = (req, res) => {
         res.render('newCita', { medicos: resultsMedicos });
     });
 };
+
 // Crear una nueva cita
-exports.createHistoriaClinica = (req, res) => {
-    const {
-      dniPaciente,
-      detalles,
-      fechaDiagnostico,
-      medicamentos,
-      alergias,
-      condicionActual,
-      pruebasDiagnosticas,
-      fechaProximaCita,
-      urlDocumento,
-      notasMedicas,
-      especialistaReferido
-    } = req.body;
-  
-    const sqlPaciente = 'SELECT idPaciente FROM pacientes WHERE dni = ?';
-    db.query(sqlPaciente, [dniPaciente], (error, results) => {
-        if (error) {
-            console.error('Error al buscar paciente:', error);
-            return res.status(500).send('Error al buscar paciente');
-        }
-  
-        if (results.length === 0) {
-            return res.status(404).send('Paciente no encontrado');
-        }
-  
-        const idPaciente = results[0].idPaciente;
-        const sqlHistoria = `
-          INSERT INTO historias_clinicas 
-          (idPaciente, detalles, fechaDiagnostico, medicamentos, alergias, condicionActual, pruebasDiagnosticas, fechaProximaCita, urlDocumento, notasMedicas, especialistaReferido)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-        db.query(sqlHistoria, [idPaciente, detalles, fechaDiagnostico, medicamentos, alergias, condicionActual, pruebasDiagnosticas, fechaProximaCita, urlDocumento, notasMedicas, especialistaReferido], (error, result) => {
-            if (error) {
-                console.error('Error al crear la historia clínica:', error);
-                return res.status(500).send('Error al crear la historia clínica');
-            }
-  
-            res.redirect('/historias_clinicas');
-        });
-    });
-  };
-  // Nueva función para crear una cita
 exports.createCita = (req, res) => {
     const { idPaciente, idMedico, fechaHora, motivoConsulta } = req.body;
+
+    console.log('Creando cita con los siguientes datos:', { idPaciente, idMedico, fechaHora, motivoConsulta });
 
     if (!idPaciente || !idMedico) {
         return res.status(400).send('Paciente o médico no seleccionado.');
@@ -103,11 +65,13 @@ exports.createCita = (req, res) => {
             console.error('Error al crear la cita:', error);
             return res.status(500).send('Error al crear la cita');
         }
-        res.redirect('/citas');  // Redirige a la lista de citas después de la creación
+        console.log('Cita creada exitosamente:', result);
+        res.redirect('/citas');
     });
 };
 
-  exports.showEditForm = (req, res) => {
+// Editar una cita
+exports.showEditForm = (req, res) => {
     const id = req.params.id;
 
     const sqlCita = 'SELECT * FROM citas WHERE idCita = ?';
@@ -127,7 +91,6 @@ exports.createCita = (req, res) => {
                 console.error('Error al obtener los médicos:', errorMedicos);
                 return res.status(500).send("Error al obtener los médicos");
             }
-            
 
             db.query(sqlPacientes, (errorPacientes, resultsPacientes) => {
                 if (errorPacientes) {
@@ -143,6 +106,41 @@ exports.createCita = (req, res) => {
                 });
             });
         });
+    });
+};
+
+// Obtener citas en formato JSON 
+exports.obtenerCitasJSON = (req, res) => {
+    const medicoId = req.params.id;                                                                                                                                    
+    console.log('ID del médico:', medicoId);
+
+    const sql = `
+        SELECT fechaHora, motivoConsulta
+        FROM citas
+        WHERE idMedico = ?
+    `;
+
+    db.query(sql, [medicoId], (error, results) => {
+        if (error) {
+            console.error('Error al obtener las citas:', error);
+            return res.status(500).send('Error al obtener las citas');
+        }
+
+        if (results.length === 0) {
+            console.log('No se encontraron citas para el médico:', medicoId);
+            return res.json([]); // Devuelve un array vacío si no hay citas
+        }
+
+        // Formatear cada resultado antes de enviarlo
+        const citasFormateadas = results.map(cita => {
+            return {
+                fecha: new Date(cita.fechaHora).toLocaleString(), // Formato legible de la fecha
+                motivo: cita.motivoConsulta || 'No especificado'  // Verifica que el motivo exista
+            };
+        });
+
+        console.log('Citas formateadas:', citasFormateadas); // Verificar los resultados
+        res.json(citasFormateadas); // Devolver citas formateadas como JSON
     });
 };
 
@@ -162,6 +160,7 @@ exports.update = (req, res) => {
         }
     });
 };
+
 // Eliminar una cita
 exports.delete = (req, res) => {
     const id = req.params.id;
@@ -175,4 +174,3 @@ exports.delete = (req, res) => {
         }
     });
 };
-    

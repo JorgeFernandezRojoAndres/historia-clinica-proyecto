@@ -11,11 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fullcalendar/core": "^6.1.15",
-    "@fullcalendar/daygrid": "^6.1.15",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "express": "^4.21.0",
     "express-session": "^1.18.1",
     "method-override": "^3.0.0",

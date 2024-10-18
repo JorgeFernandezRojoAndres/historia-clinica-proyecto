@@ -3,21 +3,22 @@ const express = require('express');
 const router = express.Router();
 const medicosController = require('../app/controllers/medicosController');
 const authMiddleware = require('../middleware/roleMiddleware');
+const citasController = require('../app/controllers/citasController');
 
-// **Ruta para obtener citas en formato JSON (FullCalendar)**
-router.get('/api/medicos/:id/agenda', medicosController.obtenerCitasJSON);
-
-
-
-
+// Ruta para obtener citas en formato JSON
+router.get('/api/medicos/:id/agenda', (req, res, next) => {
+    console.log('Accediendo a la ruta: /api/medicos/:id/agenda');
+    console.log('ID del médico:', req.params.id); // Verifica el ID del médico
+    citasController.obtenerCitasJSON(req, res);
+});
 
 // **Ver la agenda del médico (accesible para secretarias y médicos)** 
-// Usamos el controlador medicosController.verAgenda
 router.get(
     '/:id/agenda',
     authMiddleware.isAuthenticated,
     (req, res, next) => {
         const userRole = req.session.user?.role;
+        console.log('Acceso a la agenda del médico, rol del usuario:', userRole); // Verifica el rol
         if (userRole === 'doctor' || userRole === 'secretaria') {
             next(); // Permitir acceso si es doctor o secretaria
         } else {

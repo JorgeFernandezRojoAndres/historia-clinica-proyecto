@@ -1,29 +1,32 @@
 document.addEventListener('DOMContentLoaded', function () {
-  var calendarEl = document.getElementById('calendar');
+  var citasContainer = document.getElementById('citasContainer');
 
-  // Obtener el ID del médico desde la URL (opcional si es dinámico)
-  const params = new URLSearchParams(window.location.search);
-  const idMedico = params.get('id') || 4;  // Por defecto a 4 si no hay parámetro
+  // Extraer el ID del médico directamente de la URL
+  const pathParts = window.location.pathname.split('/');
+  const idMedico = pathParts[pathParts.length - 2];
 
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    locale: 'es',
-    events: function (info, successCallback, failureCallback) {
-      fetch(`/api/medicos/${idMedico}/agenda`)
-
-        .then(response => {
-          if (!response.ok) throw new Error('Error al obtener las citas');
-          return response.json();
-        })
-        .then(data => successCallback(data))
-        .catch(error => {
-          console.error('Error al cargar las citas:', error);
-          failureCallback(error);
+  // Obtener las citas del médico
+  fetch(`/api/medicos/${idMedico}/agenda`)
+    .then(response => {
+      if (!response.ok) throw new Error('Error al obtener las citas');
+      return response.json();
+    })
+    .then(data => {
+      // Crear una lista o tabla para mostrar las citas
+      if (data.length === 0) {
+        citasContainer.innerHTML = '<p>No hay citas disponibles para este médico.</p>';
+      } else {
+        let citasList = '<ul>';
+        data.forEach(cita => {
+          citasList += `<li><strong>Fecha:</strong> ${new Date(cita.start).toLocaleString()} <br> 
+                        <strong>Motivo:</strong> ${cita.title}</li><br>`;
         });
-    },
-    businessHours: true,  // Mostrar solo horas hábiles
-    editable: false  // No permitir edición directa en el calendario
-  });
-
-  calendar.render();
+        citasList += '</ul>';
+        citasContainer.innerHTML = citasList;
+      }
+    })
+    .catch(error => {
+      console.error('Error al cargar las citas:', error);
+      citasContainer.innerHTML = '<p>Error al cargar las citas.</p>';
+    });
 });
