@@ -5,28 +5,21 @@ const medicosController = require('../app/controllers/medicosController');
 const authMiddleware = require('../middleware/roleMiddleware');
 const citasController = require('../app/controllers/citasController');
 
-// Ruta para obtener citas en formato JSON
-router.get('/api/medicos/:id/agenda', (req, res, next) => {
-    console.log('Accediendo a la ruta: /api/medicos/:id/agenda');
-    console.log('ID del médico:', req.params.id); // Verifica el ID del médico
-    citasController.obtenerCitasJSON(req, res);
+
+
+// Ruta para ver la "Agenda del Día"
+router.get('/:id/agenda-dia', authMiddleware.isAuthenticated, (req, res) => {
+    medicosController.verAgendaDelDia(req, res);
 });
 
-// **Ver la agenda del médico (accesible para secretarias y médicos)** 
-router.get(
-    '/:id/agenda',
-    authMiddleware.isAuthenticated,
-    (req, res, next) => {
-        const userRole = req.session.user?.role;
-        console.log('Acceso a la agenda del médico, rol del usuario:', userRole); // Verifica el rol
-        if (userRole === 'doctor' || userRole === 'secretaria') {
-            next(); // Permitir acceso si es doctor o secretaria
-        } else {
-            return res.status(403).send('No tienes permiso para acceder a esta página.');
-        }
-    },
-    medicosController.verAgenda
-);
+// Ruta para "Filtrar Turnos por Fecha"
+router.get('/:id/filtrar-turnos', authMiddleware.isAuthenticated, (req, res) => {
+    medicosController.filtrarTurnosPorFecha(req, res);
+});
+
+
+
+
 
 // **Ruta para ver el perfil del médico**
 router.get('/perfil', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
