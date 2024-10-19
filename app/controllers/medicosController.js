@@ -16,6 +16,31 @@ exports.listAll = (req, res) => {
         }
     });
 };
+// Controlador para ver el historial de atenciones de un paciente
+exports.verHistorialPaciente = (req, res) => {
+    const idPaciente = req.params.idPaciente;
+
+    const sql = `
+        SELECT citas.idCita, medicos.nombre AS nombreMedico, citas.fechaHora, citas.motivoConsulta, citas.estado
+        FROM citas
+        JOIN medicos ON citas.idMedico = medicos.idMedico
+        WHERE citas.idPaciente = ?
+        ORDER BY citas.fechaHora DESC
+    `;
+
+    db.query(sql, [idPaciente], (error, results) => {
+        if (error) {
+            console.error('Error al obtener el historial del paciente:', error);
+            return res.status(500).send('Error al obtener el historial del paciente');
+        }
+
+        res.render('historialPaciente', {
+            historial: results,
+            nombrePaciente: results.length > 0 ? results[0].nombrePaciente : 'Paciente sin historial'
+        });
+    });
+};
+
 
 // Mostrar formulario para un nuevo médico
 exports.showNewForm = (req, res) => {
@@ -280,6 +305,24 @@ exports.changePassword = async (req, res) => {
         console.error('Error en el proceso de cambio de contraseña:', error);
         res.status(500).send('Error interno');
     }
+};
+
+// Obtener la lista de pacientes y renderizar la vista del escritorio del médico
+exports.verEscritorioMedico = (req, res) => {
+    const sql = 'SELECT * FROM pacientes';
+
+    db.query(sql, (error, results) => {
+        if (error) {
+            console.error('Error al obtener los pacientes:', error);
+            return res.status(500).send('Error al obtener los pacientes');
+        }
+
+        // Asegúrate de enviar la lista de pacientes a la vista
+        res.render('escritorioMedico', {
+            user: req.session.user,
+            pacientes: results || [] // Enviar un array vacío si no hay resultados
+        });
+    });
 };
 
 

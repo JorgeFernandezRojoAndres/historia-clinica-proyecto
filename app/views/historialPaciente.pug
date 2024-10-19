@@ -1,0 +1,24 @@
+extends layout
+
+block content
+  h1 Historial de Consultas de #{nombrePaciente}
+  
+  if historial.length > 0
+    table
+      thead
+        tr
+          th ID Cita
+          th Médico
+          th Fecha y Hora
+          th Motivo de Consulta
+          th Estado
+      tbody
+        each cita in historial
+          tr
+            td= cita.idCita
+            td= cita.nombreMedico
+            td= cita.fechaHora
+            td= cita.motivoConsulta
+            td= cita.estado
+  else
+    p No hay consultas registradas para este paciente.
