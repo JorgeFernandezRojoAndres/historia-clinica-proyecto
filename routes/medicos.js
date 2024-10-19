@@ -21,18 +21,35 @@ router.get('/:id/filtrar-turnos', authMiddleware.isAuthenticated, (req, res) => 
 
 
 
-// **Ruta para ver el perfil del médico**
+// Modifica la ruta para incluir las citas
 router.get('/perfil', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
     const user = req.session.user;
 
     if (user.password_change_required) {
-        console.log("Redirigiendo al cambio de contraseña");
-        return res.render('CDC', { user }); // Redirige al cambio de contraseña si es necesario
+        return res.render('CDC', { user });
     } else {
-        console.log("Redirigiendo al perfil del médico");
-        return res.render('escritorioMedico', { user }); // Redirige al escritorio del médico
+        const sql = `
+            SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta
+            FROM citas
+            JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+            WHERE citas.idMedico = ? AND DATE(citas.fechaHora) = CURDATE()
+        `;
+
+        db.query(sql, [user.id], (error, results) => {
+            if (error) {
+                console.error('Error al obtener las citas:', error);
+                return res.status(500).send('Error al cargar el escritorio del médico');
+            }
+
+            res.render('escritorioMedico', {
+                user: user,
+                citas: results
+            });
+        });
     }
 });
+
+
 
 // **Ruta para actualizar un médico por su ID**
 router.post('/:id', medicosController.update);
@@ -67,4 +84,8 @@ router.get(
     medicosController.search
 );
 
+
+// Ruta para iniciar la consulta
+router.post('/iniciar/:idCita', citasController.iniciarConsulta);
+router.get('/iniciar-consulta/:idCita', citasController.cargarConsulta);
 module.exports = router;
