@@ -122,14 +122,14 @@ exports.verAgenda = (req, res) => {
 exports.verAgendaDelDia = (req, res) => {
     const idMedico = req.params.id;
     const today = new Date().toISOString().split('T')[0];
-
     const sql = `
-        SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado, medicos.nombre AS nombreMedico
-        FROM citas
-        JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
-        JOIN medicos ON citas.idMedico = medicos.idMedico
-        WHERE citas.idMedico = ? AND citas.estado = 'confirmada' AND DATE(citas.fechaHora) = ?
-    `;
+    SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado, medicos.nombre AS nombreMedico
+    FROM citas
+    JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+    JOIN medicos ON citas.idMedico = medicos.idMedico
+    WHERE citas.idMedico = ? AND DATE(citas.fechaHora) = ?
+`;
+
 
     db.query(sql, [idMedico, today], (error, results) => {
         if (error) {

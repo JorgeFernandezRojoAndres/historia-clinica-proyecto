@@ -647,3 +647,15 @@ form .paEe {
 form .paEe:hover {
   background-color: #c82333; /* Rojo oscuro al pasar el ratón */
 }
+input[type="text"],
+input[type="date"],
+textarea {
+  width: 50%; /* Ajusta el ancho al 50% del contenedor */
+  padding: 5px; /* Ajusta el relleno interno */
+  margin-bottom: 10px; /* Agrega espacio entre los campos */
+  font-size: 14px; /* Ajusta el tamaño del texto */
+}
+
+textarea {
+  height: 100px; /* Ajusta la altura de las áreas de texto */
+}

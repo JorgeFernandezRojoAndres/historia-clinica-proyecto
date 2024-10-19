@@ -174,3 +174,46 @@ exports.delete = (req, res) => {
         }
     });
 };
+exports.iniciarConsulta = (req, res) => {
+    const idCita = req.params.idCita;
+
+    // Actualizar el estado de la cita a "Atendido"
+    const sql = 'UPDATE citas SET estado = ? WHERE idCita = ?';
+
+    db.query(sql, ['Atendido', idCita], (error) => {
+        if (error) {
+            console.error('Error al iniciar la consulta:', error);
+            return res.status(500).send('Error al iniciar la consulta');
+        }
+
+        // Redirigir a la historia clínica del paciente
+        res.redirect(`/historia-clinica/${idCita}`);
+    });
+};
+exports.cargarConsulta = (req, res) => {
+    const idCita = req.params.idCita;
+
+    // Consulta para obtener la información de la cita y el paciente
+    const sql = `
+        SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta
+        FROM citas
+        JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+        WHERE citas.idCita = ?
+    `;
+
+    db.query(sql, [idCita], (error, results) => {
+        if (error) {
+            console.error('Error al cargar la consulta:', error);
+            return res.status(500).send('Error al cargar la consulta');
+        }
+
+        if (results.length === 0) {
+            return res.status(404).send('Cita no encontrada');
+        }
+
+        // Renderizar la vista de consulta
+        res.render('consulta', {
+            cita: results[0]
+        });
+    });
+};

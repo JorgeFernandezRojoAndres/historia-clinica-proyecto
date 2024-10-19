@@ -5,7 +5,7 @@ block content
   nav
     ul
       li
-        a(href="/medicos/#{user.id}/agenda") Ver Agenda
+        a(href=`/medicos/${user.id}/agenda`) Ver Agenda
       li
         a(href="/historias") Historial Clínico
       li
@@ -20,37 +20,47 @@ block content
         button.btn-rapido(onclick=`window.open('/medicos/${user.id}/agenda-dia', 'Agenda del Médico', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
           img(src="/images/btnConADD.png" alt="Consultar Agenda del Día")
 
-
-          
+        //- Botón para filtrar turnos por fecha
         button.btn-rapido(onclick=`window.open('/medicos/${user.id}/filtrar-turnos', 'Filtrar Turnos por Fecha', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
           img(src="/images/btnfiltrPF.png" alt="Filtrar Turnos por Fecha")
 
-          
-        button.btn-rapido(onclick="window.location.href='/medicos/iniciar-consulta'") 
-          img(src="/images/btnIniCon.png" alt="Iniciar Consulta")
+        //- Verificación de la existencia de citas para mostrar el botón de "Iniciar Consulta"
+        if citas && citas.length > 0
+          //- Mostrar solo para la primera cita disponible
+          button.btn-rapido(onclick=`window.open('/medicos/iniciar-consulta/${citas[0].idCita}', 'Iniciar Consulta', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
+            img(src="/images/btnIniCon.png" alt="Iniciar Consulta - #{citas[0].nombrePaciente}")
+        else
+          //- Mensaje si no hay citas
+          p No hay consultas disponibles para hoy.
 
-        button.btn-rapido(onclick="window.location.href='/medicos/historial'") 
+        //- Botón para ver el historial de atenciones
+        button.btn-rapido(onclick="window.location.href='/medicos/historial'")
           img(src="/images/btnHDA.png" alt="Historial de Atenciones")
 
-        button.btn-rapido(onclick="window.location.href='/medicos/registrar-evolucion'") 
+        //- Botón para registrar evolución
+        button.btn-rapido(onclick="window.location.href='/medicos/registrar-evolucion'")
           img(src="/images/btnREvo.png" alt="Registrar Evolución")
 
-        button.btn-rapido(onclick="window.location.href='/medicos/agregar-diagnostico'") 
-          img(src="/images/btnAgDiag.png" alt="Agregar Diagnostico")
+        //- Botón para agregar diagnóstico
+        button.btn-rapido(onclick="window.location.href='/medicos/agregar-diagnostico'")
+          img(src="/images/btnAgDiag.png" alt="Agregar Diagnóstico")
 
-        button.btn-rapido(onclick="window.location.href='/medicos/agregar-alergias'") 
+        //- Botón para agregar alergias
+        button.btn-rapido(onclick="window.location.href='/medicos/agregar-alergias'")
           img(src="/images/btnAGALE.png" alt="Agregar Alergias")
 
-        button.btn-rapido(onclick="window.location.href='/medicos/registrar-antecedentes'") 
+        //- Botón para registrar antecedentes
+        button.btn-rapido(onclick="window.location.href='/medicos/registrar-antecedentes'")
           img(src="/images/btnREGant.png" alt="Registrar Antecedentes")
 
-        button.btn-rapido(onclick="window.location.href='/medicos/registrar-habitos'") 
+        //- Botón para registrar hábitos
+        button.btn-rapido(onclick="window.location.href='/medicos/registrar-habitos'")
           img(src="/images/btnREHABB.png" alt="Registrar Hábitos")
 
-        button.btn-rapido(onclick="window.location.href='/medicos/medicamentos'") 
+        //- Botón para registrar medicamentos en uso
+        button.btn-rapido(onclick="window.location.href='/medicos/medicamentos'")
           img(src="/images/btnMEENus.png" alt="Registrar Medicamentos en Uso")
 
-        button.btn-rapido(onclick="window.location.href='/medicos/template-nota'") 
+        //- Botón para usar template de nota clínica
+        button.btn-rapido(onclick="window.location.href='/medicos/template-nota'")
           img(src="/images/templatebtn.png" alt="Usar Template de Nota Clínica")
-        
-    

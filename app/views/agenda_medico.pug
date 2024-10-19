@@ -13,11 +13,14 @@ html
           thead
             tr
               th Fecha y Hora
+              th Paciente
               th Motivo de Consulta
           tbody
             each cita in citas
               tr
-                td= cita.fechaHora || 'Fecha no disponible'
-                td= cita.motivo || 'Motivo no disponible'
+                td= cita.fechaHora
+                td= cita.nombrePaciente || 'Paciente no disponible'
+                td= cita.motivoConsulta || 'Motivo no disponible'
+
       else
         p No hay citas disponibles para este médico.
