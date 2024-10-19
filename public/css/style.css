@@ -5,40 +5,52 @@ body {
   margin: 0;
   padding: 0;
   background: #f4f4f4;
-  color: #333;
+  color: #ffffff;
 }
 
 /* Contenedor de selección de clínica */
+.botones {
+  display: flex; /* Usa flexbox */
+  flex-wrap: wrap; /* Permite que los botones pasen a la siguiente línea si es necesario */
+  justify-content: center; /* Centra los botones horizontalmente */
+  gap: 20px; /* Espacio entre los botones */
+  margin-top: 20px; /* Espacio entre el título y los botones */
+}
 .contenedor {
+  align-items: center;
+  flex-direction: column;
   text-align: center;
   background: #fff;
   border-radius: 8px;
   padding: 30px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  margin: auto;
+  
 }
 /* Estilo para los botones */
 .btn-clinica {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 10px;
-  padding: 15px;
+  padding: 60px;
   width: 300px; /* Ajusta el tamaño a tu gusto */
   background-color: white; /* Fondo blanco */
   color: black; /* Texto negro */
-  font-size: 18px; /* Aumenta el tamaño del texto */
-  border: 2px solid #007bff; /* Borde azul */
+  font-size: 20px; /* Aumenta el tamaño del texto */
+  border: 2px solid #eeba6b; /* Borde  */
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 10px;
 }
 .btn-clinica img {
-  width: 40px;
-  height: 40px;
+  width: 200px;
+  height: 200px;
   object-fit: contain;
 }
 .btn-clinica:hover {
-  background-color: #0056b3;
+  background-color: #ebcb3a;
   transform: scale(1.05);
 }
 
@@ -47,14 +59,14 @@ header, main, footer {
     margin: auto;
     padding: 20px;
     background: #fff;
-    border: 1px solid #ccc;
+    border: 5px solid #000000;
     margin-top: 20px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 header {
-    background: #444;
-    color: #030303;
+    background: #ffffff;
+    color: #fffefe;
     padding: 20px;
     text-align: center;
     border-radius: 5px;
@@ -71,12 +83,17 @@ nav ul li {
 }
 
 nav ul li a {
-    color: #fff;
-    text-decoration: none;
+    color: #000000;
+    text-decoration: none;  
+    cursor: pointer;
+    padding: 10px 15px;
+    background-color: #00000000;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
 footer {
-    background: #333;
+    background: #fdfdfd;
     color: #fff;
     text-align: center;
     padding: 10px 0;
@@ -91,7 +108,7 @@ table {
 }
 
 table, th, td {
-    border: 1px solid #bbb;
+    border: 1px solid #000000;
     padding: 12px;
 }
 
@@ -124,12 +141,10 @@ tr:hover {
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.btn-primary {
-    background-color: #007bff;
-}
+
 
 .btn:hover {
-    background-color: #0056b3;
+    background-color: #000000;
     color: white;
     transform: scale(1.05);
 }
@@ -231,22 +246,46 @@ input[type="text"]:focus, input[type="date"]:focus, textarea:focus {
     padding: 5px 10px;
     text-decoration: none;
   }
-  table td form {
-    margin: 0;
-    padding: 0;
+  table td {
+    position: relative;
+    text-align: center; /* Centrar el contenido de las celdas */
+}
+table td a.btn,
+table td form .btn {
+    display: inline-block; /* Mantiene los botones en línea */
+    margin: 5px 0; /* Añadir espacio entre los botones */
+    padding: 5px 10px; /* Espaciado interno para los botones */
+    font-size: 14px; /* Tamaño de fuente para los botones */
+}
+table td form {
+  display: inline-block; /* Asegura que los formularios de los botones estén en línea */
+}
+table td a.btn-warning,
+table td a.btn-danger {
     display: inline-block;
-  }
+    margin: 0 5px; /* Espacio horizontal entre los botones */
+    padding: 5px 10px; /* Espaciado interno de los botones */
+    border-radius: 5px;
+    font-size: 14px; /* Tamaño de fuente más pequeño */
+}
   .btn-primary {
-    background-color: #FDEBCF;
-    color: white;
+    background-color: #f1dd80e7;
+    color: rgb(0, 0, 0);
     padding: 5px 10px;
     border: none;
     border-radius: 5px;
     text-decoration: none;
+    margin-right: 5px; /* Espacio entre botones */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
   }
+  .btn-primary:active {
+    background-color: #d4b570; /* Color más oscuro al presionar */
+    transform: translateY(2px); /* Efecto de botón presionado */
+}
   
   .btn-primary:hover {
-    background-color: #0056b3;
+    background-color: #0b0b0b;
   }
   #listaResultados {
     position: absolute;
@@ -294,6 +333,7 @@ input[type="text"]:focus, input[type="date"]:focus, textarea:focus {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius:20%;
 }
 .login-container {
   display: flex;
@@ -377,13 +417,13 @@ input {
 body {
   font-family: Arial, sans-serif;
   background: #f4f4f4;
-  color: #333;
+  color: #000000;
   margin: 0;
   padding: 0;
 }
 
 header {
-  background: #444;
+  background: #ffffff;
   color: #fff;
   text-align: center;
   padding: 20px;
@@ -399,21 +439,14 @@ nav ul li {
   margin-right: 15px;
 }
 
-nav ul li a {
-  color: #fff;
-  text-decoration: none;
-  padding: 10px 15px;
-  background-color: #007bff;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-}
+
 
 nav ul li a:hover {
-  background-color: #0056b3;
+  background-color: #ffffff;
 }
 
 footer {
-  background: #333;
+  background: #ffffff;
   color: #fff;
   text-align: center;
   padding: 10px;
@@ -510,14 +543,14 @@ button.btn-rapido img {
 }
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  background-color: #f5ecc7;
   margin: 0;
   padding: 0;
 }
 
 h1 {
   text-align: center;
-  color: #333;
+  color: #020000;
   margin-top: 20px;
 }
 
@@ -536,7 +569,7 @@ th, td {
 }
 
 th {
-  background-color: #007BFF;
+  background-color: #060606;
   color: white;
 }
 
@@ -551,4 +584,66 @@ tr:hover {
 p {
   text-align: center;
   color: #888;
+}
+.icono-boton {
+  width: 200px;  /* Ajusta el tamaño según sea necesario */
+  height: 200px;
+  margin-right: 5px;  /* Espacio entre la imagen y el texto */
+  vertical-align: middle;  /* Centra la imagen con el texto */
+  box-shadow: 0 4px #ffffff;
+  transition: all 0.1s;
+  transform: translateY(3px);      
+}
+table td {
+  position: relative;
+  text-align: center; /* Centra el contenido de las celdas */
+}
+
+table td a.btn,
+table td form .btn {
+  display: inline-block; /* Mantiene los botones en línea */
+  margin: 5px 0; /* Añadir espacio entre los botones */
+  padding: 5px 10px; /* Espaciado interno para los botones */
+}
+
+table td form {
+  display: inline-block; /* Asegura que los formularios de los botones estén en línea */
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: white;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+/* Estilo para los botones de Editar y Eliminar */
+.paEe {
+  display: inline-block;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: rgb(10, 10, 10);
+  background-color: #eecc7d; /* Verde para Editar */
+  text-decoration: none;
+  border-radius: 4px;
+  
+  margin-right: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.paEe:hover {
+  background-color: #dfb266; /* Verde oscuro al pasar el ratón */
+  transform: scale(1.05);
+}
+
+/* Diferenciar el botón de Eliminar */
+form .paEe {
+  background-color: #dc3545; /* Rojo para Eliminar */
+}
+
+form .paEe:hover {
+  background-color: #c82333; /* Rojo oscuro al pasar el ratón */
 }

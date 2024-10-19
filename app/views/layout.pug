@@ -25,11 +25,17 @@ html(lang="en")
           ul
             if !user
               li
-                a(href="/login/paciente") Soy Paciente
+                a(href="/login/paciente")
+                  img(src="/images/soypacienteBTN.png" alt="Paciente Logo" class="icono-boton")
+                  
               li
-                a(href="/login/medico") Soy Médico
+                a(href="/login/medico")
+                  img(src="/images/soyDoctorBTN.png" alt="Médico Logo" class="icono-boton")
+                  
               li
-                a(href="/login/secretaria") Soy Secretaria
+                a(href="/login/secretaria")
+                  img(src="/images/soyAdminBTN.png" alt="Administrador Logo" class="icono-boton")
+                  
             else
               if user.role === 'secretaria'
                 li

@@ -2,12 +2,11 @@ doctype html
 html
   head
     title Agenda del Médico
-    // Vincula tu archivo CSS correctamente
     link(rel="stylesheet" href="/css/style.css")
   body
     h1 Agenda del Médico
 
-    //- Contenedor para mostrar las citas en una tabla
+    // Contenedor para mostrar las citas en una tabla
     div#citasContainer
       if citas && citas.length > 0
         table
@@ -18,42 +17,7 @@ html
           tbody
             each cita in citas
               tr
-                td= cita.fecha ? cita.fecha : 'Fecha no disponible'
-                td= cita.motivo
+                td= cita.fechaHora || 'Fecha no disponible'
+                td= cita.motivo || 'Motivo no disponible'
       else
         p No hay citas disponibles para este médico.
-
-    //- Script para obtener y mostrar las citas
-    script.
-      document.addEventListener('DOMContentLoaded', function () {
-        var citasContainer = document.getElementById('citasContainer');
-        
-        // Obtener el ID del médico desde la URL
-        const pathParts = window.location.pathname.split('/');
-        const idMedico = pathParts[pathParts.length - 2];
-
-        // Obtener las citas desde la API
-        fetch(`/api/medicos/${idMedico}/agenda`)
-          .then(response => {
-            if (!response.ok) throw new Error('Error al obtener las citas');
-            return response.json();
-          })
-          .then(data => {
-            if (data.length === 0) {
-              citasContainer.innerHTML = '<p>No hay citas disponibles para este médico.</p>';
-            } else {
-              let table = '<table><thead><tr><th>Fecha y Hora</th><th>Motivo de Consulta</th></tr></thead><tbody>';
-              data.forEach(cita => {
-                // Mostramos la fecha directamente como viene desde el servidor
-                const fechaValida = cita.fecha ? cita.fecha : 'Fecha no disponible';
-                table += `<tr><td>${fechaValida}</td><td>${cita.motivo}</td></tr>`;
-              });
-              table += '</tbody></table>';
-              citasContainer.innerHTML = table;
-            }
-          })
-          .catch(error => {
-            console.error('Error al cargar las citas:', error);
-            citasContainer.innerHTML = '<p>Error al cargar las citas.</p>';
-          });
-      });

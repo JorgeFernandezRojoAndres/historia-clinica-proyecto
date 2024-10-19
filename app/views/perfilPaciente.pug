@@ -39,8 +39,11 @@ html(lang="en")
           strong Teléfono:
           | #{paciente.telefono}
 
-      // Aquí puedes agregar más detalles o permitir al paciente editar su información
-      a(href=`/pacientes/edit/${paciente.idPaciente}`) Editar Información
+          | 
+          |
+          p  
+          a.btn.btn-primary(href=`/pacientes/edit/${paciente.idPaciente}`) Editar Información
+
 
     footer
       p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}

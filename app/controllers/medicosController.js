@@ -88,23 +88,55 @@ exports.delete = (req, res) => {
 // Ver la agenda del médico con citas actuales
 exports.verAgenda = (req, res) => {
     const idMedico = req.params.id;
+    const agendaDia = req.query.agendaDia === 'true';
 
-    const sql = `
+    let sql = `
     SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado, medicos.nombre AS nombreMedico
     FROM citas
     JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
     JOIN medicos ON citas.idMedico = medicos.idMedico
     WHERE citas.idMedico = ? AND citas.estado = 'confirmada'
-`;
+    `;
 
+    // Si agendaDia es true, filtrar por la fecha actual
+    if (agendaDia) {
+        const hoy = new Date().toISOString().split('T')[0];
+        sql += ` AND DATE(citas.fechaHora) = ?`;
+        db.query(sql, [idMedico, hoy], (error, results) => {
+            if (error) {
+                console.error('Error al obtener la agenda del médico:', error);
+                return res.status(500).send('Error al obtener la agenda del médico');
+            }
+            renderAgenda(res, results);
+        });
+    } else {
+        db.query(sql, [idMedico], (error, results) => {
+            if (error) {
+                console.error('Error al obtener la agenda del médico:', error);
+                return res.status(500).send('Error al obtener la agenda del médico');
+            }
+            renderAgenda(res, results);
+        });
+    }
+};
+exports.verAgendaDelDia = (req, res) => {
+    const idMedico = req.params.id;
+    const today = new Date().toISOString().split('T')[0];
 
-    db.query(sql, [idMedico], (error, results) => {
+    const sql = `
+        SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado, medicos.nombre AS nombreMedico
+        FROM citas
+        JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+        JOIN medicos ON citas.idMedico = medicos.idMedico
+        WHERE citas.idMedico = ? AND citas.estado = 'confirmada' AND DATE(citas.fechaHora) = ?
+    `;
+
+    db.query(sql, [idMedico, today], (error, results) => {
         if (error) {
-            console.error('Error al obtener la agenda del médico:', error);
-            return res.status(500).send('Error al obtener la agenda del médico');
+            console.error('Error al obtener la agenda del día:', error);
+            return res.status(500).send('Error al obtener la agenda del día');
         }
 
-        // Formatear la fecha y hora para mostrar correctamente en la vista
         results.forEach(cita => {
             const fecha = new Date(cita.fechaHora);
             cita.fechaHora = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} 
@@ -117,6 +149,84 @@ exports.verAgenda = (req, res) => {
         });
     });
 };
+
+
+
+
+// Filtrar turnos por una fecha específica
+exports.filtrarTurnosPorFecha = (req, res) => {
+    const idMedico = req.params.id;
+    const fechaFiltro = req.query.fecha; // Obtener la fecha de filtro desde la query
+
+    let sql = `
+    SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado, medicos.nombre AS nombreMedico
+    FROM citas
+    JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+    JOIN medicos ON citas.idMedico = medicos.idMedico
+    WHERE citas.idMedico = ? AND citas.estado = 'confirmada'
+    `;
+
+    if (fechaFiltro) {
+        sql += ` AND DATE(citas.fechaHora) = ?`;
+    }
+
+    const params = [idMedico];
+    if (fechaFiltro) params.push(fechaFiltro);
+
+    db.query(sql, params, (error, results) => {
+        if (error) {
+            console.error('Error al filtrar los turnos del médico por fecha:', error);
+            return res.status(500).send('Error al filtrar los turnos');
+        }
+
+        // Formatear la fecha y hora para mostrar correctamente en la vista
+        results.forEach(cita => {
+            const fecha = new Date(cita.fechaHora);
+            cita.fechaHora = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} 
+                              ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
+        });
+
+        res.render('agenda_medico', {
+            citas: results,
+            nombreMedico: results.length > 0 ? results[0].nombreMedico : 'Médico sin citas',
+            mostrarFiltro: true // Mostrar el filtro de fecha
+        });
+    });
+};
+
+
+// Función auxiliar para renderizar la agenda
+function renderAgenda(res, results, mostrarFiltro) {
+    results.forEach(cita => {
+        const fecha = new Date(cita.fechaHora);
+        cita.fechaHora = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} 
+                          ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
+    });
+
+    res.render('agenda_medico', {
+        citas: results,
+        mostrarFiltro: mostrarFiltro
+    });
+}
+
+
+// Función auxiliar para renderizar la agenda
+function renderAgenda(res, results) {
+    results.forEach(cita => {
+        const fecha = new Date(cita.fechaHora);
+        cita.fechaHora = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} 
+                          ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
+    });
+
+    res.render('agenda_medico', {
+        citas: results,
+        nombreMedico: results.length > 0 ? results[0].nombreMedico : 'Médico sin citas',
+        mostrarFiltro: false
+    });
+}
+
+
+
 
 
 // Buscar médicos por nombre

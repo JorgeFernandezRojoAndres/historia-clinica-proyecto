@@ -32,13 +32,13 @@ block content
             td= paciente.direccion
             td= paciente.telefono
             td
-              // Botón para editar
-              a.btn.btn-warning(href=`/secretaria/pacientes/${paciente.idPaciente}/edit`) Editar
+              // Botón para editar con clase 'paEe'
+              a.paEe(href=`/secretaria/pacientes/${paciente.idPaciente}/edit`) Editar
               | &nbsp;
-              
-              // Formulario para eliminar en línea
+
+              // Formulario para eliminar en línea con clase 'paEe'
               form(action=`/secretaria/pacientes/${paciente.idPaciente}/delete?_method=DELETE` method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar a este paciente?');")
-                button.btn.btn-danger(type="submit") Eliminar
+                button.paEe(type="submit") Eliminar
 
   // Script para la búsqueda de pacientes
   script(src="/searchPaciente.js")

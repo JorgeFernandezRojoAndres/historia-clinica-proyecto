@@ -1,0 +1,35 @@
+doctype html
+html
+  head
+    title Filtrar Turnos por Fecha
+    link(rel="stylesheet" href="/css/style.css")
+  body
+    h1 Filtrar Turnos por Fecha
+
+    label(for="fechaFiltro") Filtrar por fecha:
+    input#fechaFiltro(type="date")
+
+    div#citasContainer
+      if citas && citas.length > 0
+        table
+          thead
+            tr
+              th Fecha y Hora
+              th Motivo de Consulta
+          tbody
+            each cita in citas
+              tr
+                td= cita.fechaHora || 'Fecha no disponible'
+                td= cita.motivo || 'Motivo no disponible'
+      else
+        p No hay citas disponibles para este médico.
+
+    script.
+      document.addEventListener('DOMContentLoaded', function () {
+        var fechaFiltro = document.getElementById('fechaFiltro');
+        fechaFiltro.addEventListener('change', function () {
+          const fechaSeleccionada = fechaFiltro.value;
+          const idMedico = window.location.pathname.split('/')[2];
+          window.location.href = `/medicos/${idMedico}/filtrar-turnos?fecha=${fechaSeleccionada}`;
+        });
+      });
