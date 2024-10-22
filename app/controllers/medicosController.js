@@ -1,6 +1,8 @@
 const moment = require('moment'); 
 const db = require('../../config/database');
 const citasController = require('./citasController');
+const generarHorariosLibres = require('../../utils/horariosLibres');
+
 
 
 // Listar todos los médicos, manejando nulos con IFNULL
@@ -113,37 +115,43 @@ exports.delete = (req, res) => {
 // Ver la agenda del médico con citas actuales
 exports.verAgenda = (req, res) => {
     const idMedico = req.params.id;
-    const agendaDia = req.query.agendaDia === 'true';
+    const fechaSeleccionada = req.query.fecha || new Date().toISOString().split('T')[0];
 
-    let sql = `
-    SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado, medicos.nombre AS nombreMedico
-    FROM citas
-    JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
-    JOIN medicos ON citas.idMedico = medicos.idMedico
-    WHERE citas.idMedico = ? AND citas.estado = 'confirmada'
+    const sql = `
+        SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado 
+        FROM citas
+        JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+        WHERE citas.idMedico = ? AND DATE(citas.fechaHora) = ?
     `;
 
-    // Si agendaDia es true, filtrar por la fecha actual
-    if (agendaDia) {
-        const hoy = new Date().toISOString().split('T')[0];
-        sql += ` AND DATE(citas.fechaHora) = ?`;
-        db.query(sql, [idMedico, hoy], (error, results) => {
-            if (error) {
-                console.error('Error al obtener la agenda del médico:', error);
-                return res.status(500).send('Error al obtener la agenda del médico');
+    db.query(sql, [idMedico, fechaSeleccionada], (error, results) => {
+        if (error) {
+            console.error('Error al obtener la agenda del médico:', error);
+            return res.status(500).send('Error al obtener la agenda del médico');
+        }
+
+        // Formatear la fecha y hora antes de enviarla a la vista
+        results.forEach(cita => {
+            if (cita.fechaHora && moment(cita.fechaHora).isValid()) {
+                cita.fechaHora = moment(cita.fechaHora).format('DD/MM/YYYY HH:mm');
+            } else {
+                cita.fechaHora = 'Sin definir';
             }
-            renderAgenda(res, results);
         });
-    } else {
-        db.query(sql, [idMedico], (error, results) => {
-            if (error) {
-                console.error('Error al obtener la agenda del médico:', error);
-                return res.status(500).send('Error al obtener la agenda del médico');
-            }
-            renderAgenda(res, results);
+
+        // Generar los horarios libres
+        const horariosLibres = generarHorariosLibres(fechaSeleccionada, results);
+
+        // Enviar los horarios libres a la vista
+        res.render('agenda_medico', { 
+            citas: results, 
+            horariosLibres, 
+            fechaHoy: fechaSeleccionada,
+            medicoId: idMedico
         });
-    }
+    });
 };
+
 exports.verAgendaDelDia = (req, res) => {
     const idMedico = req.params.id;
     const today = new Date().toISOString().split('T')[0];

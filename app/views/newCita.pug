@@ -22,7 +22,9 @@ block content
 
     label(for="idPaciente") ID Paciente:
     input(type="text" name="idPaciente" id="idPaciente" readonly required)
+    
     br
+    a#verAgendaButton.btn.btn-primary(href="#", style="display: none;") Ver Agenda del Médico
 
     label(for="fechaHora") Fecha y Hora:
     input(type="datetime-local" name="fechaHora" required)
@@ -34,7 +36,7 @@ block content
 
     button(type="submit") Crear Cita
 
-    a#verAgendaButton.btn.btn-primary(href="#", style="display: none;") Ver Agenda del Médico
+    
 
   script(src="/botondinamicoAgendaEnCita.js")
   script(src="/searchPaciente.js")

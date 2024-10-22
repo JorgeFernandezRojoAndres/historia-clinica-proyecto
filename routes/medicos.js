@@ -11,6 +11,10 @@ const citasController = require('../app/controllers/citasController');
 router.get('/:id/agenda-dia', authMiddleware.isAuthenticated, (req, res) => {
     medicosController.verAgendaDelDia(req, res);
 });
+// Nueva ruta para ver la agenda del médico
+router.get('/:id/agenda', authMiddleware.isAuthenticated, (req, res) => {
+    medicosController.verAgenda(req, res);
+});
 
 // Ruta para "Filtrar Turnos por Fecha"
 router.get('/:id/filtrar-turnos', authMiddleware.isAuthenticated, (req, res) => {
