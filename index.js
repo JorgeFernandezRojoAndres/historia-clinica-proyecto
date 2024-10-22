@@ -75,6 +75,7 @@ const medicosRoutes = require('./routes/medicos');
 app.use('/medicos', medicosRoutes);
 
 
+
 // Importa las rutas de citas
 const citasController = require('./app/controllers/citasController');
 app.get('/api/medicos/:id/agenda', citasController.obtenerCitasJSON);

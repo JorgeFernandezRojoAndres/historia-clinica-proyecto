@@ -6,6 +6,11 @@ html
   body
     h1 Agenda del Médico
 
+    // Selector de fecha para filtrar citas y horarios libres
+    div#fechaSelector
+      label(for="fecha") Seleccionar Fecha:
+      input(type="date" id="fecha" name="fecha" value=fechaHoy onchange="cambiarFecha()")
+
     // Contenedor para mostrar las citas en una tabla
     div#citasContainer
       if citas && citas.length > 0
@@ -21,6 +26,52 @@ html
                 td= cita.fechaHora
                 td= cita.nombrePaciente || 'Paciente no disponible'
                 td= cita.motivoConsulta || 'Motivo no disponible'
-
       else
         p No hay citas disponibles para este médico.
+
+      // Mostrar horarios libres si existen
+      if horariosLibres && horariosLibres.length > 0
+        h2 Horarios Libres
+        table
+          thead
+            tr
+              th Horario Libre
+              th Acción
+          tbody
+            each horario in horariosLibres
+              tr
+                td= `${fechaHoy} ${horario}`
+                td
+                  button.btn-seleccionar(onclick=`seleccionarHorario('${fechaHoy}', '${horario}')`) Seleccionar
+      else
+        p No hay horarios libres disponibles.
+
+    // Script para seleccionar un horario y cambiar la fecha
+    script.
+      function cambiarFecha() {
+        const fecha = document.getElementById('fecha').value;
+        if (fecha) {
+          const medicoId = '#{medicoId}';
+          window.location.href = `/medicos/${medicoId}/agenda?fecha=${fecha}`;
+        }
+      }
+
+      function seleccionarHorario(fecha, horario) {
+        const fechaHora = `${fecha} ${horario}`;
+        const openerDoc = window.opener.document;
+
+        // Encontrar el contenedor del motivo de consulta en la ventana principal
+        const contenedorMotivo = openerDoc.querySelector('[name="motivoConsulta"]').closest('br');
+
+        // Crear un nuevo campo de fecha y hora antes del motivo de consulta
+        const nuevoCampo = document.createElement('div');
+        nuevoCampo.innerHTML = `
+          <label for="fechaHora">Fecha y Hora:</label>
+          <input type="text" name="fechaHora" id="fechaHora" value="${fechaHora}" readonly required>
+          <br>
+        `;
+        openerDoc.body.insertBefore(nuevoCampo, contenedorMotivo);
+
+        // Cerrar la ventana emergente
+        window.close();
+      }
