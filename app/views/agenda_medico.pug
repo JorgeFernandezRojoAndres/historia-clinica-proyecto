@@ -57,21 +57,21 @@ html
       }
 
       function seleccionarHorario(fecha, horario) {
-        const fechaHora = `${fecha} ${horario}`;
-        const openerDoc = window.opener.document;
+        // Formatear la fecha y hora seleccionada
+        const fechaHora = `${fecha}T${horario}:00`;
+        
+        // Verificar si la ventana principal está abierta
+        if (window.opener && !window.opener.closed) {
+          const fechaHoraInput = window.opener.document.getElementById('fechaHora');
+          if (fechaHoraInput) {
+            fechaHoraInput.value = fechaHora; // Establecer el valor en el campo de fecha y hora de la ventana principal
+          } else {
+            alert("No se encontró el campo de fecha y hora en la ventana principal.");
+          }
+        } else {
+          alert("La ventana principal no está disponible.");
+        }
 
-        // Encontrar el contenedor del motivo de consulta en la ventana principal
-        const contenedorMotivo = openerDoc.querySelector('[name="motivoConsulta"]').closest('br');
-
-        // Crear un nuevo campo de fecha y hora antes del motivo de consulta
-        const nuevoCampo = document.createElement('div');
-        nuevoCampo.innerHTML = `
-          <label for="fechaHora">Fecha y Hora:</label>
-          <input type="text" name="fechaHora" id="fechaHora" value="${fechaHora}" readonly required>
-          <br>
-        `;
-        openerDoc.body.insertBefore(nuevoCampo, contenedorMotivo);
-
-        // Cerrar la ventana emergente
+        // Cerrar la ventana emergente después de seleccionar el horario
         window.close();
       }

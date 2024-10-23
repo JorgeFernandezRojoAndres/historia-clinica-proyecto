@@ -22,12 +22,12 @@ block content
 
     label(for="idPaciente") ID Paciente:
     input(type="text" name="idPaciente" id="idPaciente" readonly required)
-    
     br
-    a#verAgendaButton.btn.btn-primary(href="#", style="display: none;") Ver Agenda del Médico
+
+    a#verAgendaButton.btn.btn-primary(href="#", target="_blank") Ver Agenda del Médico
 
     label(for="fechaHora") Fecha y Hora:
-    input(type="datetime-local" name="fechaHora" required)
+    input(type="datetime-local" name="fechaHora" id="fechaHora" required)
     br
 
     label(for="motivoConsulta") Motivo de Consulta:
@@ -36,7 +36,25 @@ block content
 
     button(type="submit") Crear Cita
 
-    
-
   script(src="/botondinamicoAgendaEnCita.js")
   script(src="/searchPaciente.js")
+
+  //- Función para recibir el horario seleccionado desde la ventana de agenda_medico.pug
+  script.
+    function setHorarioSeleccionado(horario) {
+      const fechaActual = new Date();
+      const [hora, minuto] = horario.split(':');
+      fechaActual.setHours(hora, minuto);
+
+      // Formato para datetime-local
+      const fechaHoraFormateada = fechaActual.toISOString().slice(0, 16);
+      document.getElementById('fechaHora').value = fechaHoraFormateada;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Cambiar automáticamente la especialidad cuando se seleccione un médico
+      document.getElementById('idMedico').addEventListener('change', function() {
+        const medicoSeleccionado = this.options[this.selectedIndex];
+        document.getElementById('especialidadMedico').value = medicoSeleccionado.getAttribute('data-especialidad');
+      });
+    });
