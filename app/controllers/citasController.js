@@ -26,24 +26,35 @@ exports.listAll = (req, res) => {
 };
 
 // Mostrar formulario para una nueva cita
+// Mostrar formulario para una nueva cita
 exports.showNewForm = (req, res) => {
     const sqlMedicos = 'SELECT * FROM medicos';
-
-    db.query(sqlMedicos, (error, resultsMedicos) => {
-        if (error) {
-            console.error('Error al obtener los médicos:', error);
-            return res.status(500).send('Error al obtener los médicos');
+    const sqlEspecialidades = 'SELECT * FROM especialidades';
+  
+    db.query(sqlEspecialidades, (errorEspecialidades, resultsEspecialidades) => {
+      if (errorEspecialidades) {
+        console.error('Error al obtener las especialidades:', errorEspecialidades);
+        return res.status(500).send('Error al obtener las especialidades');
+      }
+  
+      db.query(sqlMedicos, (errorMedicos, resultsMedicos) => {
+        if (errorMedicos) {
+          console.error('Error al obtener los médicos:', errorMedicos);
+          return res.status(500).send('Error al obtener los médicos');
         }
-
-        if (resultsMedicos.length === 0) {
-            console.log('No se encontraron médicos en la base de datos.');
-            return res.status(404).send('No hay médicos disponibles.');
-        }
-
-        // Renderiza la vista con la lista de médicos
-        res.render('newCita', { medicos: resultsMedicos });
+  
+        // Renderizar la vista con médicos y especialidades
+        res.render('newCita', {
+          especialidades: resultsEspecialidades,
+          medicos: resultsMedicos // Enviar la lista de médicos sin convertir a JSON
+        });
+      });
     });
-};
+  };
+  
+  
+  
+
 
 // Crear una nueva cita
 exports.createCita = (req, res) => {

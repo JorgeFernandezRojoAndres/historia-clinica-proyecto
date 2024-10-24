@@ -6,7 +6,7 @@ block content
   form(action=`/citas/update/${cita.idCita}` method="POST")
     div
       label(for="nombreMedico") Médico:
-      select(name="idMedico")
+      select(name="idMedico" id="idMedico")
         each medico in medicos
           option(value=medico.idMedico selected=(medico.idMedico == cita.idMedico))= medico.nombre
     div
@@ -15,6 +15,7 @@ block content
         each paciente in pacientes
           option(value=paciente.idPaciente selected=(paciente.idPaciente == cita.idPaciente))= paciente.nombre
     div
+      a#verAgendaButton.btn.btn-primary(href="#", target="_blank") Ver Agenda del Médico
       label(for="fechaHora") Fecha y Hora:
       input(type="datetime-local" name="fechaHora" value=cita.fechaHora)
     div
