@@ -2,9 +2,13 @@ extends layout
 
 block content
   h2 Listado de Citas
-  
 
-  table
+  // Filtro por nombre de médico
+  div
+    label(for="filtroMedico") Filtrar por Médico:
+    input(type="text" id="filtroMedico" placeholder="Ingresa el nombre del médico")
+
+  table(class="table table-striped" id="tablaCitas")
     thead
       tr
         th Médico
@@ -12,6 +16,7 @@ block content
         th Fecha y Hora
         th Motivo de Consulta
         th Estado
+        th Acciones
     tbody
       each cita in citas
         tr
@@ -21,5 +26,28 @@ block content
           td= cita.motivoConsulta
           td= cita.estado
           td 
-            a(href=`/citas/edit/${cita.idCita}`) Editar
-            a(href=`/citas/delete/${cita.idCita}`) Eliminar
+            a.btn.btn-primary(href=`/citas/edit/${cita.idCita}`) Editar
+            a.btn.btn-danger(href=`/citas/delete/${cita.idCita}` onclick="return confirm('¿Estás seguro de que deseas eliminar esta cita?')") Eliminar
+
+  // Script para filtrar por nombre de médico
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      const inputFiltro = document.getElementById('filtroMedico');
+      const tabla = document.getElementById('tablaCitas').getElementsByTagName('tbody')[0];
+
+      inputFiltro.addEventListener('keyup', function() {
+        const filtro = inputFiltro.value.toLowerCase();
+        const filas = tabla.getElementsByTagName('tr');
+
+        for (let i = 0; i < filas.length; i++) {
+          const celdaMedico = filas[i].getElementsByTagName('td')[0];
+          const nombreMedico = celdaMedico.textContent || celdaMedico.innerText;
+
+          if (nombreMedico.toLowerCase().includes(filtro)) {
+            filas[i].style.display = '';
+          } else {
+            filas[i].style.display = 'none';
+          }
+        }
+      });
+    });

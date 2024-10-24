@@ -4,14 +4,21 @@ block content
   h2 Nueva Cita
 
   form(action="/citas/new" method="POST")
+    //- Selector de Especialidades
+    label(for="especialidadSelector") Especialidad:
+    select(name="especialidadSelector" id="especialidadSelector")
+      option(value="") -- Selecciona una especialidad --
+      each especialidad in especialidades
+        option(value=especialidad.nombre) #{especialidad.nombre}
+    br
+
+    //- Selector de Médicos
     label(for="idMedico") Médico:
     select(name="idMedico" id="idMedico" required)
       option(value="") -- Selecciona un médico --
-      each medico in medicos
-        option(value=medico.idMedico data-especialidad=medico.especialidad) #{medico.nombre}
     br
 
-    label(for="especialidad") Especialidad:
+    label(for="especialidadMedico") Especialidad del Médico:
     input(type="text" id="especialidadMedico" readonly)
     br
 
@@ -31,30 +38,37 @@ block content
     br
 
     label(for="motivoConsulta") Motivo de Consulta:
-    input(type="text" name="motivoConsulta")
+    input(type="text" name="motivoConsulta" required)
     br
 
     button(type="submit") Crear Cita
 
-  script(src="/botondinamicoAgendaEnCita.js")
-  script(src="/searchPaciente.js")
-
-  //- Función para recibir el horario seleccionado desde la ventana de agenda_medico.pug
   script.
-    function setHorarioSeleccionado(horario) {
-      const fechaActual = new Date();
-      const [hora, minuto] = horario.split(':');
-      fechaActual.setHours(hora, minuto);
-
-      // Formato para datetime-local
-      const fechaHoraFormateada = fechaActual.toISOString().slice(0, 16);
-      document.getElementById('fechaHora').value = fechaHoraFormateada;
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
-      // Cambiar automáticamente la especialidad cuando se seleccione un médico
-      document.getElementById('idMedico').addEventListener('change', function() {
+      const especialidadSelector = document.getElementById('especialidadSelector');
+      const medicoSelector = document.getElementById('idMedico');
+      const medicos = !{JSON.stringify(medicos)};
+
+      // Evento para filtrar médicos por especialidad
+      especialidadSelector.addEventListener('change', function() {
+        const especialidadSeleccionada = this.value;
+        medicoSelector.innerHTML = '<option value="">-- Selecciona un médico --</option>';
+
+        // Filtrar médicos por especialidad
+        medicos.forEach(medico => {
+          if (medico.especialidad === especialidadSeleccionada) {
+            const option = document.createElement('option');
+            option.value = medico.idMedico;
+            option.textContent = medico.nombre;
+            option.setAttribute('data-especialidad', medico.especialidad);
+            medicoSelector.appendChild(option);
+          }
+        });
+      });
+
+      // Cambiar la especialidad del médico seleccionado
+      medicoSelector.addEventListener('change', function() {
         const medicoSeleccionado = this.options[this.selectedIndex];
-        document.getElementById('especialidadMedico').value = medicoSeleccionado.getAttribute('data-especialidad');
+        document.getElementById('especialidadMedico').value = medicoSeleccionado.getAttribute('data-especialidad') || '';
       });
     });

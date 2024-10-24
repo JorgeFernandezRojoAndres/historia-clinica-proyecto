@@ -29,22 +29,26 @@ html
       else
         p No hay citas disponibles para este médico.
 
-      // Mostrar horarios libres si existen
-      if horariosLibres && horariosLibres.length > 0
-        h2 Horarios Libres
-        table
-          thead
-            tr
-              th Horario Libre
-              th Acción
-          tbody
-            each horario in horariosLibres
+    // Mostrar horarios libres si existen
+    if horariosLibres && horariosLibres.length > 0
+      h2 Horarios Libres
+      table
+        thead
+          tr
+            th Horario Libre
+            th Acción
+        tbody
+          each hora in horariosLibres
+            // Comprobar si el horario ya está ocupado por una cita
+            - var ocupado = citas.some(cita => cita.fechaHora.includes(hora))
+            if !ocupado
               tr
-                td= `${fechaHoy} ${horario}`
+                // Mostrar la hora correctamente
+                td= `${fechaHoy} ${hora}`
                 td
-                  button.btn-seleccionar(onclick=`seleccionarHorario('${fechaHoy}', '${horario}')`) Seleccionar
-      else
-        p No hay horarios libres disponibles.
+                  button.btn-seleccionar(onclick=`seleccionarHorario('${fechaHoy}', '${hora}')`) Seleccionar
+    else
+      p No hay horarios libres disponibles.
 
     // Script para seleccionar un horario y cambiar la fecha
     script.
@@ -56,15 +60,13 @@ html
         }
       }
 
-      function seleccionarHorario(fecha, horario) {
-        // Formatear la fecha y hora seleccionada
-        const fechaHora = `${fecha}T${horario}:00`;
-        
-        // Verificar si la ventana principal está abierta
+      function seleccionarHorario(fecha, hora) {
+        const fechaHora = `${fecha}T${hora}:00`;
+
         if (window.opener && !window.opener.closed) {
           const fechaHoraInput = window.opener.document.getElementById('fechaHora');
           if (fechaHoraInput) {
-            fechaHoraInput.value = fechaHora; // Establecer el valor en el campo de fecha y hora de la ventana principal
+            fechaHoraInput.value = fechaHora; 
           } else {
             alert("No se encontró el campo de fecha y hora en la ventana principal.");
           }
@@ -72,6 +74,5 @@ html
           alert("La ventana principal no está disponible.");
         }
 
-        // Cerrar la ventana emergente después de seleccionar el horario
         window.close();
       }

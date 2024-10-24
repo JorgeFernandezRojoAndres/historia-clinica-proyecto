@@ -9,6 +9,9 @@ const compression = require('compression');
 const methodOverride = require('method-override');
 
 
+
+
+
 const app = express();
 const port = 3000;
 
@@ -18,6 +21,7 @@ app.set('views', './app/views');
 
 // Configurar la carpeta de archivos estáticos
 app.use(express.static('public'));
+
 
 
 // Middlewares adicionales
@@ -57,6 +61,9 @@ app.get('/saludplus', (req, res) => {
     res.locals.clinicaSeleccionada = req.session.clinicaSeleccionada || false;
     next();
   });
+  const especialidadesRouter = require('./routes/especialidades');
+app.use('/especialidades', especialidadesRouter);
+
 
 // Importa las rutas de secretaria
 const secretariaRoutes = require('./routes/secretaria');
@@ -109,6 +116,7 @@ app.post('/addMedicalRecord', async (req, res) => {
         res.status(500).send("Error al insertar el registro médico");
     }
 });
+
 
 // Iniciar el servidor
 app.listen(3000, () => {
