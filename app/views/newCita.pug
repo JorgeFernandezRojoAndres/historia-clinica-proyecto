@@ -22,8 +22,15 @@ block content
     input(type="text" id="especialidadMedico" readonly)
     br
 
+    //- Campo de paciente
     label(for="buscarPaciente") Buscar Paciente:
-    input(type="text" id="buscarPaciente" placeholder="Ingresa nombre o DNI" autocomplete="off")
+    if nombrePaciente
+      // Si el paciente está logueado, mostrar su nombre en un campo de solo lectura
+      input(type="text" id="buscarPaciente" name="nombrePaciente" value=nombrePaciente readonly)
+      input(type="hidden" name="idPaciente" value=idPaciente)
+    else
+      // Si el usuario es secretaria, permitir la búsqueda manual del paciente
+      input(type="text" id="buscarPaciente" placeholder="Ingresa nombre o DNI" autocomplete="off" required)
 
     ul#listaResultados // Contenedor para sugerencias dinámicas
 

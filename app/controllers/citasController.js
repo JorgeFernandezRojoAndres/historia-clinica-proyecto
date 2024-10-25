@@ -25,50 +25,100 @@ exports.listAll = (req, res) => {
     });
 };
 
-// Mostrar formulario para una nueva cita
+
 // Mostrar formulario para una nueva cita
 exports.showNewForm = (req, res) => {
+    // Obtener el usuario autenticado de req.session.user
+    const usuario = req.session.user;
+
+    if (!usuario) {
+        // Si el usuario no está definido, redirigir o manejar el error
+        return res.status(401).send('Usuario no autenticado');
+    }
+
     const sqlMedicos = 'SELECT * FROM medicos';
     const sqlEspecialidades = 'SELECT * FROM especialidades';
   
     db.query(sqlEspecialidades, (errorEspecialidades, resultsEspecialidades) => {
-      if (errorEspecialidades) {
-        console.error('Error al obtener las especialidades:', errorEspecialidades);
-        return res.status(500).send('Error al obtener las especialidades');
-      }
-  
-      db.query(sqlMedicos, (errorMedicos, resultsMedicos) => {
-        if (errorMedicos) {
-          console.error('Error al obtener los médicos:', errorMedicos);
-          return res.status(500).send('Error al obtener los médicos');
+        if (errorEspecialidades) {
+            console.error('Error al obtener las especialidades:', errorEspecialidades);
+            return res.status(500).send('Error al obtener las especialidades');
         }
   
-        // Renderizar la vista con médicos y especialidades
-        res.render('newCita', {
-          especialidades: resultsEspecialidades,
-          medicos: resultsMedicos // Enviar la lista de médicos sin convertir a JSON
+        db.query(sqlMedicos, (errorMedicos, resultsMedicos) => {
+            if (errorMedicos) {
+                console.error('Error al obtener los médicos:', errorMedicos);
+                return res.status(500).send('Error al obtener los médicos');
+            }
+
+            // Configurar variables para la vista
+            const renderData = {
+                especialidades: resultsEspecialidades,
+                medicos: resultsMedicos,
+                nombrePaciente: null,
+                idPaciente: null
+            };
+
+            // Si el usuario es un paciente, pasar su nombre e ID
+            if (usuario.role === 'paciente') {
+                renderData.nombrePaciente = usuario.nombre;
+                renderData.idPaciente = usuario.id;
+            }
+
+            // Renderizar la vista con los datos correspondientes
+            res.render('newCita', renderData);
         });
-      });
     });
-  };
-  
-  
-  
+};
+
+// Mostrar los turnos del paciente autenticado
+exports.listarMisTurnos = (req, res) => {
+    const usuario = req.session.user;
+
+    if (!usuario || usuario.role !== 'paciente') {
+        return res.status(401).send('Acceso no autorizado');
+    }
+
+    const sql = `
+        SELECT citas.idCita, citas.fechaHora, citas.motivoConsulta, citas.estado, medicos.nombre AS nombreMedico
+        FROM citas
+        JOIN medicos ON citas.idMedico = medicos.idMedico
+        WHERE citas.idPaciente = ?
+        ORDER BY citas.fechaHora DESC
+    `;
+
+    db.query(sql, [usuario.id], (error, results) => {
+        if (error) {
+            console.error('Error al obtener los turnos:', error);
+            return res.status(500).send('Error al obtener los turnos');
+        }
+
+        res.render('misTurnos', { turnos: results });
+    });
+};
+
 
 
 // Crear una nueva cita
 exports.createCita = (req, res) => {
-    const { idPaciente, idMedico, fechaHora, motivoConsulta } = req.body;
+    // Asegúrate de que idPaciente sea un solo valor
+    let { idPaciente, idMedico, fechaHora, motivoConsulta } = req.body;
+
+    // Verificar si idPaciente es un array y tomar el primer valor
+    if (Array.isArray(idPaciente)) {
+        idPaciente = idPaciente[0];
+    }
 
     console.log('Creando cita con los siguientes datos:', { idPaciente, idMedico, fechaHora, motivoConsulta });
 
-    if (!idPaciente || !idMedico) {
-        return res.status(400).send('Paciente o médico no seleccionado.');
+    // Validar que los campos requeridos estén presentes
+    if (!idPaciente || !idMedico || !fechaHora || !motivoConsulta) {
+        return res.status(400).send('Faltan datos requeridos para la cita.');
     }
 
     const sqlCita = `
-        INSERT INTO citas (idPaciente, idMedico, fechaHora, motivoConsulta) 
-        VALUES (?, ?, ?, ?)
+        INSERT INTO citas (idPaciente, idMedico, fechaHora, motivoConsulta, estado) 
+        VALUES (?, ?, ?, ?, 'preregistro')
     `;
 
     db.query(sqlCita, [idPaciente, idMedico, fechaHora, motivoConsulta], (error, result) => {
@@ -76,10 +126,13 @@ exports.createCita = (req, res) => {
             console.error('Error al crear la cita:', error);
             return res.status(500).send('Error al crear la cita');
         }
-        console.log('Cita creada exitosamente:', result);
-        res.redirect('/citas');
+        console.log('Cita creada exitosamente en estado de preregistro:', result);
+        res.redirect('/turnos/mis-turnos'); // Ajustar la redirección si es necesario
     });
 };
+
+
+
 
 // Editar una cita
 exports.showEditForm = (req, res) => {

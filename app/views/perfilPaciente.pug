@@ -1,4 +1,4 @@
-doctype html 
+doctype html
 html(lang="en")
   head
     meta(charset="UTF-8")
@@ -12,11 +12,11 @@ html(lang="en")
       nav
         ul
           li
-            a(href="/turnos") Ver Mis Turnos
+            a(href="/turnos/mis-turnos") Ver Mis Turnos
           li
             a(href="/historias") Ver Mi Historial Clínico
           li
-            a(href="/sacar-turno") Sacar Turno por Mail
+            a(href=`/citas/new?estado=preregistro&idPaciente=${paciente.idPaciente}`) Sacar Turno Preregistro
           li
             a(href="/logout") Cerrar Sesión
 
@@ -38,12 +38,10 @@ html(lang="en")
         p
           strong Teléfono:
           | #{paciente.telefono}
-
-          | 
-          |
-          p  
+      
+        // Botón para editar información del paciente
+        p  
           a.btn.btn-primary(href=`/pacientes/edit/${paciente.idPaciente}`) Editar Información
-
 
     footer
       p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}
