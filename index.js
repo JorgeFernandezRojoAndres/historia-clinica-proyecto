@@ -8,10 +8,6 @@ const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const methodOverride = require('method-override');
 
-
-
-
-
 const app = express();
 const port = 3000;
 
@@ -22,15 +18,13 @@ app.set('views', './app/views');
 // Configurar la carpeta de archivos estáticos
 app.use(express.static('public'));
 
-
-
 // Middlewares adicionales
-app.use(logger('dev')); // Registro de solicitudes HTTP
-app.use(express.json()); // Parseo de JSON
-app.use(express.urlencoded({ extended: true })); // Parseo de datos de formularios
-app.use(cookieParser()); // Manejo de cookies
-app.use(compression()); // Compresión de respuestas
-app.use(methodOverride('_method'));// Soporte para otros métodos HTTP como PUT y DELETE
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(compression());
+app.use(methodOverride('_method'));
 
 // Configurar las sesiones
 app.use(session({
@@ -39,62 +33,66 @@ app.use(session({
     saveUninitialized: false
 }));
 
+// Requerir controladores y middlewares antes de usarlos
+const citasController = require('./app/controllers/citasController');
+const { isAuthenticated, isPaciente } = require('./middleware/roleMiddleware');
+
 // Middleware para gestionar sesiones de usuarios
 app.use((req, res, next) => {
-    res.locals.user = req.session.user;  // Esto estará disponible en todas las vistas Pug
+    res.locals.user = req.session.user; // Esto estará disponible en todas las vistas Pug
     next();
 });
+
 // Definir rutas
 app.get('/', (req, res) => {
     res.render('layout', { title: 'TurnoExpress' });
 });
+
 app.get('/saludplus', (req, res) => {
     req.session.clinicaSeleccionada = true;
     res.render('layout', { title: 'Clínica Integral SaludPlus', clinicaSeleccionada: true });
-  });
+});
 
-  app.get('/vidatotal', (req, res) => {
+app.get('/vidatotal', (req, res) => {
     req.session.clinicaSeleccionada = true;
     res.render('layout', { title: 'Centro Médico Vida Total', clinicaSeleccionada: true });
-  });
-  app.use((req, res, next) => {
+});
+
+app.use((req, res, next) => {
     res.locals.clinicaSeleccionada = req.session.clinicaSeleccionada || false;
     next();
-  });
-  const especialidadesRouter = require('./routes/especialidades');
+});
+
+// Registrar las rutas de especialidades
+const especialidadesRouter = require('./routes/especialidades');
 app.use('/especialidades', especialidadesRouter);
 
-
-// Importa las rutas de secretaria
+// Importar y registrar las rutas de secretaria
 const secretariaRoutes = require('./routes/secretaria');
 app.use('/secretaria', secretariaRoutes);
 
-
-
-
-// Importa las rutas de pacientes
+// Importar y registrar las rutas de pacientes
 const pacientesRoutes = require('./routes/pacientes');
 app.use('/paciente', pacientesRoutes);
 
+// Ruta para ver mis turnos
+app.get('/turnos/mis-turnos', isAuthenticated, citasController.listarMisTurnos);
 
-// Importar las rutas de medicos
+// Importar y registrar las rutas de médicos
 const medicosRoutes = require('./routes/medicos');
 app.use('/medicos', medicosRoutes);
 
-
-
-// Importa las rutas de citas
-const citasController = require('./app/controllers/citasController');
+// Importar y registrar las rutas de citas
 app.get('/api/medicos/:id/agenda', citasController.obtenerCitasJSON);
 
 const citasRoutes = require('./routes/citas');
 app.use('/citas', citasRoutes);
 
-// Importa las rutas de Historial Clinico
+// Registrar las rutas de historial clínico
 const historiasRoutes = require('./routes/historias');
-app.use('/historias', historiasRoutes);
+app.use('/historias', isAuthenticated, isPaciente, historiasRoutes);
 
-// Registra las rutas de autenticación
+// Registrar las rutas de autenticación
 const authRoutes = require('./routes/auth');
 app.use('/', authRoutes);
 
@@ -117,8 +115,7 @@ app.post('/addMedicalRecord', async (req, res) => {
     }
 });
 
-
 // Iniciar el servidor
-app.listen(3000, () => {
+app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);
 });

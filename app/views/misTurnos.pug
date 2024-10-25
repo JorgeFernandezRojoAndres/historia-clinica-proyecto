@@ -1,0 +1,27 @@
+extends layout
+
+block content
+  h2 Mis Turnos
+
+  // Verificar si hay turnos disponibles
+  if turnos.length > 0
+    table
+      thead
+        tr
+          th Fecha y Hora
+          th Médico
+          th Motivo
+          th Estado
+          th Acciones
+      tbody
+        each turno in turnos
+          tr
+            td #{new Date(turno.fechaHora).toLocaleString('es-ES')}
+            td #{turno.nombreMedico}
+            td #{turno.motivoConsulta}
+            td #{turno.estado}
+            td
+              a.btn.btn-primary(href=`/citas/edit/${turno.idCita}`) Editar
+              a.btn.btn-danger(href=`/citas/delete/${turno.idCita}`) Cancelar
+  else
+    p No tienes turnos agendados.
