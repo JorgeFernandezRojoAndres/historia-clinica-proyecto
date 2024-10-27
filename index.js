@@ -72,8 +72,10 @@ const secretariaRoutes = require('./routes/secretaria');
 app.use('/secretaria', secretariaRoutes);
 
 // Importar y registrar las rutas de pacientes
-const pacientesRoutes = require('./routes/pacientes');
-app.use('/paciente', pacientesRoutes);
+const pacientesRouter = require('./routes/pacientes');
+app.use('/pacientes', pacientesRouter);
+
+
 
 // Ruta para ver mis turnos
 app.get('/turnos/mis-turnos', isAuthenticated, citasController.listarMisTurnos);
@@ -114,7 +116,8 @@ app.post('/addMedicalRecord', async (req, res) => {
         res.status(500).send("Error al insertar el registro médico");
     }
 });
-
+// Marcar citas pasadas como completadas al iniciar la aplicación
+citasController.marcarCitasCompletadas();
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);

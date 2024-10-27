@@ -25,24 +25,24 @@ exports.listAll = (req, res) => {
   };
   
 
-exports.showNewForm = (req, res) => {
+  exports.showRegisterForm = (req, res) => {
     res.render('new_pacientes');
-
 };
+
 
 exports.create = (req, res) => {
     const { nombre, fechaNacimiento, dni, direccion, telefono } = req.body;
-
+  
     const sql = 'INSERT INTO pacientes (nombre, fechaNacimiento, dni, direccion, telefono) VALUES (?, ?, ?, ?, ?)';
     db.query(sql, [nombre, fechaNacimiento, dni, direccion, telefono], (error, results) => {
-        if (error) {
-            console.error('Error al crear el paciente:', error);
-            res.status(500).send("Error al crear el paciente");
-        } else {
-            res.redirect('/pacientes'); // Redirige a la lista de pacientes tras crear uno nuevo
-        }
+      if (error) {
+        console.error('Error al crear el paciente:', error);
+        return res.status(500).send("Error al crear el paciente");
+      }
+      res.redirect('/login/paciente');  // Redirige al login después del registro
     });
-};
+  };
+  
 
 
 exports.showEditForm = (req, res) => {

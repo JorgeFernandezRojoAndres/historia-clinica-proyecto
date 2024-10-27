@@ -333,5 +333,82 @@ exports.verEscritorioMedico = (req, res) => {
     });
 };
 
+// Registrar evolución
+exports.registrarEvolucion = (req, res) => {
+    const { idPaciente, evolucion } = req.body;
+    const sql = 'INSERT INTO evoluciones (idPaciente, evolucion) VALUES (?, ?)';
+    db.query(sql, [idPaciente, evolucion], (error) => {
+        if (error) {
+            console.error('Error al registrar la evolución:', error);
+            return res.status(500).send('Error al registrar la evolución');
+        }
+        res.redirect('/medicos/escritorio');
+    });
+};
+
+// Agregar diagnóstico
+exports.agregarDiagnostico = (req, res) => {
+    const { idPaciente, diagnostico } = req.body;
+    const sql = 'INSERT INTO diagnosticos (idPaciente, diagnostico) VALUES (?, ?)';
+    db.query(sql, [idPaciente, diagnostico], (error) => {
+        if (error) {
+            console.error('Error al agregar el diagnóstico:', error);
+            return res.status(500).send('Error al agregar el diagnóstico');
+        }
+        res.redirect('/medicos/escritorio');
+    });
+};
+
+// Agregar alergias
+exports.agregarAlergias = (req, res) => {
+    const { idPaciente, alergia } = req.body;
+    const sql = 'INSERT INTO alergias (idPaciente, alergia) VALUES (?, ?)';
+    db.query(sql, [idPaciente, alergia], (error) => {
+        if (error) {
+            console.error('Error al agregar la alergia:', error);
+            return res.status(500).send('Error al agregar la alergia');
+        }
+        res.redirect('/medicos/escritorio');
+    });
+};
+
+// Registrar antecedentes
+exports.registrarAntecedentes = (req, res) => {
+    const { idPaciente, antecedentes } = req.body;
+    const sql = 'INSERT INTO antecedentes (idPaciente, antecedentes) VALUES (?, ?)';
+    db.query(sql, [idPaciente, antecedentes], (error) => {
+        if (error) {
+            console.error('Error al registrar los antecedentes:', error);
+            return res.status(500).send('Error al registrar los antecedentes');
+        }
+        res.redirect('/medicos/escritorio');
+    });
+};
+
+// Gestionar medicamentos
+exports.medicamentos = (req, res) => {
+    const { idPaciente, medicamento } = req.body;
+    const sql = 'INSERT INTO medicamentos (idPaciente, medicamento) VALUES (?, ?)';
+    db.query(sql, [idPaciente, medicamento], (error) => {
+        if (error) {
+            console.error('Error al agregar el medicamento:', error);
+            return res.status(500).send('Error al agregar el medicamento');
+        }
+        res.redirect('/medicos/escritorio');
+    });
+};
+
+// Usar template de nota
+exports.templateNota = (req, res) => {
+    const { idPaciente, nota } = req.body;
+    const sql = 'INSERT INTO notas (idPaciente, nota) VALUES (?, ?)';
+    db.query(sql, [idPaciente, nota], (error) => {
+        if (error) {
+            console.error('Error al usar el template de nota:', error);
+            return res.status(500).send('Error al usar el template de nota');
+        }
+        res.redirect('/medicos/escritorio');
+    });
+};
 
 

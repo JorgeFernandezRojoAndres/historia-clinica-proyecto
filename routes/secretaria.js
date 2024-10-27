@@ -2,8 +2,6 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/roleMiddleware');
 
-
-
 // Importamos los controladores necesarios
 const pacientesController = require('../app/controllers/pacientesController');
 const medicosController = require('../app/controllers/medicosController');
@@ -14,12 +12,13 @@ router.use(authMiddleware.isAuthenticated, authMiddleware.isSecretaria);
 
 // **Rutas de gestión de pacientes**
 router.get('/pacientes', pacientesController.listAll);
-router.get('/pacientes/new', pacientesController.showNewForm);
+router.get('/pacientes/new', pacientesController.showRegisterForm); // Corregido a showRegisterForm
 router.post('/pacientes', pacientesController.create);
 router.get('/pacientes/:id/edit', pacientesController.showEditForm);
 router.post('/pacientes/:id', pacientesController.update);
 router.delete('/pacientes/:id/delete', pacientesController.delete);
 
+// Ruta de búsqueda de pacientes
 router.get('/pacientes/search', (req, res) => {
     console.log('Query recibida:', req.query);
     pacientesController.search(req, res);
@@ -41,7 +40,7 @@ router.get('/dashboard', (req, res) => {
 // **Rutas para gestionar citas**
 router.get('/citas', citasController.listAll);
 router.get('/citas/new', citasController.showNewForm);
-router.post('/citas', citasController.createCita); // Cambio aquí para usar createCita en lugar de create
+router.post('/citas', citasController.createCita);
 router.get('/citas/:id/edit', citasController.showEditForm);
 router.post('/citas/:id', citasController.update);
 router.delete('/citas/:id/delete', citasController.delete);

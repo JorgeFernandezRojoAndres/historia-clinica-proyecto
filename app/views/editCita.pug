@@ -23,6 +23,9 @@ block content
       input(type="text" name="motivoConsulta" value=cita.motivoConsulta)
     div
       label(for="estado") Estado:
-      input(type="text" name="estado" value=cita.estado)
+      select(name="estado" id="estado")
+        option(value="Pendiente" selected=(cita.estado === 'Pendiente')) Pendiente
+        option(value="En proceso" selected=(cita.estado === 'En proceso')) En proceso
+        option(value="Confirmado" selected=(cita.estado === 'Confirmado')) Confirmado
 
     button(type="submit") Guardar Cambios

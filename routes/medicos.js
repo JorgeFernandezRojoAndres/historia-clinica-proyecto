@@ -5,12 +5,11 @@ const medicosController = require('../app/controllers/medicosController');
 const authMiddleware = require('../middleware/roleMiddleware');
 const citasController = require('../app/controllers/citasController');
 
-
-
 // Ruta para ver la "Agenda del Día"
 router.get('/:id/agenda-dia', authMiddleware.isAuthenticated, (req, res) => {
     medicosController.verAgendaDelDia(req, res);
 });
+
 // Nueva ruta para ver la agenda del médico
 router.get('/:id/agenda', authMiddleware.isAuthenticated, (req, res) => {
     medicosController.verAgenda(req, res);
@@ -20,10 +19,6 @@ router.get('/:id/agenda', authMiddleware.isAuthenticated, (req, res) => {
 router.get('/:id/filtrar-turnos', authMiddleware.isAuthenticated, (req, res) => {
     medicosController.filtrarTurnosPorFecha(req, res);
 });
-
-
-
-
 
 // Modificar la ruta para incluir las citas y la lista de pacientes
 router.get('/perfil', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
@@ -67,8 +62,25 @@ router.get('/perfil', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (
     }
 });
 
+// Nuevas rutas para manejar los botones de las funcionalidades del médico
 
+// Ruta para registrar evolución
+router.get('/registrar-evolucion', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.registrarEvolucion);
 
+// Ruta para agregar diagnóstico
+router.get('/agregar-diagnostico', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.agregarDiagnostico);
+
+// Ruta para agregar alergias
+router.get('/agregar-alergias', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.agregarAlergias);
+
+// Ruta para registrar antecedentes
+router.get('/registrar-antecedentes', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.registrarAntecedentes);
+
+// Ruta para gestionar medicamentos
+router.get('/medicamentos', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.medicamentos);
+
+// Ruta para usar el template de nota
+router.get('/template-nota', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.templateNota);
 
 // **Ruta para actualizar un médico por su ID**
 router.post('/:id', medicosController.update);
@@ -77,14 +89,9 @@ router.post('/:id', medicosController.update);
 router.get('/', medicosController.listAll);
 
 // **Escritorio del médico (solo accesible para médicos autenticados)**
-router.get(
-    '/escritorio',
-    authMiddleware.isAuthenticated,
-    authMiddleware.isDoctor,
-    (req, res) => {
-        res.render('escritorioMedicos', { user: req.session.user });
-    }
-);
+router.get('/escritorio', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
+    res.render('escritorioMedicos', { user: req.session.user });
+});
 
 // **Ruta para cambiar la contraseña del médico**
 router.post('/cambiar-contrasena', authMiddleware.isAuthenticated, medicosController.changePassword);
@@ -96,12 +103,8 @@ router.get('/cambiar-contrasena', authMiddleware.isAuthenticated, (req, res) => 
 });
 
 // **Ruta para buscar médicos (accesible para secretarias)**
-router.get(
-    '/search',
-    authMiddleware.isAuthenticated,
-    authMiddleware.isSecretaria,
-    medicosController.search
-);
+router.get('/search', authMiddleware.isAuthenticated, authMiddleware.isSecretaria, medicosController.search);
+
 // Ruta para ver el historial de un paciente
 router.get('/historial/:idPaciente', authMiddleware.isAuthenticated, (req, res) => {
     medicosController.verHistorialPaciente(req, res);
@@ -133,4 +136,5 @@ router.get('/historial', authMiddleware.isAuthenticated, (req, res) => {
 // Ruta para iniciar la consulta
 router.post('/iniciar/:idCita', citasController.iniciarConsulta);
 router.get('/iniciar-consulta/:idCita', citasController.cargarConsulta);
+
 module.exports = router;

@@ -1,26 +1,32 @@
 const express = require('express');
 const router = express.Router();
 const citasController = require('../app/controllers/citasController');
-const authMiddleware = require('../middleware/roleMiddleware'); 
+const { isAuthenticated, isSecretaria, isPacienteOrSecretaria } = require('../middleware/roleMiddleware');
 
 // Listar todas las citas
-router.get('/', citasController.listAll);
+router.get('/', isAuthenticated, citasController.listAll);
 
 // Mostrar el formulario para crear una nueva cita
-router.get('/new', citasController.showNewForm);
+router.get('/new', isAuthenticated, isPacienteOrSecretaria, citasController.showNewForm);
 
 // Crear una nueva cita
-router.post('/new', citasController.createCita); // Cambiado a createCita
+router.post('/new', isAuthenticated, isPacienteOrSecretaria, citasController.createCita);
 
 // Mostrar el formulario para editar una cita
-router.get('/edit/:id', citasController.showEditForm);
+router.get('/edit/:id', isAuthenticated, citasController.showEditForm);
 
 // Actualizar una cita
-router.post('/update/:id', citasController.update);
+router.post('/update/:id', isAuthenticated, citasController.update);
 
 // Eliminar una cita
-router.get('/delete/:id', citasController.delete);
+router.get('/delete/:id', isAuthenticated, citasController.delete);
 
+// Ruta para filtrar citas por estado (solo para secretaria)
+router.get('/filter', isAuthenticated, isSecretaria, citasController.filterByState);
+// Eliminar un turno completado
+router.get('/delete-completed/:id', isAuthenticated, isPacienteOrSecretaria, citasController.deleteCompleted);
 
+// Eliminar una cita normal
+router.get('/delete/:id', isAuthenticated, isPacienteOrSecretaria, citasController.delete);
 
 module.exports = router;
