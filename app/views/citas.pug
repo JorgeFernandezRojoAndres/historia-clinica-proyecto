@@ -3,10 +3,20 @@ extends layout
 block content
   h2 Listado de Citas
 
-  // Filtro por nombre de médico
+  // Filtros
   div
+    // Filtro por nombre de médico
     label(for="filtroMedico") Filtrar por Médico:
     input(type="text" id="filtroMedico" placeholder="Ingresa el nombre del médico")
+
+    // Filtro por estado (solo visible para secretarias)
+    if user.role === 'secretaria'
+      label(for="filtroEstado") Filtrar por Estado:
+      select(id="filtroEstado")
+        option(value="") Todos
+        option(value="Pendiente") Pendiente
+        option(value="En proceso") En proceso
+        option(value="Confirmado") Confirmado
 
   table(class="table table-striped" id="tablaCitas")
     thead
@@ -29,25 +39,37 @@ block content
             a.btn.btn-primary(href=`/citas/edit/${cita.idCita}`) Editar
             a.btn.btn-danger(href=`/citas/delete/${cita.idCita}` onclick="return confirm('¿Estás seguro de que deseas eliminar esta cita?')") Eliminar
 
-  // Script para filtrar por nombre de médico
+  // Script para filtrar por nombre de médico y estado de la cita
   script.
     document.addEventListener('DOMContentLoaded', function() {
-      const inputFiltro = document.getElementById('filtroMedico');
+      const inputFiltroMedico = document.getElementById('filtroMedico');
+      const selectFiltroEstado = document.getElementById('filtroEstado');
       const tabla = document.getElementById('tablaCitas').getElementsByTagName('tbody')[0];
 
-      inputFiltro.addEventListener('keyup', function() {
-        const filtro = inputFiltro.value.toLowerCase();
+      function filtrarCitas() {
+        const filtroMedico = inputFiltroMedico.value.toLowerCase();
+        const filtroEstado = selectFiltroEstado.value;
         const filas = tabla.getElementsByTagName('tr');
 
         for (let i = 0; i < filas.length; i++) {
           const celdaMedico = filas[i].getElementsByTagName('td')[0];
+          const celdaEstado = filas[i].getElementsByTagName('td')[4];
           const nombreMedico = celdaMedico.textContent || celdaMedico.innerText;
+          const estado = celdaEstado.textContent || celdaEstado.innerText;
 
-          if (nombreMedico.toLowerCase().includes(filtro)) {
+          if (
+            (nombreMedico.toLowerCase().includes(filtroMedico)) &&
+            (filtroEstado === '' || estado === filtroEstado)
+          ) {
             filas[i].style.display = '';
           } else {
             filas[i].style.display = 'none';
           }
         }
-      });
+      }
+
+      inputFiltroMedico.addEventListener('keyup', filtrarCitas);
+      if (selectFiltroEstado) {
+        selectFiltroEstado.addEventListener('change', filtrarCitas);
+      }
     });

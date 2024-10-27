@@ -659,3 +659,8 @@ textarea {
 textarea {
   height: 100px; /* Ajusta la altura de las áreas de texto */
 }
+
+.btn-success {
+  background-color: green;
+  color: white;
+}

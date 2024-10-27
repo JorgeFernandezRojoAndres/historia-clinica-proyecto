@@ -100,25 +100,23 @@ exports.listarMisTurnos = (req, res) => {
 
 
 // Crear una nueva cita
+// citasController.js
 exports.createCita = (req, res) => {
-    // Asegúrate de que idPaciente sea un solo valor
     let { idPaciente, idMedico, fechaHora, motivoConsulta } = req.body;
 
-    // Verificar si idPaciente es un array y tomar el primer valor
     if (Array.isArray(idPaciente)) {
         idPaciente = idPaciente[0];
     }
 
     console.log('Creando cita con los siguientes datos:', { idPaciente, idMedico, fechaHora, motivoConsulta });
 
-    // Validar que los campos requeridos estén presentes
     if (!idPaciente || !idMedico || !fechaHora || !motivoConsulta) {
         return res.status(400).send('Faltan datos requeridos para la cita.');
     }
 
     const sqlCita = `
         INSERT INTO citas (idPaciente, idMedico, fechaHora, motivoConsulta, estado) 
-        VALUES (?, ?, ?, ?, 'preregistro')
+        VALUES (?, ?, ?, ?, 'En proceso')
     `;
 
     db.query(sqlCita, [idPaciente, idMedico, fechaHora, motivoConsulta], (error, result) => {
@@ -126,8 +124,14 @@ exports.createCita = (req, res) => {
             console.error('Error al crear la cita:', error);
             return res.status(500).send('Error al crear la cita');
         }
-        console.log('Cita creada exitosamente en estado de preregistro:', result);
-        res.redirect('/turnos/mis-turnos'); // Ajustar la redirección si es necesario
+        console.log('Cita creada exitosamente en estado de En proceso:', result);
+
+        // Redirigir según el rol del usuario
+        if (req.session.user.role === 'paciente') {
+            res.redirect('/turnos/mis-turnos');
+        } else if (req.session.user.role === 'secretaria') {
+            res.redirect('/citas');
+        }
     });
 };
 
@@ -210,34 +214,64 @@ exports.obtenerCitasJSON = (req, res) => {
 
 
 // Actualizar una cita
+// Editar una cita
 exports.update = (req, res) => {
     const id = req.params.id;
-    const { idMedico, idPaciente, fechaHora, motivoConsulta } = req.body;
-    
-    const sql = 'UPDATE citas SET idMedico = ?, idPaciente = ?, fechaHora = ?, motivoConsulta = ? WHERE idCita = ?';
-    db.query(sql, [idMedico, idPaciente, fechaHora, motivoConsulta, id], (error, results) => {
+    const { idMedico, idPaciente, fechaHora, motivoConsulta, estado } = req.body;
+
+    // Verificar si la cita está completada
+    const sqlVerificar = 'SELECT estado FROM citas WHERE idCita = ?';
+    db.query(sqlVerificar, [id], (error, results) => {
         if (error) {
-            console.error('Error al actualizar la cita:', error);
-            res.status(500).send("Error al actualizar la cita");
-        } else {
-            res.redirect('/citas');
+            console.error('Error al verificar el estado de la cita:', error);
+            return res.status(500).send('Error al verificar el estado de la cita');
         }
+
+        if (results[0].estado === 'Completado') {
+            return res.status(403).send('No se puede editar una cita completada.');
+        }
+
+        // Actualizar la cita
+        const sql = 'UPDATE citas SET idMedico = ?, idPaciente = ?, fechaHora = ?, motivoConsulta = ?, estado = ? WHERE idCita = ?';
+        db.query(sql, [idMedico, idPaciente, fechaHora, motivoConsulta, estado, id], (error) => {
+            if (error) {
+                console.error('Error al actualizar la cita:', error);
+                return res.status(500).send('Error al actualizar la cita');
+            }
+            res.redirect('/citas');
+        });
     });
 };
+
 
 // Eliminar una cita
 exports.delete = (req, res) => {
     const id = req.params.id;
-    const sql = 'DELETE FROM citas WHERE idCita = ?';
-    db.query(sql, [id], (error, results) => {
+
+    // Verificar si la cita está completada
+    const sqlVerificar = 'SELECT estado FROM citas WHERE idCita = ?';
+    db.query(sqlVerificar, [id], (error, results) => {
         if (error) {
-            console.error('Error al eliminar la cita:', error);
-            res.status(500).send("Error al eliminar la cita");
-        } else {
-            res.redirect('/citas');
+            console.error('Error al verificar el estado de la cita:', error);
+            return res.status(500).send('Error al verificar el estado de la cita');
         }
+
+        if (results[0].estado === 'Completado') {
+            return res.status(403).send('No se puede eliminar una cita completada.');
+        }
+
+        // Eliminar la cita
+        const sql = 'DELETE FROM citas WHERE idCita = ?';
+        db.query(sql, [id], (error) => {
+            if (error) {
+                console.error('Error al eliminar la cita:', error);
+                return res.status(500).send('Error al eliminar la cita');
+            }
+            res.redirect('/citas');
+        });
     });
 };
+
 exports.iniciarConsulta = (req, res) => {
     const idCita = req.params.idCita;
 
@@ -279,5 +313,68 @@ exports.cargarConsulta = (req, res) => {
         res.render('consulta', {
             cita: results[0]
         });
+    });
+};
+
+// Filtrar citas por estado (solo accesible por la secretaria)
+exports.filterByState = (req, res) => {
+    const { estado } = req.query; // Obtener el estado seleccionado desde la consulta
+
+    let sql = `
+        SELECT citas.idCita, pacientes.nombre AS nombrePaciente, medicos.nombre AS nombreMedico,
+               citas.fechaHora, citas.motivoConsulta, citas.estado
+        FROM citas
+        JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+        JOIN medicos ON citas.idMedico = medicos.idMedico
+    `;
+
+    // Aplicar el filtro si se selecciona un estado
+    if (estado) {
+        sql += ` WHERE citas.estado = ?`;
+    }
+
+    const params = estado ? [estado] : [];
+
+    db.query(sql, params, (error, results) => {
+        if (error) {
+            console.error('Error al filtrar citas por estado:', error);
+            return res.status(500).send('Error al filtrar citas');
+        }
+
+        // Renderizar la vista con los resultados filtrados
+        res.render('citas', {
+            citas: results,
+            estadoSeleccionado: estado // Para resaltar el filtro seleccionado
+        });
+    });
+};
+// Marcar automáticamente citas pasadas como "Completado"
+exports.marcarCitasCompletadas = () => {
+    const sql = `
+        UPDATE citas
+        SET estado = 'Completado'
+        WHERE fechaHora < NOW() AND estado != 'Completado'
+    `;
+    
+    db.query(sql, (error) => {
+        if (error) {
+            console.error('Error al marcar citas como completadas:', error);
+        } else {
+            console.log('Citas pasadas marcadas como "Completado".');
+        }
+    });
+};
+// Eliminar un turno completado
+exports.deleteCompleted = (req, res) => {
+    const id = req.params.id;
+    const sql = 'DELETE FROM citas WHERE idCita = ? AND estado = "Completado"';
+
+    db.query(sql, [id], (error, results) => {
+        if (error) {
+            console.error('Error al eliminar el turno completado:', error);
+            res.status(500).send("Error al eliminar el turno completado");
+        } else {
+            res.redirect('/turnos/mis-turnos');
+        }
     });
 };

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../app/controllers/authController');
+const pacientesController = require('../app/controllers/pacientesController');
 
 
 // Rutas para mostrar los formularios de login según el rol
@@ -38,5 +39,11 @@ res.render('escritorioSecretaria', { user: req.session.user });
 
 // Ruta para logout
 router.get('/logout', authController.logout);
+// Rutas para registro de pacientes
+router.get('/register/paciente', (req, res) => {
+  res.render('new_pacientes');  // Asegúrate de tener la vista `new_pacientes.pug`
+});
+router.post('/register/paciente', pacientesController.create);
+
 
 module.exports = router;

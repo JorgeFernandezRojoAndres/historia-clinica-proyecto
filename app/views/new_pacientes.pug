@@ -1,9 +1,9 @@
-extends layout.pug
+extends layout
 
 block content
-  h1 Añadir Nuevo Paciente
+  h1 Registrar Nuevo Paciente
 
-  form(action="/pacientes" method="POST")
+  form(action="/register/paciente" method="POST")
     div
       label(for="nombre") Nombre:
       input(type="text" name="nombre" required)
@@ -20,4 +20,4 @@ block content
       label(for="telefono") Teléfono:
       input(type="text" name="telefono" required)
     div
-      button(type="submit") Crear Paciente
+      button(type="submit") Registrarse

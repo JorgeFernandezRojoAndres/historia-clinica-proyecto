@@ -9,16 +9,21 @@ router.get('/mi-perfil', authMiddleware.isAuthenticated, authMiddleware.isPacien
 // Redirigir a los pacientes que acceden a /pacientes a su perfil
 router.get('/', authMiddleware.isAuthenticated, authMiddleware.isPaciente, (req, res) => {
     res.redirect('/paciente/mi-perfil');
-    console.log("🚀 ~ router.get ~ perfil:", mi-perfil)
+    console.log("🚀 ~ router.get ~ perfil:", 'mi-perfil');
 });
-    
-    
 
 // Ruta para mostrar el formulario de editar un paciente (acceso solo para el paciente)
 router.get('/edit/:id', authMiddleware.isAuthenticated, authMiddleware.isPaciente, pacientesController.showEditForm);
 
 // Ruta para actualizar un paciente
 router.post('/update/:id', authMiddleware.isAuthenticated, authMiddleware.isPaciente, pacientesController.update);
+
+// Ruta para mostrar el formulario de registro de un nuevo paciente
+router.get('/register', pacientesController.showRegisterForm);
+
+// Ruta para crear un nuevo paciente
+router.post('/', pacientesController.create);
+
 
 // **Nueva Ruta para Buscar Pacientes**
 router.get('/search', authMiddleware.isAuthenticated, authMiddleware.isSecretaria, (req, res) => {
@@ -33,8 +38,5 @@ router.get('/search', authMiddleware.isAuthenticated, authMiddleware.isSecretari
         res.json(results); // Devolver los resultados como JSON
     });
 });
-
-// Eliminamos las rutas que solo deberían ser accesibles por secretarias
-// Si en el futuro necesitas esas rutas, puedes crear un archivo diferente o agregar un middleware para esas funciones específicas.
 
 module.exports = router;
