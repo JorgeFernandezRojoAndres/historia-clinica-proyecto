@@ -664,3 +664,22 @@ textarea {
   background-color: green;
   color: white;
 }
+.notificacion {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ffcc00;
+  padding: 10px;
+  border: 1px solid #333;
+  border-radius: 5px;
+  z-index: 1000;
+}
+.badge {
+  background-color: #dc3545; /* Rojo para resaltar */
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-left: 5px;
+  display: none; /* Por defecto oculto */
+}
+

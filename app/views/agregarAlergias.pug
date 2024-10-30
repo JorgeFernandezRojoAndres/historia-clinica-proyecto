@@ -1,0 +1,52 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Agregar Alergia
+    link(rel="stylesheet" href="/css/style.css")
+
+  body
+    h1 Agregar Alergia
+
+    // Formulario para agregar una alergia al paciente
+    form(action="/medicos/agregar-alergias" method="POST")
+      // Campo oculto para enviar el ID del paciente
+      input(type="hidden" name="idPaciente" value=idPaciente)
+
+      // Campo de texto para mostrar el nombre del paciente (solo lectura)
+      label(for="paciente") Paciente:
+      input#paciente(type="text" name="paciente" readonly value=paciente)
+
+      // Campo para ingresar la alergia
+      label(for="alergia") Alergia:
+      textarea#alergia(name="alergia" rows="4" required)
+
+      // Botón de envío
+      button(type="submit") Guardar Alergia
+
+    // Mostrar mensaje de error si existe
+    if error
+      p.error= error
+
+    // Mostrar mensaje de éxito si existe
+    if success
+      p.success= success
+
+    // Script para verificar el valor de idPaciente y alergia antes de enviar el formulario
+    script.
+      document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const idPaciente = document.querySelector('input[name="idPaciente"]').value;
+        const alergia = document.querySelector('#alergia');
+
+        form.addEventListener('submit', function(e) {
+          console.log("ID del Paciente:", idPaciente);
+          console.log("Alergia:", alergia.value);
+
+          if (!idPaciente || alergia.value.trim() === '') {
+            e.preventDefault();
+            alert('Por favor, complete todos los campos antes de guardar la alergia.');
+          }
+        });
+      });

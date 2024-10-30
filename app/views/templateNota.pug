@@ -1,0 +1,34 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Template de Nota
+    link(rel="stylesheet" href="/css/style.css")
+
+  body
+    h1 Template de Nota
+
+    // Formulario para agregar una nota al paciente
+    form(action="/medicos/template-nota" method="POST")
+      // Campo oculto para enviar el ID del paciente
+      input(type="hidden" name="idPaciente" value=idPaciente)
+
+      // Campo de texto para mostrar el nombre del paciente (solo lectura)
+      label(for="paciente") Paciente:
+      input#paciente(type="text" name="paciente" readonly value=paciente)
+
+      // Campo para ingresar la nota
+      label(for="nota") Nota:
+      textarea#nota(name="nota" rows="4" required)
+
+      // Botón de envío
+      button(type="submit") Guardar Nota
+
+    // Mostrar mensaje de error si existe
+    if error
+      p.error= error
+
+    // Mostrar mensaje de éxito si existe
+    if success
+      p.success= success

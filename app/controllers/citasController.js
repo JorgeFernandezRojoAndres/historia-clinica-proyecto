@@ -1,4 +1,6 @@
 const db = require('../../config/database');
+const { enviarNotificacionAScretaria } = require('../../utils/notificaciones');
+
 
 // Listar todas las citas
 exports.listAll = (req, res) => {
@@ -97,19 +99,14 @@ exports.listarMisTurnos = (req, res) => {
     });
 };
 
+// Crear una nueva cita
 
 
 // Crear una nueva cita
-// citasController.js
 exports.createCita = (req, res) => {
-    let { idPaciente, idMedico, fechaHora, motivoConsulta } = req.body;
+    const { idPaciente, idMedico, fechaHora, motivoConsulta } = req.body;
 
-    if (Array.isArray(idPaciente)) {
-        idPaciente = idPaciente[0];
-    }
-
-    console.log('Creando cita con los siguientes datos:', { idPaciente, idMedico, fechaHora, motivoConsulta });
-
+    // Validación de campos
     if (!idPaciente || !idMedico || !fechaHora || !motivoConsulta) {
         return res.status(400).send('Faltan datos requeridos para la cita.');
     }
@@ -119,18 +116,20 @@ exports.createCita = (req, res) => {
         VALUES (?, ?, ?, ?, 'En proceso')
     `;
 
-    db.query(sqlCita, [idPaciente, idMedico, fechaHora, motivoConsulta], (error, result) => {
+    // Insertar la cita en la base de datos
+    db.query(sqlCita, [idPaciente, idMedico, fechaHora, motivoConsulta], (error) => {
         if (error) {
             console.error('Error al crear la cita:', error);
             return res.status(500).send('Error al crear la cita');
         }
-        console.log('Cita creada exitosamente en estado de En proceso:', result);
 
-        // Redirigir según el rol del usuario
+        // Verificar el rol del usuario y redirigir en consecuencia
         if (req.session.user.role === 'paciente') {
-            res.redirect('/turnos/mis-turnos');
+            return res.redirect('/turnos/mis-turnos');
         } else if (req.session.user.role === 'secretaria') {
-            res.redirect('/citas');
+            return res.redirect('/secretaria/citas');
+        } else {
+            return res.redirect('/'); // Redirigir a la página principal en caso de rol desconocido
         }
     });
 };
@@ -378,3 +377,17 @@ exports.deleteCompleted = (req, res) => {
         }
     });
 };
+exports.countEnProceso = (req, res) => {
+    const sql = "SELECT COUNT(*) AS count FROM citas WHERE estado = 'En proceso'";
+    db.query(sql, (error, results) => {
+        if (error) {
+            console.error('Error al contar citas en proceso:', error);
+            return res.status(500).send('Error al contar citas en proceso');
+        }
+        res.json({ count: results[0].count });
+    });
+};
+
+  
+  
+

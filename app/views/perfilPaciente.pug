@@ -16,7 +16,8 @@ html(lang="en")
           li
             a(href="/historias") Ver Mi Historial Clínico
           li
-            a(href=`/citas/new?estado=En proceso&idPaciente=${paciente.idPaciente}`) Sacar Turno Preregistro
+            // Enlace para sacar turno con evento click
+            a.btn(href=`/citas/new?estado=En proceso&idPaciente=${paciente.idPaciente}`) Sacar Turno Preregistro
           li
             a(href="/logout") Cerrar Sesión
 
@@ -28,7 +29,7 @@ html(lang="en")
           | #{paciente.nombre}
         p
           strong Fecha de Nacimiento:
-          | #{new Date(paciente.fechaNacimiento).toLocaleDateString('es-ES')}  
+          | #{new Date(paciente.fechaNacimiento).toLocaleDateString('es-ES')}
         p
           strong DNI:
           | #{paciente.dni}
@@ -45,3 +46,16 @@ html(lang="en")
 
     footer
       p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}
+
+    // Agregar scripts
+    script.
+      // Agregar evento a "Sacar Turno"
+      document.addEventListener('DOMContentLoaded', function() {
+        const sacarTurnoLink = document.getElementById('sacarTurno');
+        if (sacarTurnoLink) {
+          sacarTurnoLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            window.open(sacarTurnoLink.href, 'SacarTurno', 'width=800,height=600,resizable=yes,scrollbars=yes');
+          });
+        }
+      });
