@@ -12,8 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedOption = medicoSelect.options[medicoSelect.selectedIndex];
 
         if (medicoId) {
-            // Configurar el enlace y mostrar el botón
-            verAgendaButton.onclick = () => {
+            verAgendaButton.onclick = (e) => {
+                e.preventDefault(); // Evita la navegación predeterminada
                 window.open(`/medicos/${medicoId}/agenda`, '_blank', 'width=800,height=600');
             };
             verAgendaButton.style.display = 'inline-block';

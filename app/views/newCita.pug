@@ -25,20 +25,16 @@ block content
     //- Campo de paciente
     label(for="buscarPaciente") Buscar Paciente:
     if nombrePaciente
-      // Si el paciente está logueado, mostrar su nombre en un campo de solo lectura
       input(type="text" id="buscarPaciente" name="nombrePaciente" value=nombrePaciente readonly)
       input(type="hidden" name="idPaciente" value=idPaciente)
     else
-      // Si el usuario es secretaria, permitir la búsqueda manual del paciente
       input(type="text" id="buscarPaciente" placeholder="Ingresa nombre o DNI" autocomplete="off" required)
+      input(type="hidden" name="idPaciente" id="idPaciente")
 
-    ul#listaResultados // Contenedor para sugerencias dinámicas
+    ul#listaResultados
 
-    label(for="idPaciente") ID Paciente:
-    input(type="text" name="idPaciente" id="idPaciente" readonly required)
-    br
-
-    a#verAgendaButton.btn.btn-primary(href="#", target="_blank") Ver Agenda del Médico
+    //- Botón para ver la agenda del médico seleccionado
+    a#verAgendaButton.btn.btn-primary(href="#") Ver Agenda del Médico
 
     label(for="fechaHora") Fecha y Hora:
     input(type="datetime-local" name="fechaHora" id="fechaHora" required)
@@ -54,14 +50,14 @@ block content
     document.addEventListener('DOMContentLoaded', function() {
       const especialidadSelector = document.getElementById('especialidadSelector');
       const medicoSelector = document.getElementById('idMedico');
+      const verAgendaButton = document.getElementById('verAgendaButton');
       const medicos = !{JSON.stringify(medicos)};
 
       // Evento para filtrar médicos por especialidad
       especialidadSelector.addEventListener('change', function() {
         const especialidadSeleccionada = this.value;
         medicoSelector.innerHTML = '<option value="">-- Selecciona un médico --</option>';
-
-        // Filtrar médicos por especialidad
+        
         medicos.forEach(medico => {
           if (medico.especialidad === especialidadSeleccionada) {
             const option = document.createElement('option');
@@ -76,6 +72,15 @@ block content
       // Cambiar la especialidad del médico seleccionado
       medicoSelector.addEventListener('change', function() {
         const medicoSeleccionado = this.options[this.selectedIndex];
+        const medicoId = medicoSeleccionado.value;
+
         document.getElementById('especialidadMedico').value = medicoSeleccionado.getAttribute('data-especialidad') || '';
+
+        if (medicoId) {
+          verAgendaButton.href = `/medicos/${medicoId}/agenda`;
+          verAgendaButton.style.display = 'inline-block'; // Mostrar botón solo si se selecciona un médico
+        } else {
+          verAgendaButton.style.display = 'none'; // Ocultar botón si no hay médico seleccionado
+        }
       });
     });

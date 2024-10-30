@@ -28,5 +28,7 @@ router.get('/delete-completed/:id', isAuthenticated, isPacienteOrSecretaria, cit
 
 // Eliminar una cita normal
 router.get('/delete/:id', isAuthenticated, isPacienteOrSecretaria, citasController.delete);
+// Ruta para contar citas en proceso
+router.get('/count-en-proceso', isAuthenticated, isSecretaria, citasController.countEnProceso);
 
 module.exports = router;

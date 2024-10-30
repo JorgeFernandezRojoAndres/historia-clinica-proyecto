@@ -156,13 +156,12 @@ exports.verAgendaDelDia = (req, res) => {
     const idMedico = req.params.id;
     const today = new Date().toISOString().split('T')[0];
     const sql = `
-    SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado, medicos.nombre AS nombreMedico
-    FROM citas
-    JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
-    JOIN medicos ON citas.idMedico = medicos.idMedico
-    WHERE citas.idMedico = ? AND DATE(citas.fechaHora) = ?
-`;
-
+        SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado, medicos.nombre AS nombreMedico
+        FROM citas
+        JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+        JOIN medicos ON citas.idMedico = medicos.idMedico
+        WHERE citas.idMedico = ? AND DATE(citas.fechaHora) = ?
+    `;
 
     db.query(sql, [idMedico, today], (error, results) => {
         if (error) {
@@ -172,60 +171,17 @@ exports.verAgendaDelDia = (req, res) => {
 
         results.forEach(cita => {
             const fecha = new Date(cita.fechaHora);
-            cita.fechaHora = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} 
-                              ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
-        });
-
-        res.render('agenda_medico', {
-            citas: results,
-            nombreMedico: results.length > 0 ? results[0].nombreMedico : 'Médico sin citas'
-        });
-    });
-};
-
-
-
-
-// Filtrar turnos por una fecha específica
-exports.filtrarTurnosPorFecha = (req, res) => {
-    const idMedico = req.params.id;
-    const fechaFiltro = req.query.fecha; // Obtener la fecha de filtro desde la query
-
-    let sql = `
-    SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado, medicos.nombre AS nombreMedico
-    FROM citas
-    JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
-    JOIN medicos ON citas.idMedico = medicos.idMedico
-    WHERE citas.idMedico = ? AND citas.estado = 'confirmada'
-    `;
-
-    if (fechaFiltro) {
-        sql += ` AND DATE(citas.fechaHora) = ?`;
-    }
-
-    const params = [idMedico];
-    if (fechaFiltro) params.push(fechaFiltro);
-
-    db.query(sql, params, (error, results) => {
-        if (error) {
-            console.error('Error al filtrar los turnos del médico por fecha:', error);
-            return res.status(500).send('Error al filtrar los turnos');
-        }
-
-        // Formatear la fecha y hora para mostrar correctamente en la vista
-        results.forEach(cita => {
-            const fecha = new Date(cita.fechaHora);
-            cita.fechaHora = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} 
-                              ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
+            cita.fechaHora = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
         });
 
         res.render('agenda_medico', {
             citas: results,
             nombreMedico: results.length > 0 ? results[0].nombreMedico : 'Médico sin citas',
-            mostrarFiltro: true // Mostrar el filtro de fecha
+            agendaDelDia: true // Agregar esta variable para desactivar el selector de fecha
         });
     });
 };
+
 
 
 // Función auxiliar para renderizar la agenda
@@ -241,25 +197,6 @@ function renderAgenda(res, results, mostrarFiltro) {
         mostrarFiltro: mostrarFiltro
     });
 }
-
-
-// Función auxiliar para renderizar la agenda
-function renderAgenda(res, results) {
-    results.forEach(cita => {
-        const fecha = new Date(cita.fechaHora);
-        cita.fechaHora = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} 
-                          ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
-    });
-
-    res.render('agenda_medico', {
-        citas: results,
-        nombreMedico: results.length > 0 ? results[0].nombreMedico : 'Médico sin citas',
-        mostrarFiltro: false
-    });
-}
-
-
-
 
 
 // Buscar médicos por nombre
@@ -335,20 +272,71 @@ exports.verEscritorioMedico = (req, res) => {
 
 // Registrar evolución
 exports.registrarEvolucion = (req, res) => {
-    const { idPaciente, evolucion } = req.body;
-    const sql = 'INSERT INTO evoluciones (idPaciente, evolucion) VALUES (?, ?)';
-    db.query(sql, [idPaciente, evolucion], (error) => {
+    // Imprimir todos los datos recibidos para verificar si llegan correctamente
+    console.log("Datos recibidos en el controlador:", req.body);
+
+    const { idPaciente, detallesEvolucion } = req.body;
+
+    // Validación para asegurar que los datos requeridos están presentes
+    if (!idPaciente || isNaN(idPaciente) || !detallesEvolucion) {
+        console.log("Error de validación: Faltan datos requeridos.");
+        return res.status(400).send('Faltan datos requeridos para registrar la evolución.');
+    }
+
+    const sql = `
+        INSERT INTO evoluciones (idPaciente, evolucion, fechaRegistro)
+        VALUES (?, ?, NOW())
+    `;
+
+    db.query(sql, [idPaciente, detallesEvolucion], (error) => {
         if (error) {
-            console.error('Error al registrar la evolución:', error);
+            console.error('Error al registrar la evolución en la base de datos:', error);
             return res.status(500).send('Error al registrar la evolución');
         }
-        res.redirect('/medicos/escritorio');
+
+        // Mensaje de éxito en la consola para confirmar el registro exitoso
+        console.log("Evolución registrada exitosamente para el paciente ID:", idPaciente);
+
+        // Redirigir al perfil del médico después de guardar la evolución
+        res.redirect('/medicos/perfil');
     });
 };
 
+
+
+// Mostrar el formulario para registrar evolución
+exports.mostrarFormularioEvolucion = (req, res) => {
+    const idPaciente = req.params.idPaciente || req.query.idPaciente;
+    const nombrePaciente = "Nombre del Paciente"; // Deberías obtener esto desde la base de datos según el ID del paciente
+
+    // Verificación de datos antes de renderizar la vista
+    if (!idPaciente) {
+        console.error("Error: No se proporcionó el ID del paciente.");
+        return res.status(400).send("No se proporcionó el ID del paciente.");
+    }
+
+    console.log("ID del Paciente al mostrar formulario:", idPaciente);
+    console.log("Nombre del Paciente al mostrar formulario:", nombrePaciente);
+
+    // Renderizar la vista con los datos necesarios
+    res.render('registrarEvolucion', {
+        idPaciente: idPaciente,
+        paciente: nombrePaciente
+    });
+};
+
+
 // Agregar diagnóstico
 exports.agregarDiagnostico = (req, res) => {
+    console.log("Datos recibidos para agregar diagnóstico:", req.body);
+
     const { idPaciente, diagnostico } = req.body;
+
+    if (!idPaciente || !diagnostico) {
+        console.error("Faltan datos para agregar el diagnóstico.");
+        return res.status(400).send('Faltan datos requeridos para agregar el diagnóstico.');
+    }
+
     const sql = 'INSERT INTO diagnosticos (idPaciente, diagnostico) VALUES (?, ?)';
     db.query(sql, [idPaciente, diagnostico], (error) => {
         if (error) {
@@ -359,9 +347,18 @@ exports.agregarDiagnostico = (req, res) => {
     });
 };
 
+
 // Agregar alergias
 exports.agregarAlergias = (req, res) => {
+    console.log("Datos recibidos para agregar alergia:", req.body);
+
     const { idPaciente, alergia } = req.body;
+
+    if (!idPaciente || !alergia) {
+        console.error("Faltan datos para agregar la alergia.");
+        return res.status(400).send('Faltan datos requeridos para agregar la alergia.');
+    }
+
     const sql = 'INSERT INTO alergias (idPaciente, alergia) VALUES (?, ?)';
     db.query(sql, [idPaciente, alergia], (error) => {
         if (error) {
@@ -372,9 +369,17 @@ exports.agregarAlergias = (req, res) => {
     });
 };
 
-// Registrar antecedentes
+
 exports.registrarAntecedentes = (req, res) => {
+    console.log("Datos recibidos para registrar antecedentes:", req.body);
+
     const { idPaciente, antecedentes } = req.body;
+
+    if (!idPaciente || !antecedentes) {
+        console.error("Faltan datos para registrar los antecedentes.");
+        return res.status(400).send('Faltan datos requeridos para registrar los antecedentes.');
+    }
+
     const sql = 'INSERT INTO antecedentes (idPaciente, antecedentes) VALUES (?, ?)';
     db.query(sql, [idPaciente, antecedentes], (error) => {
         if (error) {
@@ -385,9 +390,36 @@ exports.registrarAntecedentes = (req, res) => {
     });
 };
 
-// Gestionar medicamentos
+exports.registrarHabitos = (req, res) => {
+    console.log("Datos recibidos para registrar hábitos:", req.body);
+
+    const { idPaciente, habitos } = req.body;
+
+    if (!idPaciente || !habitos) {
+        console.error("Faltan datos para registrar los hábitos.");
+        return res.status(400).send('Faltan datos requeridos para registrar los hábitos.');
+    }
+
+    const sql = 'INSERT INTO habitos (idPaciente, habitos) VALUES (?, ?)';
+    db.query(sql, [idPaciente, habitos], (error) => {
+        if (error) {
+            console.error('Error al registrar los hábitos:', error);
+            return res.status(500).send('Error al registrar los hábitos');
+        }
+        res.redirect('/medicos/escritorio');
+    });
+};
+
 exports.medicamentos = (req, res) => {
+    console.log("Datos recibidos para agregar medicamento:", req.body);
+
     const { idPaciente, medicamento } = req.body;
+
+    if (!idPaciente || !medicamento) {
+        console.error("Faltan datos para agregar el medicamento.");
+        return res.status(400).send('Faltan datos requeridos para agregar el medicamento.');
+    }
+
     const sql = 'INSERT INTO medicamentos (idPaciente, medicamento) VALUES (?, ?)';
     db.query(sql, [idPaciente, medicamento], (error) => {
         if (error) {
@@ -398,9 +430,18 @@ exports.medicamentos = (req, res) => {
     });
 };
 
+
 // Usar template de nota
 exports.templateNota = (req, res) => {
+    console.log("Datos recibidos para el template de nota:", req.body);
+
     const { idPaciente, nota } = req.body;
+
+    if (!idPaciente || !nota) {
+        console.error("Faltan datos para el template de nota.");
+        return res.status(400).send('Faltan datos requeridos para el template de nota.');
+    }
+
     const sql = 'INSERT INTO notas (idPaciente, nota) VALUES (?, ?)';
     db.query(sql, [idPaciente, nota], (error) => {
         if (error) {

@@ -7,7 +7,7 @@ html
     h1 Consulta de #{cita.nombrePaciente}
 
     // Mostrar detalles de la cita
-    p Fecha y Hora: #{cita.fechaHora}
+    p Fecha y Hora: #{new Date(cita.fechaHora).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })} #{new Date(cita.fechaHora).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
     p Motivo de Consulta: #{cita.motivoConsulta}
 
     // Formulario para registrar la evolución

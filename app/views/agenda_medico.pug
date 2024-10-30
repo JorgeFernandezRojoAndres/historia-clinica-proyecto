@@ -6,10 +6,11 @@ html
   body
     h1 Agenda del Médico
 
-    // Selector de fecha para filtrar citas y horarios libres
-    div#fechaSelector
-      label(for="fecha") Seleccionar Fecha:
-      input(type="date" id="fecha" name="fecha" value=fechaHoy onchange="cambiarFecha()")
+    // Mostrar el selector de fecha solo si no es la agenda del día
+    if !agendaDelDia
+      div#fechaSelector
+        label(for="fecha") Seleccionar Fecha:
+        input(type="date" id="fecha" name="fecha" value=fechaHoy onchange="cambiarFecha()")
 
     // Contenedor para mostrar las citas en una tabla
     div#citasContainer
@@ -39,11 +40,9 @@ html
             th Acción
         tbody
           each hora in horariosLibres
-            // Comprobar si el horario ya está ocupado por una cita
             - var ocupado = citas.some(cita => cita.fechaHora.includes(hora))
             if !ocupado
               tr
-                // Mostrar la hora correctamente
                 td= `${fechaHoy} ${hora}`
                 td
                   button.btn-seleccionar(onclick=`seleccionarHorario('${fechaHoy}', '${hora}')`) Seleccionar
