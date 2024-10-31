@@ -37,7 +37,7 @@ html
         thead
           tr
             th Horario Libre
-            th Acción
+            
         tbody
           each hora in horariosLibres
             - var ocupado = citas.some(cita => cita.fechaHora.includes(hora))
@@ -45,7 +45,8 @@ html
               tr
                 td= `${fechaHoy} ${hora}`
                 td
-                  button.btn-seleccionar(onclick=`seleccionarHorario('${fechaHoy}', '${hora}')`) Seleccionar
+                  if user.role !== 'Medico'
+                    button.btn-seleccionar(onclick=`seleccionarHorario('${fechaHoy}', '${hora}')`) Seleccionar
     else
       p No hay horarios libres disponibles.
 

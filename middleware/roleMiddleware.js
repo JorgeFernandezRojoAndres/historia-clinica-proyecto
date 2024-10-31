@@ -46,9 +46,10 @@ exports.checkRole = (role) => {
 };
 
 // Definición específica de los roles usando checkRole
-exports.isDoctor = exports.checkRole('doctor');
+exports.isMedico = exports.checkRole('Medico');
 exports.isSecretaria = exports.checkRole('secretaria');
 exports.isPaciente = exports.checkRole('paciente');
+exports.isPacienteOrMedico = exports.checkRole('Medico');
 
 // Nuevo middleware para permitir acceso a pacientes y secretarias
 exports.isPacienteOrSecretaria = (req, res, next) => {
@@ -68,9 +69,20 @@ exports.isSecretaria = (req, res, next) => {
     return res.status(403).send('Acceso denegado: Solo para secretarias');
 };
 exports.isSecretaria = exports.checkRole('secretaria');
+//  middleware para permitir acceso a pacientes y médicos
+exports.isPacienteOrMedico = (req, res, next) => {
+    console.log('Verificando acceso de paciente o médico:', req.session.user);
+    if (req.session.user && (req.session.user.role === 'paciente' || req.session.user.role === 'Medico')) {
+        console.log('Acceso concedido a paciente o médico:', req.session.user);
+        return next();
+    }
+    console.log('Acceso denegado: Solo para pacientes o médicos');
+    return res.status(403).send('Acceso denegado: Solo para pacientes o médicos');
+};
+
 
 
 // Definición específica de los roles usando checkRole
-exports.isDoctor = exports.checkRole('doctor');
+exports.isMedico = exports.checkRole('Medico');
 exports.isSecretaria = exports.checkRole('secretaria');
 exports.isPaciente = exports.checkRole('paciente');

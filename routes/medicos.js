@@ -16,7 +16,7 @@ router.get('/:id/agenda', authMiddleware.isAuthenticated, (req, res) => {
 });
 
 // Modificar la ruta para incluir las citas y la lista de pacientes
-router.get('/perfil', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
+router.get('/perfil', authMiddleware.isAuthenticated, authMiddleware.isMedico, (req, res) => {
     const user = req.session.user;
 
     if (user.password_change_required) {
@@ -61,64 +61,64 @@ router.get('/perfil', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (
 
 
 // Ruta para mostrar el formulario de registrar evolución
-router.get('/registrar-evolucion', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
+router.get('/registrar-evolucion', authMiddleware.isAuthenticated, authMiddleware.isMedico, (req, res) => {
     res.render('registrarEvolucion', { idPaciente: req.query.idPaciente, paciente: req.query.paciente });
 });
 
 // Ruta para procesar el formulario de registrar evolución
-router.post('/registrar-evolucion', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.registrarEvolucion);
+router.post('/registrar-evolucion', authMiddleware.isAuthenticated, authMiddleware.isMedico, medicosController.registrarEvolucion);
 
 
 
 // Ruta para mostrar el formulario de agregar diagnóstico
-router.get('/agregar-diagnostico', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
+router.get('/agregar-diagnostico', authMiddleware.isAuthenticated, authMiddleware.isMedico, (req, res) => {
     res.render('agregarDiagnostico', { idPaciente: req.query.idPaciente, paciente: req.query.paciente });
 });
 
 // Ruta para procesar el formulario de agregar diagnóstico
-router.post('/agregar-diagnostico', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.agregarDiagnostico);
+router.post('/agregar-diagnostico', authMiddleware.isAuthenticated, authMiddleware.isMedico, medicosController.agregarDiagnostico);
 
 
 // Ruta para mostrar el formulario de agregar alergias
-router.get('/agregar-alergias', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
+router.get('/agregar-alergias', authMiddleware.isAuthenticated, authMiddleware.isMedico, (req, res) => {
     res.render('agregarAlergias', { idPaciente: req.query.idPaciente, paciente: req.query.paciente });
 });
 
 // Ruta para procesar el formulario de agregar alergias
-router.post('/agregar-alergias', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.agregarAlergias);
+router.post('/agregar-alergias', authMiddleware.isAuthenticated, authMiddleware.isMedico, medicosController.agregarAlergias);
 
 
 // Ruta para mostrar el formulario de registrar antecedentes
-router.get('/registrar-antecedentes', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
+router.get('/registrar-antecedentes', authMiddleware.isAuthenticated, authMiddleware.isMedico, (req, res) => {
     res.render('registrarAntecedentes', { idPaciente: req.query.idPaciente, paciente: req.query.paciente });
 });
 
 // Ruta para procesar el formulario de registrar antecedentes
-router.post('/registrar-antecedentes', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.registrarAntecedentes);
+router.post('/registrar-antecedentes', authMiddleware.isAuthenticated, authMiddleware.isMedico, medicosController.registrarAntecedentes);
 // Ruta para mostrar el formulario de registrar hábitos
-router.get('/registrar-habitos', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
+router.get('/registrar-habitos', authMiddleware.isAuthenticated, authMiddleware.isMedico, (req, res) => {
     res.render('registrarHabitos', { idPaciente: req.query.idPaciente, paciente: req.query.paciente });
 });
 
 // Ruta para procesar el formulario de registrar hábitos
-router.post('/registrar-habitos', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.registrarHabitos);
+router.post('/registrar-habitos', authMiddleware.isAuthenticated, authMiddleware.isMedico, medicosController.registrarHabitos);
 // Ruta para mostrar el formulario de agregar medicamento
-router.get('/medicamentos', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
+router.get('/medicamentos', authMiddleware.isAuthenticated, authMiddleware.isMedico, (req, res) => {
     res.render('agregarMedicamento', { idPaciente: req.query.idPaciente, paciente: req.query.paciente });
 });
 
 // Ruta para procesar el formulario de agregar medicamento
-router.post('/medicamentos', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.medicamentos);
+router.post('/medicamentos', authMiddleware.isAuthenticated, authMiddleware.isMedico, medicosController.medicamentos);
 
 
 // Ruta para usar el template de nota
 // Ruta para mostrar el formulario del template de nota
-router.get('/template-nota', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
+router.get('/template-nota', authMiddleware.isAuthenticated, authMiddleware.isMedico, (req, res) => {
     res.render('templateNota', { idPaciente: req.query.idPaciente, paciente: req.query.paciente });
 });
 
 // Ruta para procesar el formulario del template de nota
-router.post('/template-nota', authMiddleware.isAuthenticated, authMiddleware.isDoctor, medicosController.templateNota);
+router.post('/template-nota', authMiddleware.isAuthenticated, authMiddleware.isMedico, medicosController.templateNota);
 
 
 // **Ruta para actualizar un médico por su ID**
@@ -128,7 +128,7 @@ router.post('/:id', medicosController.update);
 router.get('/', medicosController.listAll);
 
 // **Escritorio del médico (solo accesible para médicos autenticados)**
-router.get('/escritorio', authMiddleware.isAuthenticated, authMiddleware.isDoctor, (req, res) => {
+router.get('/escritorio', authMiddleware.isAuthenticated, authMiddleware.isMedico, (req, res) => {
     res.render('escritorioMedicos', { user: req.session.user });
 });
 
