@@ -53,7 +53,7 @@
     
             // Verifica si la contraseña ingresada es el DNI
             if (password === user.dni) {
-                req.session.user = { id: user.idMedico, role: 'doctor', nombre: user.nombre };
+                req.session.user = { id: user.idMedico, role: 'Medico', nombre: user.nombre };
     
                 console.log("Sesión guardada:", req.session.user);
     
@@ -68,7 +68,7 @@
                 return res.status(401).render('loginmedicos', { message: 'Credenciales incorrectas' });
             }
     
-            req.session.user = { id: user.idMedico, role: 'doctor', nombre: user.nombre };
+            req.session.user = { id: user.idMedico, role: 'Medico', nombre: user.nombre };
             console.log("Sesión guardada con hash de contraseña:", req.session.user);
             res.redirect('/medicos/perfil');
         });
@@ -140,7 +140,7 @@
     
             // Verifica si la contraseña ingresada es el DNI
             if (password === user.dni) {
-                req.session.user = { id: user.idMedico, role: 'doctor', nombre: user.nombre };
+                req.session.user = { id: user.idMedico, role: 'Medico', nombre: user.nombre };
                 console.log("Sesión guardada:", req.session.user);
     
                 // Verificar si necesita cambiar la contraseña
@@ -156,7 +156,7 @@
             }
     
             // Si la contraseña es correcta y no es el DNI
-            req.session.user = { id: user.idMedico, role: 'doctor', nombre: user.nombre };
+            req.session.user = { id: user.idMedico, role: 'Medico', nombre: user.nombre };
             console.log("Sesión guardada con hash de contraseña:", req.session.user);
             res.redirect('/medicos/perfil');
         });

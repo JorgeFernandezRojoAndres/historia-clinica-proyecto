@@ -11,7 +11,8 @@ const http = require('http');
 const socketIo = require('socket.io');
 
 const citasController = require('./app/controllers/citasController');
-const { isAuthenticated, isPaciente } = require('./middleware/roleMiddleware');
+
+const { isAuthenticated, isPacienteOrMedico } = require('./middleware/roleMiddleware');
 const notificaciones = require('./utils/notificaciones');
 
 // Inicializar Express
@@ -88,7 +89,7 @@ app.use('/citas', citasRoutes);
 
 // Registrar las rutas de historial clínico
 const historiasRoutes = require('./routes/historias');
-app.use('/historias', isAuthenticated, isPaciente, historiasRoutes);
+app.use('/historias', isAuthenticated, isPacienteOrMedico, historiasRoutes);
 
 // Registrar las rutas de autenticación
 const authRoutes = require('./routes/auth');
