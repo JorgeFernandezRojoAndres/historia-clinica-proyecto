@@ -44,6 +44,13 @@ block content
     input(type="text" name="motivoConsulta" required)
     br
 
+    //- Selector de Tipo de Turno
+    label(for="tipoTurno") Tipo de Turno:
+    select(name="tipoTurno" id="tipoTurno" required)
+      option(value="regular") Regular
+      option(value="sobreturno") Sobreturno
+    br
+
     button(type="submit") Crear Cita
 
   script.

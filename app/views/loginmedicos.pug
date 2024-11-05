@@ -7,10 +7,10 @@ block content
       form(action="/login/medico" method="POST")
         div.form-group
           label(for="username") Nombre de Usuario
-          input(type="text" id="username" name="username" required)
+          input.input-field(type="text" id="username" name="username" required)
         div.form-group
           label(for="password") Contraseña
-          input(type="password" id="password" name="password" required)
+          input.input-field.contraLogin(type="password" id="password" name="password" required)
         div
           button(type="submit") Iniciar Sesión
     div.image-container

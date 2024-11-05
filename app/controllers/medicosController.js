@@ -116,41 +116,71 @@ exports.delete = (req, res) => {
 exports.verAgenda = (req, res) => {
     const idMedico = req.params.id;
     const fechaSeleccionada = req.query.fecha || new Date().toISOString().split('T')[0];
+    const usuario = req.session.user; // Obtener el usuario autenticado
 
-    const sql = `
+    // Consulta para obtener los turnos regulares
+    const sqlRegulares = `
         SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado 
         FROM citas
         JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
-        WHERE citas.idMedico = ? AND DATE(citas.fechaHora) = ?
+        WHERE citas.idMedico = ? AND DATE(citas.fechaHora) = ? AND citas.tipoTurno = 'regular'
     `;
 
-    db.query(sql, [idMedico, fechaSeleccionada], (error, results) => {
-        if (error) {
-            console.error('Error al obtener la agenda del médico:', error);
-            return res.status(500).send('Error al obtener la agenda del médico');
+    // Consulta para obtener los sobreturnos
+    const sqlSobreturnos = `
+        SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado 
+        FROM citas
+        JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+        WHERE citas.idMedico = ? AND DATE(citas.fechaHora) = ? AND citas.tipoTurno = 'sobreturno'
+    `;
+
+    db.query(sqlRegulares, [idMedico, fechaSeleccionada], (errorRegulares, regulares) => {
+        if (errorRegulares) {
+            console.error('Error al obtener los turnos regulares:', errorRegulares);
+            return res.status(500).send('Error al obtener los turnos regulares');
         }
 
-        // Formatear la fecha y hora antes de enviarla a la vista
-        results.forEach(cita => {
-            if (cita.fechaHora && moment(cita.fechaHora).isValid()) {
-                cita.fechaHora = moment(cita.fechaHora).format('DD/MM/YYYY HH:mm');
-            } else {
-                cita.fechaHora = 'Sin definir';
+        db.query(sqlSobreturnos, [idMedico, fechaSeleccionada], (errorSobreturnos, sobreturnos) => {
+            if (errorSobreturnos) {
+                console.error('Error al obtener los sobreturnos:', errorSobreturnos);
+                return res.status(500).send('Error al obtener los sobreturnos');
             }
-        });
 
-        // Generar los horarios libres
-        const horariosLibres = generarHorariosLibres(fechaSeleccionada, results);
+            // Formatear la fecha y hora antes de enviarla a la vista
+            regulares.forEach(cita => {
+                if (cita.fechaHora && moment(cita.fechaHora).isValid()) {
+                    cita.fechaHora = moment(cita.fechaHora).format('DD/MM/YYYY HH:mm');
+                } else {
+                    cita.fechaHora = 'Sin definir';
+                }
+            });
 
-        // Enviar los horarios libres a la vista
-        res.render('agenda_medico', { 
-            citas: results, 
-            horariosLibres, 
-            fechaHoy: fechaSeleccionada,
-            medicoId: idMedico
+            sobreturnos.forEach(cita => {
+                if (cita.fechaHora && moment(cita.fechaHora).isValid()) {
+                    cita.fechaHora = moment(cita.fechaHora).format('DD/MM/YYYY HH:mm');
+                } else {
+                    cita.fechaHora = 'Sin definir';
+                }
+            });
+
+            // Generar los horarios libres solo si el usuario es secretaria
+            let horariosLibres = [];
+            if (usuario.role === 'secretaria') {
+                horariosLibres = generarHorariosLibres(fechaSeleccionada, regulares.concat(sobreturnos));
+            }
+
+            // Enviar los turnos regulares, sobreturnos y horarios libres a la vista
+            res.render('agenda_medico', { 
+                regulares, 
+                sobreturnos, 
+                horariosLibres,
+                fechaHoy: fechaSeleccionada,
+                medicoId: idMedico
+            });
         });
     });
 };
+
 
 exports.verAgendaDelDia = (req, res) => {
     const idMedico = req.params.id;

@@ -1,0 +1,32 @@
+extends layout
+
+block content
+  h1 Pacientes Pendientes de Confirmación
+
+  if pacientesPendientes.length
+    table
+      thead
+        tr
+          th Nombre
+          th DNI
+          th Fecha de Nacimiento
+          th Dirección
+          th Teléfono
+          th Acciones
+      tbody
+        each paciente in pacientesPendientes
+          tr
+            td= paciente.nombre
+            td= paciente.dni
+            td= new Date(paciente.fechaNacimiento).toLocaleDateString('es-ES')
+            td= paciente.direccion
+            td= paciente.telefono
+            td
+              // Botón para confirmar
+              form(action=`/admin/confirmar-paciente/${paciente.idPaciente}` method="POST")
+                button(type="submit") Confirmar
+              // Botón para rechazar
+              form(action=`/admin/rechazar-paciente/${paciente.idPaciente}` method="POST")
+                button(type="submit") Rechazar
+  else
+    p No hay pacientes pendientes de confirmación.

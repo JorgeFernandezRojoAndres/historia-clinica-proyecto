@@ -134,7 +134,7 @@ tr:hover {
     padding: 10px 15px;
     font-size: 16px;
     color: white;
-    background-color: #FDEBCF;
+    background-color: #f2a52a;
     text-decoration: none;
     border-radius: 5px;
     border: none;
@@ -683,3 +683,37 @@ textarea {
   display: none; /* Por defecto oculto */
 }
 
+/* styles.css */
+.containeradm {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  padding: 20px;
+}
+
+.horario-cardadm {
+  background-color: #f0f0f0;
+  border: 1px solid #7fe389;
+  border-radius: 5px;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+.contraLogin {
+  width: 53%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  background-color: #f9f9f9; /* Cambia el color de fondo si lo deseas */
+}
+
+.contraLogin:focus {
+  border-color: #007bff; /* Cambia el color del borde al hacer foco */
+  outline: none;
+}
+.register-container {
+  text-align: center; /* Centra el contenido dentro del contenedor */
+  margin-top: 10px; /* Agrega un margen superior para separación */
+}

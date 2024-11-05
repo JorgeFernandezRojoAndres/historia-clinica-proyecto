@@ -1,0 +1,28 @@
+extends layout
+
+block content
+  h1 Manejar Horarios Libres de Médicos
+  p Aquí puedes ver y administrar los horarios libres de los médicos.
+
+  // Tabla para mostrar los horarios libres de cada médico
+  table
+    thead
+      tr
+        th Médico
+        th Fecha
+        th Hora de Inicio
+        th Hora de Fin
+        th Acciones
+    tbody
+      // Aquí se iterarían los horarios libres
+      each horario in horariosLibres
+        tr
+          td= horario.nombreMedico
+          td= horario.fecha
+          td= horario.horaInicio
+          td= horario.horaFin
+          td
+            button(type="button" onclick=`window.location.href='/admin/eliminar-horario/${horario.id}'`) Eliminar
+
+  // Botón para agregar nuevo horario libre
+  button(type="button" onclick="window.location.href='/admin/agregar-horario-libre'") Agregar Nuevo Horario Libre

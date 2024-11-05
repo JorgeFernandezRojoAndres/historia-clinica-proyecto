@@ -101,23 +101,22 @@ exports.listarMisTurnos = (req, res) => {
 
 // Crear una nueva cita
 
-
 // Crear una nueva cita
 exports.createCita = (req, res) => {
-    const { idPaciente, idMedico, fechaHora, motivoConsulta } = req.body;
+    const { idPaciente, idMedico, fechaHora, motivoConsulta, tipoTurno } = req.body;
 
     // Validación de campos
-    if (!idPaciente || !idMedico || !fechaHora || !motivoConsulta) {
+    if (!idPaciente || !idMedico || !fechaHora || !motivoConsulta || !tipoTurno) {
         return res.status(400).send('Faltan datos requeridos para la cita.');
     }
 
     const sqlCita = `
-        INSERT INTO citas (idPaciente, idMedico, fechaHora, motivoConsulta, estado) 
-        VALUES (?, ?, ?, ?, 'En proceso')
+        INSERT INTO citas (idPaciente, idMedico, fechaHora, motivoConsulta, estado, tipoTurno) 
+        VALUES (?, ?, ?, ?, 'En proceso', ?)
     `;
 
     // Insertar la cita en la base de datos
-    db.query(sqlCita, [idPaciente, idMedico, fechaHora, motivoConsulta], (error) => {
+    db.query(sqlCita, [idPaciente, idMedico, fechaHora, motivoConsulta, tipoTurno], (error) => {
         if (error) {
             console.error('Error al crear la cita:', error);
             return res.status(500).send('Error al crear la cita');

@@ -1,0 +1,26 @@
+extends layout
+block content
+  h2 Asignar Clínica a Médico
+
+  form(action="/admin/asignar-clinica" method="POST")
+    .form-group
+      label(for="idMedico") Médico:
+      select(name="idMedico" required)
+        option(value="") -- Selecciona un médico --
+        if medicos && medicos.length
+          each medico in medicos
+            option(value=medico.idMedico) #{medico.nombre}
+        else
+          option(value="") No hay médicos disponibles
+
+    .form-group
+      label(for="idClinica") Clínica:
+      select(name="idClinica" required)
+        option(value="") -- Selecciona una clínica --
+        if clinicas && clinicas.length
+          each clinica in clinicas
+            option(value=clinica.idClinica) #{clinica.nombre}
+        else  
+          option(value="") No hay clínicas disponibles
+
+    button(type="submit") Asignar Clínica

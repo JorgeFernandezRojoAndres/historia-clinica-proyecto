@@ -15,11 +15,7 @@ block content
     section.accesos-rapidos
       h2 Accesos Rápidos
       div.botones-rapidos
-
-        //- Botón para abrir la agenda del día en una nueva ventana emergente
-        button.btn-rapido(onclick=`window.open('/medicos/${user.id}/agenda-dia', 'Agenda del Médico', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
-          img(src="/images/btnConADD.png" alt="Consultar Agenda del Día")
-
+      
         //- Verificación de la existencia de citas para mostrar el botón de "Iniciar Consulta"
         if citas && citas.length > 0
           //- Mostrar solo para la primera cita disponible en una nueva ventana emergente
