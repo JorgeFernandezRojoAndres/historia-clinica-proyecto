@@ -1,0 +1,81 @@
+extends layout
+
+block content
+  h1 Bienvenido, #{user.username} (Administrador)
+  p Aquí puedes gestionar configuraciones administrativas.
+
+  // Formulario para agregar horario libre
+  h2 Agregar Horario Libre
+  form(action="/admin/agregar-horario-libre" method="POST")
+    .form-group
+      label(for="especialidadSelector") Especialidad:
+      select(name="especialidadSelector" id="especialidadSelector" required)
+        option(value="") -- Selecciona una especialidad --
+        each especialidad in especialidades
+          option(value=especialidad.nombre) #{especialidad.nombre}
+
+    .form-group
+      label(for="idMedico") Médico:
+      select(name="idMedico" id="idMedico" required)
+        option(value="") -- Selecciona un médico --
+
+    // Botón para ver los horarios del médico seleccionado
+    .form-group
+      button(type="button" id="verHorariosButton") Ver Horarios del Médico
+
+    .form-group
+      label(for="fechaHora") Fecha y Hora:
+      input(type="datetime-local" name="fechaHora" required)
+    button(type="submit") Agregar Horario Libre
+
+  // Botones adicionales para funciones administrativas
+  h2 Funciones Administrativas
+
+  .form-group
+    // Botón para registrar usuario (médicos y secretarias)
+    button(type="button" onclick="window.location.href='/admin/formulario-registrar-usuario'") Registrar Usuario
+
+  .form-group
+    // Botón para asignar clínica a un médico
+    button(type="button" onclick="window.location.href='/admin/formulario-asignar-clinica'") Asignar Clínica a Médico
+
+  .form-group
+    // Botón para manejar los horarios libres de los médicos
+    button(type="button" onclick="window.location.href='/admin/manejar-horarios-libres'") Manejar Horarios Libres de Médicos
+  // Botón para ver pacientes pendientes de confirmación
+.form-group
+  button(type="button" onclick="window.location.href='/admin/pacientes-pendientes'") Ver Pacientes Pendientes de Confirmación
+
+  // Script para manejar la carga dinámica de médicos y el botón de horarios
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      const especialidadSelector = document.getElementById('especialidadSelector');
+      const medicoSelector = document.getElementById('idMedico');
+      const verHorariosButton = document.getElementById('verHorariosButton');
+      const medicos = !{JSON.stringify(medicos)};
+
+      // Evento para filtrar médicos por especialidad
+      especialidadSelector.addEventListener('change', function() {
+        const especialidadSeleccionada = this.value;
+        medicoSelector.innerHTML = '<option value="">-- Selecciona un médico --</option>';
+        
+        medicos.forEach(medico => {
+          if (medico.especialidad === especialidadSeleccionada) {
+            const option = document.createElement('option');
+            option.value = medico.idMedico;
+            option.textContent = medico.nombre;
+            medicoSelector.appendChild(option);
+          }
+        });
+      });
+
+      // Evento para el botón "Ver Horarios del Médico" en una nueva ventana
+      verHorariosButton.addEventListener('click', function() {
+        const medicoId = medicoSelector.value;
+        if (medicoId) {
+          window.open(`/admin/medico/${medicoId}/horarios-libres`, 'Horarios del Médico', 'width=800,height=600,resizable=yes,scrollbars=yes');
+        } else {
+          alert('Por favor, selecciona un médico para ver sus horarios.');
+        }
+      });
+    });

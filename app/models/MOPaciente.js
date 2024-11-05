@@ -1,7 +1,7 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 const connection = require('./database');
 
-const sequelize = new Sequelize(connection);;
+const sequelize = new Sequelize(connection);
 
 const Paciente = sequelize.define('Paciente', {
   id: {
@@ -28,6 +28,11 @@ const Paciente = sequelize.define('Paciente', {
   },
   telefono: {
     type: DataTypes.STRING,
+    allowNull: false
+  },
+  estado: {
+    type: DataTypes.STRING,
+    defaultValue: 'Pendiente', // Estado inicial como "Pendiente"
     allowNull: false
   }
 });

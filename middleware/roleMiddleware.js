@@ -9,67 +9,54 @@ exports.isAuthenticated = (req, res, next) => {
     next();
 };
 
-// Middleware genérico para verificación de roles
-exports.checkRole = (role) => {
-    return (req, res, next) => {
-        console.log(`Verificando rol de ${role}:`, req.session.user);  // Verifica el rol del usuario
-        if (req.session.user && req.session.user.role === role) {
-            console.log(`Acceso concedido a ${role}:`, req.session.user);
-            return next();
-        }
-        console.log(`Acceso denegado: Solo para ${role}s`);
-        return res.status(403).send(`Acceso denegado: Solo para ${role}s`);
-    };
-};
-// Verifica si el usuario está autenticado
-exports.isAuthenticated = (req, res, next) => {
-    console.log('Verificando si está autenticado:', req.session.user);
-    if (!req.session.user) {
-        console.log('Sesión no encontrada, redirigiendo al login');
-        return res.redirect('/login');
+// Middleware para permitir acceso a administradores
+exports.isAdmin = (req, res, next) => {
+    console.log('Verificando acceso de administrador:', req.session.user); // Log para verificar el acceso
+    if (req.session.user && req.session.user.role === 'administrador') {
+        console.log('Acceso concedido a administrador:', req.session.user);
+        return next();
     }
-    console.log('Autenticación verificada, procediendo...');
-    next();
+    console.log('Acceso denegado: Solo para administradores');
+    return res.status(403).send('Acceso denegado: Solo para administradores');
 };
+
+
 
 // Middleware genérico para verificación de roles
 exports.checkRole = (role) => {
     return (req, res, next) => {
-        console.log(`Verificando rol de ${role}:`, req.session.user);  // Verifica el rol del usuario
-        if (req.session.user && req.session.user.role === role) {
-            console.log(`Acceso concedido a ${role}:`, req.session.user);
-            return next();
+        console.log(`Verificando rol de ${role}:`, req.session.user);
+        
+        // Log para verificar qué rol se está intentando verificar
+        console.log('Rol esperado:', role);
+
+        if (req.session.user) {
+            console.log('Usuario autenticado:', req.session.user);
+            if (req.session.user.role === role) {
+                console.log(`Acceso concedido a ${role}:`, req.session.user);
+                return next();
+            } else {
+                console.log(`Acceso denegado: El rol del usuario es ${req.session.user.role}, se esperaba ${role}`);
+            }
+        } else {
+            console.log('No hay usuario autenticado, redirigiendo...');
         }
-        console.log(`Acceso denegado: Solo para ${role}s`);
+
         return res.status(403).send(`Acceso denegado: Solo para ${role}s`);
     };
 };
 
-// Definición específica de los roles usando checkRole
+
+// Definición de middleware específicos para cada rol usando checkRole
 exports.isMedico = exports.checkRole('Medico');
 exports.isSecretaria = exports.checkRole('secretaria');
 exports.isPaciente = exports.checkRole('paciente');
-exports.isPacienteOrMedico = exports.checkRole('Medico');
+exports.isAdministrador = exports.checkRole('administrador'); 
+exports.isAdmin = exports.isAdministrador;
 
-// Nuevo middleware para permitir acceso a pacientes y secretarias
-exports.isPacienteOrSecretaria = (req, res, next) => {
-    console.log('Verificando acceso de paciente o secretaria:', req.session.user);
-    if (req.session.user && (req.session.user.role === 'paciente' || req.session.user.role === 'secretaria')) {
-        console.log('Acceso concedido a paciente o secretaria:', req.session.user);
-        return next();
-    }
-    console.log('Acceso denegado: Solo para pacientes o secretarias');
-    return res.status(403).send('Acceso denegado: Solo para pacientes o secretarias');
-};
 
-exports.isSecretaria = (req, res, next) => {
-    if (req.session.user && req.session.user.role === 'secretaria') {
-        return next();
-    }
-    return res.status(403).send('Acceso denegado: Solo para secretarias');
-};
-exports.isSecretaria = exports.checkRole('secretaria');
-//  middleware para permitir acceso a pacientes y médicos
+
+// Middleware para permitir acceso a pacientes y médicos
 exports.isPacienteOrMedico = (req, res, next) => {
     console.log('Verificando acceso de paciente o médico:', req.session.user);
     if (req.session.user && (req.session.user.role === 'paciente' || req.session.user.role === 'Medico')) {
@@ -80,9 +67,13 @@ exports.isPacienteOrMedico = (req, res, next) => {
     return res.status(403).send('Acceso denegado: Solo para pacientes o médicos');
 };
 
-
-
-// Definición específica de los roles usando checkRole
-exports.isMedico = exports.checkRole('Medico');
-exports.isSecretaria = exports.checkRole('secretaria');
-exports.isPaciente = exports.checkRole('paciente');
+// Middleware para permitir acceso a pacientes y secretarias
+exports.isPacienteOrSecretaria = (req, res, next) => {
+    console.log('Verificando acceso de paciente o secretaria:', req.session.user);
+    if (req.session.user && (req.session.user.role === 'paciente' || req.session.user.role === 'secretaria')) {
+        console.log('Acceso concedido a paciente o secretaria:', req.session.user);
+        return next();
+    }
+    console.log('Acceso denegado: Solo para pacientes o secretarias');
+    return res.status(403).send('Acceso denegado: Solo para pacientes o secretarias');
+};

@@ -1,4 +1,5 @@
 const moment = require('moment');
+const db = require('../config/database'); // Asegúrate de que el path sea correcto
 
 function generarHorariosLibres(fecha, citas, opciones = {}) {
     const horariosLibres = [];
@@ -38,4 +39,19 @@ function generarHorariosLibres(fecha, citas, opciones = {}) {
     return horariosLibres;
 }
 
-module.exports = generarHorariosLibres;
+// Nueva función para agregar horarios libres a la base de datos
+function agregarHorarioLibre(idMedico, fechaHora, callback) {
+    const sql = 'INSERT INTO horarios_libres (idMedico, fechaHora) VALUES (?, ?)';
+    db.query(sql, [idMedico, fechaHora], (error, results) => {
+        if (error) {
+            console.error('Error al agregar horario libre:', error);
+            return callback(error);
+        }
+        callback(null, results);
+    });
+}
+
+module.exports = {
+    generarHorariosLibres,
+    agregarHorarioLibre
+};

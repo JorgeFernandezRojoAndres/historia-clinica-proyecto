@@ -32,17 +32,28 @@ exports.listAll = (req, res) => {
 
 exports.create = (req, res) => {
     const { nombre, fechaNacimiento, dni, direccion, telefono } = req.body;
-  
-    const sql = 'INSERT INTO pacientes (nombre, fechaNacimiento, dni, direccion, telefono) VALUES (?, ?, ?, ?, ?)';
+    console.log('Creando nuevo paciente:', { nombre, fechaNacimiento, dni, direccion, telefono });
+
+    const sql = 'INSERT INTO pacientes (nombre, fechaNacimiento, dni, direccion, telefono, estado) VALUES (?, ?, ?, ?, ?, "Pendiente")';
+    
     db.query(sql, [nombre, fechaNacimiento, dni, direccion, telefono], (error, results) => {
-      if (error) {
-        console.error('Error al crear el paciente:', error);
-        return res.status(500).send("Error al crear el paciente");
-      }
-      res.redirect('/login/paciente');  // Redirige al login después del registro
+        if (error) {
+            console.error('Error al crear el paciente:', error);
+            return res.status(500).send("Error al crear el paciente");
+        }
+        
+        console.log('Paciente creado exitosamente');
+
+        // Redirige dependiendo de si el usuario está autenticado y su rol
+        if (req.session.user && req.session.user.role === 'secretaria') {
+            return res.redirect('/register/paciente'); // Redirige a la ruta para secretarias
+        } else {
+            return res.redirect('/registro-pendiente'); // Redirige a la ruta para anónimos
+        }
     });
-  };
-  
+};
+
+
 
 
 exports.showEditForm = (req, res) => {
@@ -84,7 +95,7 @@ exports.update = (req, res) => {
         } else if (req.session.user.role === 'paciente') {
             res.redirect('/paciente/mi-perfil'); // Redirige al perfil del paciente
         } else {
-            res.redirect('/'); // Redirige a la página principal por defecto (opcional)
+            res.redirect('/'); 
         }
     });
 };
@@ -134,7 +145,7 @@ exports.buscarPaciente = (req, res) => {
 };
 
 exports.search = (req, res) => {
-    const query = req.query.query || ''; // Asegura que no sea undefined
+    const query = req.query.query || ''; 
     console.log("Ejecutando búsqueda de pacientes con query:", query);
 
     if (query.trim().length === 0) {
@@ -184,3 +195,37 @@ exports.showProfile = (req, res) => {
 };
 
 
+exports.showPendingPatients = (req, res) => {
+    const sql = 'SELECT * FROM pacientes WHERE estado = "Pendiente"';
+    db.query(sql, (error, results) => {
+        if (error) {
+            console.error('Error al obtener pacientes pendientes:', error);
+            return res.status(500).send('Error al obtener pacientes pendientes');
+        }
+        res.render('adminPacientesPendientes', { pacientesPendientes: results });
+    });
+};
+
+exports.confirmPatient = (req, res) => {
+    const id = req.params.id;
+    const sql = 'UPDATE pacientes SET estado = "Confirmado" WHERE idPaciente = ?';
+    db.query(sql, [id], (error, results) => {
+        if (error) {
+            console.error('Error al confirmar paciente:', error);
+            return res.status(500).send('Error al confirmar paciente');
+        }
+        res.redirect('/admin/pacientes-pendientes');
+    });
+};
+
+exports.rejectPatient = (req, res) => {
+    const id = req.params.id;
+    const sql = 'DELETE FROM pacientes WHERE idPaciente = ?';
+    db.query(sql, [id], (error, results) => {
+        if (error) {
+            console.error('Error al rechazar paciente:', error);
+            return res.status(500).send('Error al rechazar paciente');
+        }
+        res.redirect('/admin/pacientes-pendientes');
+    });
+};

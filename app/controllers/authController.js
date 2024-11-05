@@ -75,50 +75,84 @@
     };
     
     
+
+
+   // Función de inicio de sesión para usuarios con el rol de secretaria.
     
+    
+   exports.loginSecretaria = (req, res) => {
+    const { username, password } = req.body;
 
+    const sql = 'SELECT * FROM usuarios WHERE username = ?';
+    db.query(sql, [username], (error, results) => {
+        if (error) {
+            return res.status(500).render('loginsecretarias', { message: 'Ocurrió un error en el servidor' });
+        }
 
+        if (results.length === 0 || !bcrypt.compareSync(password, results[0].password)) {
+            return res.status(401).render('loginsecretarias', { message: 'Credenciales incorrectas' });
+        }
 
+        // Guarda los datos del usuario en la sesión
+        req.session.user = {
+            id: results[0].id,
+            username: results[0].username,
+            role: results[0].role
+        };
 
-
-    exports.loginSecretaria = (req, res) => {
-        const { username, password } = req.body;
-
-        console.log('Contraseña ingresada:', password); // Verificar que la contraseña se reciba
-
-        const sql = 'SELECT * FROM usuarios WHERE username = ?';
-        db.query(sql, [username], (error, results) => {
-            if (error || results.length === 0) {
-                console.log('Usuario no encontrado o error:', error);
-                return res.status(401).render('loginsecretarias', { message: 'Credenciales incorrectas' });
-            }
-
-            console.log('Resultados:', results); // Mostrar resultados de la consulta
-
-            // Comparar la contraseña ingresada con el hash en la base de datos
-            if (!bcrypt.compareSync(password, results[0].password)) {
-                console.log('Contraseña incorrecta');
-                return res.status(401).render('loginsecretarias', { message: 'Credenciales incorrectas' });
-            }
-
-            // Si todo es correcto, guardar más datos en la sesión
-            req.session.user = {
-                id: results[0].id,  // Accede correctamente al ID
-                username: results[0].username,
-                role: results[0].role
-            };
-            
-            console.log('Sesión después del login:', req.session.user);  // Verificar sesión
-            
-
-            console.log('Redirigiendo a /secretaria/pacientes'); 
-    res.redirect('/secretaria/pacientes');
-
-        });
-    };
-
+        // Redirigir según el rol
+        if (req.session.user.role === 'administrador') {
+            return res.redirect('/admin/dashboard');
+        } else if (req.session.user.role === 'secretaria') {
+            return res.redirect('/secretaria/pacientes');
+        } else {
+            return res.status(403).send('Acceso denegado');
+        }
+    });
+};
 
     
+    // Función de inicio de sesión para el administrador
+exports.loginAdministrador = (req, res) => {
+    const { username, password } = req.body;
+
+    console.log('Intento de inicio de sesión para administrador:', username);
+
+    const sql = 'SELECT * FROM usuarios WHERE username = ? AND role = "administrador"';
+    db.query(sql, [username], (error, results) => {
+        if (error) {
+            console.error('Error en la consulta:', error);
+            return res.status(500).render('loginadministrador', { message: 'Ocurrió un error en el servidor' });
+        }
+
+        if (results.length === 0) {
+            console.log('Administrador no encontrado o credenciales incorrectas');
+            return res.status(401).render('loginadministrador', { message: 'Credenciales incorrectas' });
+        }
+
+        const user = results[0];
+        console.log('Usuario encontrado:', user);
+
+        // Comparar la contraseña ingresada con el hash en la base de datos
+        if (!bcrypt.compareSync(password, user.password)) {
+            console.log('Contraseña incorrecta para el administrador');
+            return res.status(401).render('loginadministrador', { message: 'Credenciales incorrectas' });
+        }
+
+        // Si la autenticación es exitosa, guardar los datos en la sesión
+        req.session.user = {
+            id: user.id,
+            username: user.username,
+            role: user.role
+        };
+
+        console.log('Sesión guardada para el administrador:', req.session.user);
+
+        // Redirigir al panel de administración
+        res.redirect('/admin/dashboard');
+    });
+};
+
 
 
         

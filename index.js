@@ -73,11 +73,19 @@ app.use('/especialidades', especialidadesRouter);
 // Registrar las rutas de secretaria
 const secretariaRoutes = require('./routes/secretaria');
 app.use('/secretaria', secretariaRoutes);
+// Registrar las rutas de autenticación
+const authRoutes = require('./routes/auth');
+app.use('/', authRoutes);
+
+// Registrar las rutas del administrador (nuevo archivo de rutas)
+const adminRoutes = require('./routes/admin');
+app.use('/admin', adminRoutes);
 
 // Registrar las rutas de pacientes
 const pacientesRouter = require('./routes/pacientes');
 app.use('/pacientes', pacientesRouter);
 app.use('/paciente', pacientesRouter);
+app.use('/registro-pendiente', pacientesRouter);
 
 // Registrar las rutas de médicos
 const medicosRoutes = require('./routes/medicos');
@@ -91,9 +99,7 @@ app.use('/citas', citasRoutes);
 const historiasRoutes = require('./routes/historias');
 app.use('/historias', isAuthenticated, isPacienteOrMedico, historiasRoutes);
 
-// Registrar las rutas de autenticación
-const authRoutes = require('./routes/auth');
-app.use('/', authRoutes);
+
 
 // Ruta para ver mis turnos
 app.get('/turnos/mis-turnos', isAuthenticated, citasController.listarMisTurnos);

@@ -12,9 +12,10 @@ html
         label(for="fecha") Seleccionar Fecha:
         input(type="date" id="fecha" name="fecha" value=fechaHoy onchange="cambiarFecha()")
 
-    // Contenedor para mostrar las citas en una tabla
+    // Contenedor para mostrar los turnos regulares en una tabla
+    h2 Turnos Regulares
     div#citasContainer
-      if citas && citas.length > 0
+      if regulares && regulares.length > 0
         table
           thead
             tr
@@ -22,31 +23,48 @@ html
               th Paciente
               th Motivo de Consulta
           tbody
-            each cita in citas
+            each cita in regulares
               tr
                 td= cita.fechaHora
                 td= cita.nombrePaciente || 'Paciente no disponible'
                 td= cita.motivoConsulta || 'Motivo no disponible'
       else
-        p No hay citas disponibles para este médico.
+        p No hay turnos regulares disponibles para este médico.
 
-    // Mostrar horarios libres si existen
-    if horariosLibres && horariosLibres.length > 0
+    // Contenedor para mostrar los sobreturnos en una tabla
+    h2 Sobreturnos
+    div#sobreturnosContainer
+      if sobreturnos && sobreturnos.length > 0
+        table
+          thead
+            tr
+              th Fecha y Hora
+              th Paciente
+              th Motivo de Consulta
+          tbody
+            each cita in sobreturnos
+              tr
+                td= cita.fechaHora
+                td= cita.nombrePaciente || 'Paciente no disponible'
+                td= cita.motivoConsulta || 'Motivo no disponible'
+      else
+        p No hay sobreturnos disponibles para este médico.
+
+    // Mostrar horarios libres solo si existen y si el rol no es "Medico"
+    if horariosLibres && horariosLibres.length > 0 && user.role !== 'Medico'
       h2 Horarios Libres
       table
         thead
           tr
             th Horario Libre
-            
         tbody
           each hora in horariosLibres
-            - var ocupado = citas.some(cita => cita.fechaHora.includes(hora))
+            - var ocupado = regulares.concat(sobreturnos).some(cita => cita.fechaHora.includes(hora))
             if !ocupado
               tr
                 td= `${fechaHoy} ${hora}`
                 td
-                  if user.role !== 'Medico'
-                    button.btn-seleccionar(onclick=`seleccionarHorario('${fechaHoy}', '${hora}')`) Seleccionar
+                  button.btn-seleccionar(onclick=`seleccionarHorario('${fechaHoy}', '${hora}')`) Seleccionar
     else
       p No hay horarios libres disponibles.
 
