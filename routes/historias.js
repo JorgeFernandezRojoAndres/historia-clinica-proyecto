@@ -20,5 +20,7 @@ router.get('/delete/:id', authMiddleware.isAuthenticated, authMiddleware.isMedic
 
 // Ruta para buscar un paciente por DNI (si aplica a todos, puedes dejar sin restricciones adicionales)
 router.get('/buscarPaciente/:dni', pacientesController.buscarPaciente);
+// Ruta para descargar el PDF de una historia clínica (solo para pacientes autenticados)
+router.get('/download/:id', authMiddleware.isAuthenticated, authMiddleware.isPaciente, historiasController.downloadPDF);
 
 module.exports = router;

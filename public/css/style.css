@@ -717,3 +717,32 @@ textarea {
   text-align: center; /* Centra el contenido dentro del contenedor */
   margin-top: 10px; /* Agrega un margen superior para separación */
 }
+#clinicModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+}
+#selectClinicBtn {
+  background-color: #007bff; /* Color de fondo azul */
+  color: white; /* Color del texto */
+  border: none; /* Sin borde */
+  padding: 10px 15px; /* Espaciado interno */
+  border-radius: 5px; /* Esquinas redondeadas */
+  cursor: pointer; /* Cambiar el cursor al pasar el mouse */
+  transition: background-color 0.3s ease; /* Transición suave */
+}
+#selectClinicBtn:hover {
+  background-color: #0056b3; /* Color más oscuro al pasar el mouse */
+}

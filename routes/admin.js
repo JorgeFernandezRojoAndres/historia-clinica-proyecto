@@ -27,9 +27,7 @@ router.get('/formulario-registrar-usuario', isAuthenticated, isAdmin, (req, res)
     res.render('formularioRegistrarUsuario');
 });
 
-router.get('/formulario-asignar-clinica', isAuthenticated, isAdmin, (req, res) => {
-    res.render('formularioAsignarClinica');
-});
+
 
 // Ruta para manejar los horarios libres de los médicos
 router.get('/manejar-horarios-libres', isAuthenticated, isAdmin, (req, res) => {
@@ -37,5 +35,14 @@ router.get('/manejar-horarios-libres', isAuthenticated, isAdmin, (req, res) => {
 });
 //ruta para renderizar y asignar las clinicas
 router.get('/formulario-asignar-clinica', isAuthenticated, isAdmin, adminController.mostrarFormularioAsignarClinica);
+// Ruta para ver los pacientes pendientes de confirmación
+router.get('/pacientes-pendientes', isAuthenticated, isAdmin, adminController.verPacientesPendientes);
+// Ruta para confirmar paciente
+router.post('/confirmar-paciente/:idPaciente', isAuthenticated, isAdmin, adminController.confirmarPaciente);
+
+// Ruta para rechazar paciente
+router.post('/rechazar-paciente/:idPaciente', isAuthenticated, isAdmin, adminController.rechazarPaciente);
+// Ruta para ver todos los médicos
+router.get('/ver-medicos', isAuthenticated, isAdmin, adminController.verMedicos); // Ajusta `verMedicos` si usas un nombre diferente
 
 module.exports = router;

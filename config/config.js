@@ -1,11 +1,15 @@
 module.exports = {
   root: __dirname,
   db: {
-      database: 'blqt94iqdvbk9eegbqps',
-      username: 'uvez2hmlbqpyconj',
-      password: 'GN0eLZBseDu8As97hLg9',
+      database: 'medicappdb', 
+      username: 'root', 
+      password: '', 
       options: {
-          host: 'blqt94iqdvbk9eegbqps-mysql.services.clever-cloud.com',
+          host: 'localhost',
+          port: 3306, 
+          ssl: {
+              rejectUnauthorized: false,
+          },
       },
   },
 };

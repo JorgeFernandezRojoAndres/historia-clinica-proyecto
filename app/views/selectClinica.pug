@@ -1,0 +1,29 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Selección de Clínica
+    link(rel="stylesheet" href="/css/style.css")
+    link(rel="icon" href="/favicon.ico" type="image/x-icon")
+
+  body
+    main.contenedor
+      h1 Seleccione su Clínica
+      div.botones
+        form(action="/seleccionar-clinica" method="POST")
+          button.btn-clinica(type="submit")
+            input(type="hidden" name="idClinica" value="1") 
+            img(src="/images/saludplus.png" alt="SaludPlus Logo")
+            | Clínica Integral SaludPlus
+          button.btn-clinica(type="submit")
+            input(type="hidden" name="idClinica" value="2") 
+            img(src="/images/vidatotal.png" alt="Vida Total Logo")
+            | Centro Médico Vida Total
+
+    footer
+      p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}
+
+    // Agregar tus scripts aquí
+    script(src="/botondinamicoAgendaEnCita.js")
+    script(src="/searchPaciente.js")

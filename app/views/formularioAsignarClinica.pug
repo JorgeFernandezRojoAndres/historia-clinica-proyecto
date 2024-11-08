@@ -1,4 +1,5 @@
 extends layout
+
 block content
   h2 Asignar Clínica a Médico
 
@@ -24,3 +25,61 @@ block content
           option(value="") No hay clínicas disponibles
 
     button(type="submit") Asignar Clínica
+
+  h2 Médicos Asignados a Clínicas
+
+  // Contenedor donde se generarán las tablas dinámicamente
+  div#clinicasContainer
+
+  // Script para procesar el JSON y crear las tablas
+  script.
+    const medicosPorClinica = !{medicosPorClinica}; // Deserializar JSON en JavaScript
+
+    // Obtener el contenedor donde se agregarán las tablas
+    const container = document.getElementById('clinicasContainer');
+
+    if (Object.keys(medicosPorClinica).length > 0) {
+      Object.keys(medicosPorClinica).forEach(clinicaNombre => {
+        // Crear el título para la clínica
+        const titulo = document.createElement('h3');
+        titulo.textContent = clinicaNombre;
+        container.appendChild(titulo);
+
+        // Crear la tabla
+        const table = document.createElement('table');
+        table.style.width = '100%';
+
+        // Crear el encabezado de la tabla
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        const thNombre = document.createElement('th');
+        thNombre.textContent = 'Médico';
+        const thEspecialidad = document.createElement('th');
+        thEspecialidad.textContent = 'Especialidad';
+        headerRow.appendChild(thNombre);
+        headerRow.appendChild(thEspecialidad);
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // Crear el cuerpo de la tabla
+        const tbody = document.createElement('tbody');
+        medicosPorClinica[clinicaNombre].forEach(medico => {
+          const row = document.createElement('tr');
+          const tdNombre = document.createElement('td');
+          tdNombre.textContent = medico.nombre;
+          const tdEspecialidad = document.createElement('td');
+          tdEspecialidad.textContent = medico.especialidad;
+          row.appendChild(tdNombre);
+          row.appendChild(tdEspecialidad);
+          tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+
+        // Agregar la tabla al contenedor
+        container.appendChild(table);
+      });
+    } else {
+      const mensaje = document.createElement('p');
+      mensaje.textContent = 'No hay médicos asignados a ninguna clínica.';
+      container.appendChild(mensaje);
+    }

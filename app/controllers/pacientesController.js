@@ -26,8 +26,40 @@ exports.listAll = (req, res) => {
   
 
   exports.showRegisterForm = (req, res) => {
-    res.render('new_pacientes');
+    // Obtener el idClinica desde la sesión
+    const idClinica = req.session.idClinica;
+
+    // Verificar si se ha seleccionado una clínica
+    if (!idClinica) {
+        console.log('No se ha seleccionado una clínica, redirigiendo a la selección de clínica.');
+        return res.redirect('/seleccion-clinica'); // Redirige a la selección de clínica si no hay una clínica seleccionada
+    }
+
+    // Consulta para obtener médicos de la clínica seleccionada
+    const query = `
+        SELECT m.*
+        FROM medicos AS m
+        JOIN medicos_clinicas AS mc ON m.idMedico = mc.idMedico
+        WHERE mc.idClinica = ?;
+    `;
+
+    db.query(query, [idClinica], (error, medicos) => {
+        if (error) {
+            console.error('Error al obtener los médicos:', error);
+            return res.status(500).send('Error al obtener los médicos');
+        }
+
+        // Verificar si se encontraron médicos
+        if (medicos.length === 0) {
+            console.log('No se encontraron médicos para la clínica seleccionada.');
+            return res.status(404).send('No se encontraron médicos para la clínica seleccionada.');
+        }
+
+        // Renderizar el formulario de nuevo paciente con la lista de médicos de la clínica seleccionada
+        res.render('new_pacientes', { medicos });
+    });
 };
+
 
 
 exports.create = (req, res) => {
@@ -175,8 +207,7 @@ exports.search = (req, res) => {
 
 
 exports.showProfile = (req, res) => { 
-    console.log('Sesión del usuario:', req.session.user);
-    const idPaciente = req.session.user.id; // Obtener el ID del paciente de la sesión
+    const idPaciente = req.session.user.id; // Obtiene el ID del paciente de la sesión
 
     const sql = 'SELECT * FROM pacientes WHERE idPaciente = ?';
     db.query(sql, [idPaciente], (error, results) => {
@@ -184,15 +215,16 @@ exports.showProfile = (req, res) => {
             console.error('Error al buscar paciente:', error);
             return res.status(500).send('Error al buscar paciente');
         }
-        console.log('Resultados de la consulta:', results);
+
         if (results.length > 0) {
-            res.render('perfilPaciente', { paciente: results[0] }); // Renderiza la vista de perfil del paciente
-            
+            res.render('perfilPaciente', { paciente: results[0] }); // Pasa los datos del paciente a la vista
         } else {
             res.status(404).send('Paciente no encontrado');
         }
     });
 };
+
+
 
 
 exports.showPendingPatients = (req, res) => {

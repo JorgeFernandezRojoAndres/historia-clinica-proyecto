@@ -1,44 +1,38 @@
-extends layout.pug
+extends layout
 
 block content
   h1 Listado de Pacientes
 
   // Formulario de búsqueda de pacientes
   form(id="formBuscarPaciente", onsubmit="return false")
-    input(type="text" id="buscarPaciente" name="query" placeholder="Buscar paciente por apellido")
+    input(type="text" id="buscarPaciente" name="query" placeholder="Buscar paciente por nombre")
 
   // Tabla de pacientes
   table
     thead
       tr
-        
         th Nombre
         th Fecha de Nacimiento
         th DNI
         th Dirección
         th Teléfono
         th Acciones
-    tbody
+    tbody#tablaPacientes
       if pacientes.length === 0
         tr
-          td(colspan="7") No hay pacientes registrados.
+          td(colspan="6") No hay pacientes registrados.
       else
         each paciente in pacientes
           tr
-            
             td= paciente.nombre
             td= paciente.fechaNacimiento
             td= paciente.dni
             td= paciente.direccion
             td= paciente.telefono
             td
-              // Botón para editar con clase 'paEe'
-              a.paEe(href=`/secretaria/pacientes/${paciente.idPaciente}/edit`) Editar
-              | &nbsp;
-
-              // Formulario para eliminar en línea con clase 'paEe'
+              a(href=`/secretaria/pacientes/${paciente.idPaciente}/edit`) Editar
               form(action=`/secretaria/pacientes/${paciente.idPaciente}/delete?_method=DELETE` method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar a este paciente?');")
-                button.paEe(type="submit") Eliminar
+                button(type="submit") Eliminar
 
   // Script para la búsqueda de pacientes
   script(src="/searchPaciente.js")

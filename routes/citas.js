@@ -30,5 +30,7 @@ router.get('/delete-completed/:id', isAuthenticated, isPacienteOrSecretaria, cit
 router.get('/delete/:id', isAuthenticated, isPacienteOrSecretaria, citasController.delete);
 // Ruta para contar citas en proceso
 router.get('/count-en-proceso', isAuthenticated, isSecretaria, citasController.countEnProceso);
+// Ruta para el autocompletado de pacientes en el formulario de creación de citas
+router.get('/buscar-paciente', isAuthenticated, isPacienteOrSecretaria, citasController.autocompletePacientesParaCita);
 
 module.exports = router;

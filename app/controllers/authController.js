@@ -16,9 +16,9 @@
                 console.error('Error al buscar paciente:', error); // Impresión del error
                 return res.status(500).send('Error al buscar paciente');
             }
-
+    
             console.log('Resultados de la búsqueda:', results); // Mostrar resultados de la búsqueda
-
+    
             if (results.length > 0) {
                 // Iniciar sesión: Establecer una sesión para el paciente
                 req.session.user = {
@@ -26,56 +26,15 @@
                     nombre: results[0].nombre,
                     role: 'paciente'
                 };
-                res.redirect('/paciente/mi-perfil'); // Asegúrate de que esta ruta exista
+                // Redirigir al formulario de selección de clínica
+                return res.redirect('/select-clinica'); // Asegúrate de que esta ruta exista en tu archivo de rutas
             } else {
-                res.status(401).send('Paciente no encontrado');
+                // Manejar el caso donde el paciente no se encuentra
+                return res.status(401).send('Paciente no encontrado');
             }
         });
     };
-
-
-
-    exports.loginMedico = (req, res) => {
-        console.log("Inicio del proceso de login");
-        console.log("Datos ingresados:", req.body);
-        const { username, password } = req.body;
     
-        const sql = 'SELECT * FROM medicos WHERE nombre = ?';
-        db.query(sql, [username], (error, results) => {
-            if (error || results.length === 0) {
-                console.log('Error o credenciales incorrectas');
-                return res.status(401).render('loginmedicos', { message: 'Credenciales incorrectas' });
-            }
-    
-            const user = results[0];
-            console.log("Usuario encontrado:", user);
-            console.log("Contraseña ingresada:", password);
-    
-            // Verifica si la contraseña ingresada es el DNI
-            if (password === user.dni) {
-                req.session.user = { id: user.idMedico, role: 'Medico', nombre: user.nombre };
-    
-                console.log("Sesión guardada:", req.session.user);
-    
-                if (user.password_change_required) {
-                    console.log("Redirigiendo al cambio de contraseña");
-                    return res.redirect('/cambiar-contrasena'); // Cambia esta línea si estás usando render
-                } else {
-                    console.log("Redirigiendo al perfil del médico");
-                    return res.redirect('/medicos/perfil');
-                }
-            } else if (!bcrypt.compareSync(password, user.password)) {
-                return res.status(401).render('loginmedicos', { message: 'Credenciales incorrectas' });
-            }
-    
-            req.session.user = { id: user.idMedico, role: 'Medico', nombre: user.nombre };
-            console.log("Sesión guardada con hash de contraseña:", req.session.user);
-            res.redirect('/medicos/perfil');
-        });
-    };
-    
-    
-
 
    // Función de inicio de sesión para usuarios con el rol de secretaria.
     
@@ -100,18 +59,38 @@
             role: results[0].role
         };
 
-        // Redirigir según el rol
-        if (req.session.user.role === 'administrador') {
-            return res.redirect('/admin/dashboard');
-        } else if (req.session.user.role === 'secretaria') {
-            return res.redirect('/secretaria/pacientes');
-        } else {
-            return res.status(403).send('Acceso denegado');
-        }
+        // Verificar clínicas asociadas a la secretaria
+        const userId = results[0].id; // Asegúrate de que este sea el ID correcto para la consulta
+        const sqlClinicas = 'SELECT idClinica FROM medicos_clinicas WHERE idMedico = ?'; // Ajusta según tu modelo
+
+        db.query(sqlClinicas, [userId], (errorClinicas, clinicas) => {
+            if (errorClinicas) {
+                console.error('Error al obtener clínicas:', errorClinicas);
+                return res.status(500).render('loginsecretarias', { message: 'Error al verificar clínicas' });
+            }
+
+            if (clinicas.length > 0) {
+                req.session.idClinica = clinicas.map(clinica => clinica.idClinica); // Guarda clínicas en la sesión
+
+                // Redirigir según el rol
+                if (req.session.user.role === 'administrador') {
+                    return res.redirect('/admin/dashboard');
+                } else if (req.session.user.role === 'secretaria') {
+                    // Aquí verificar si ya hay una clínica seleccionada
+                    if (!req.session.idClinica || req.session.idClinica.length === 0) {
+                        return res.redirect('/select-clinica'); // Redirigir a la selección de clínica
+                    }
+                    return res.redirect('/secretaria/pacientes');
+                } else {
+                    return res.status(403).send('Acceso denegado');
+                }
+            } else {
+                return res.render('loginsecretarias', { message: 'No hay clínicas asociadas a su cuenta' });
+            }
+        });
     });
 };
 
-    
     // Función de inicio de sesión para el administrador
 exports.loginAdministrador = (req, res) => {
     const { username, password } = req.body;
@@ -220,6 +199,22 @@ exports.loginAdministrador = (req, res) => {
                 res.redirect('/medico/escritorio'); // Redirige después de cambiar la contraseña
             });
         });
+    };
+    
+    exports.seleccionarClinica = (req, res) => {
+        const { idClinica } = req.body; // Obtener el ID de la clínica del formulario
+        req.session.idClinica = idClinica; // Guardar el ID en la sesión
+        console.log(`Clínica seleccionada: ${idClinica}`); // Para depuración
+        console.log(`Sesión actual:`, req.session); // Imprimir la sesión para ver su estado
+    
+        // Redirigir según el rol del usuario
+        if (req.session.user.role === 'paciente') {
+            res.redirect('/paciente/mi-perfil'); // Redirigir a la página del paciente
+        } else if (req.session.user.role === 'secretaria') {
+            res.redirect('/secretaria/pacientes'); // Redirigir a la página de pacientes de la secretaria
+        } else {
+            res.redirect('/'); // Redirigir a la página principal o un manejo de error
+        }
     };
     
     
