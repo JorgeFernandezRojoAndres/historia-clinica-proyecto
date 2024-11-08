@@ -127,9 +127,58 @@ exports.renderAdminDashboard = (req, res) => {
         });
     });
 };
+
+
+// Función para ver los pacientes pendientes de confirmación
+exports.verPacientesPendientes = (req, res) => {
+    const sql = 'SELECT * FROM pacientes WHERE estado = "Pendiente"';
+
+    db.query(sql, (error, pacientesPendientes) => {
+        if (error) {
+            console.error('Error al obtener pacientes pendientes:', error);
+            return res.status(500).send('Error al obtener pacientes pendientes');
+        }
+
+        res.render('adminPacientesPendientes', { pacientesPendientes });
+    });
+};
+// Función para confirmar un paciente
+exports.confirmarPaciente = (req, res) => {
+    const { idPaciente } = req.params;
+    const sql = 'UPDATE pacientes SET estado = "Confirmado" WHERE idPaciente = ?';
+
+    db.query(sql, [idPaciente], (error) => {
+        if (error) {
+            console.error('Error al confirmar paciente:', error);
+            return res.status(500).send('Error al confirmar paciente');
+        }
+        res.redirect('/admin/pacientes-pendientes');
+    });
+};
+
+// Función para rechazar un paciente
+exports.rechazarPaciente = (req, res) => {
+    const { idPaciente } = req.params;
+    const sql = 'UPDATE pacientes SET estado = "Rechazado" WHERE idPaciente = ?';
+
+    db.query(sql, [idPaciente], (error) => {
+        if (error) {
+            console.error('Error al rechazar paciente:', error);
+            return res.status(500).send('Error al rechazar paciente');
+        }
+        res.redirect('/admin/pacientes-pendientes');
+    });
+};
 exports.mostrarFormularioAsignarClinica = (req, res) => {
     const sqlMedicos = 'SELECT idMedico, nombre FROM medicos';
     const sqlClinicas = 'SELECT idClinica, nombre FROM clinicas';
+    const sqlMedicosClinicas = `
+        SELECT m.nombre AS medicoNombre, m.especialidad AS especialidad, c.nombre AS clinicaNombre
+        FROM medicos m
+        JOIN medicos_clinicas mc ON m.idMedico = mc.idMedico
+        JOIN clinicas c ON mc.idClinica = c.idClinica
+        ORDER BY c.nombre, m.especialidad
+    `;
 
     db.query(sqlMedicos, (errorMedicos, medicos) => {
         if (errorMedicos) {
@@ -143,14 +192,52 @@ exports.mostrarFormularioAsignarClinica = (req, res) => {
                 return res.status(500).send('Error al obtener la lista de clínicas');
             }
 
-            console.log('Datos obtenidos - Médicos:', medicos);
-            console.log('Datos obtenidos - Clínicas:', clinicas);
+            db.query(sqlMedicosClinicas, (errorAsignaciones, asignaciones) => {
+                if (errorAsignaciones) {
+                    console.error('Error al obtener asignaciones:', errorAsignaciones);
+                    return res.status(500).send('Error al obtener las asignaciones de médicos y clínicas');
+                }
 
-            res.render('formularioAsignarClinica', { medicos: medicos || [], clinicas: clinicas || [] });
+                // Agrupar médicos por clínica incluyendo su especialidad
+                const medicosPorClinica = asignaciones.reduce((acc, asignacion) => {
+                    if (!acc[asignacion.clinicaNombre]) {
+                        acc[asignacion.clinicaNombre] = [];
+                    }
+                    acc[asignacion.clinicaNombre].push({
+                        nombre: asignacion.medicoNombre,
+                        especialidad: asignacion.especialidad
+                    });
+                    return acc;
+                }, {});
+
+                res.render('formularioAsignarClinica', {
+                    medicos: medicos || [],
+                    clinicas: clinicas || [],
+                    medicosPorClinica: JSON.stringify(medicosPorClinica) // Enviar como JSON
+                });
+            });
         });
     });
 };
+exports.verMedicos = (req, res) => {
+    const idClinica = req.session.idClinica;
 
+    console.log("ID de la clínica seleccionada:", idClinica); // Verifica el valor de idClinica
 
+    const sql = `
+        SELECT m.idMedico, m.nombre, m.especialidad, m.telefono, m.email
+        FROM medicos AS m
+        JOIN medicos_clinicas AS mc ON m.idMedico = mc.idMedico
+        WHERE mc.idClinica = ?
+    `;
 
+    db.query(sql, [idClinica], (error, results) => {
+        if (error) {
+            console.error('Error al obtener los médicos:', error);
+            return res.status(500).send('Error al obtener los médicos');
+        }
+
+        res.render('medicos', { medicos: results });
+    });
+};
 

@@ -1,20 +1,55 @@
 const db = require('../../config/database');
+const PDFDocument = require('pdfkit');
 
+// Esta función muestra los historiales clínicos según el rol del usuario:
+// - Los pacientes solo pueden ver sus propios historiales clínicos.
+// - Las secretarias pueden ver los historiales clínicos de todos los pacientes.
+// - Otros roles no tienen acceso a esta información.
 exports.listAll = (req, res) => {
-  const sql = `
-    SELECT hc.idHistoria, p.nombre AS nombrePaciente, hc.detalles
-    FROM historias_clinicas hc
-    JOIN pacientes p ON hc.idPaciente = p.idPaciente
-  `;
-  db.query(sql, (error, results) => {
-    if (error) {
-      console.error('Error al obtener las historias clínicas:', error);
-      res.status(500).send('Error al obtener las historias clínicas');
-    } else {
+  // Verifica el rol del usuario para determinar el acceso a los historiales
+  if (req.session.user.role === 'paciente') {
+    // El paciente solo puede ver su propio historial clínico
+    const idPaciente = req.session.user.id;
+
+    const sqlPaciente = `
+      SELECT hc.idHistoria, p.nombre AS nombrePaciente, hc.detalles
+      FROM historias_clinicas hc
+      JOIN pacientes p ON hc.idPaciente = p.idPaciente
+      WHERE hc.idPaciente = ?`;
+
+    db.query(sqlPaciente, [idPaciente], (error, results) => {
+      if (error) {
+        console.error('Error al obtener las historias clínicas del paciente:', error);
+        return res.status(500).send('Error al obtener las historias clínicas');
+      }
+
+      // Renderiza solo las historias del paciente
       res.render('historias', { historias: results });
-    }
-  });
+    });
+
+  } else if (req.session.user.role === 'secretaria') {
+    // La secretaria puede ver todas las historias clínicas
+    const sqlSecretaria = `
+      SELECT hc.idHistoria, p.nombre AS nombrePaciente, hc.detalles
+      FROM historias_clinicas hc
+      JOIN pacientes p ON hc.idPaciente = p.idPaciente`;
+
+    db.query(sqlSecretaria, (error, results) => {
+      if (error) {
+        console.error('Error al obtener todas las historias clínicas:', error);
+        return res.status(500).send('Error al obtener las historias clínicas');
+      }
+
+      // Renderiza todas las historias para la secretaria
+      res.render('historias', { historias: results });
+    });
+
+  } else {
+    // Si el rol no es ni paciente ni secretaria, niega el acceso
+    res.status(403).send('Acceso no autorizado');
+  }
 };
+
 
 
 
@@ -126,6 +161,37 @@ exports.showEditForm = (req, res) => {
   });
 };
 
+
+const pdf = require('pdfkit'); // Asegúrate de tener instalado pdfkit para crear PDFs
+
+exports.downloadPDF = (req, res) => {
+    const idHistoria = req.params.id;
+
+    // Consulta la historia clínica en la base de datos
+    const sql = `
+        SELECT hc.idHistoria, p.nombre AS nombrePaciente, hc.detalles
+        FROM historias_clinicas hc
+        JOIN pacientes p ON hc.idPaciente = p.idPaciente
+        WHERE hc.idHistoria = ?`;
+        
+    db.query(sql, [idHistoria], (error, results) => {
+        if (error || results.length === 0) {
+            console.error('Error al obtener la historia clínica:', error);
+            return res.status(500).send('Error al obtener la historia clínica');
+        }
+
+        const historia = results[0];
+
+        // Crear el PDF
+        const doc = new pdf();
+        res.setHeader('Content-Disposition', `attachment; filename=historia_${idHistoria}.pdf`);
+        doc.pipe(res);
+
+        doc.text(`Historia Clínica de ${historia.nombrePaciente}`, { align: 'center' });
+        doc.text(`Detalles: ${historia.detalles}`);
+        doc.end();
+    });
+};
 
 
 

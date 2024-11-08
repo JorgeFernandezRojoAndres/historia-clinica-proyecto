@@ -9,9 +9,11 @@ const compression = require('compression');
 const methodOverride = require('method-override');
 const http = require('http');
 const socketIo = require('socket.io');
-
+const router = express.Router();
+const historiasController = require('./app/controllers/historiasController');
+const medicosController = require('./app/controllers/medicosController');
 const citasController = require('./app/controllers/citasController');
-
+const authController = require('./app/controllers/authController');
 const { isAuthenticated, isPacienteOrMedico } = require('./middleware/roleMiddleware');
 const notificaciones = require('./utils/notificaciones');
 
@@ -53,7 +55,13 @@ app.use((req, res, next) => {
 
 // Definir rutas principales
 app.get('/', (req, res) => {
-    res.render('layout', { title: 'TurnoExpress' });
+    if (!req.session.user) {
+        // Si no hay usuario en la sesión, renderiza el formulario para seleccionar la clínica
+        return res.render('layout', { title: 'TurnoExpress', clinicaSeleccionada: false });
+    }
+    
+    // Si hay un usuario autenticado, renderiza la página principal con la clínica seleccionada
+    res.render('layout', { title: 'TurnoExpress', clinicaSeleccionada: true });
 });
 
 app.get('/saludplus', (req, res) => {
@@ -81,6 +89,12 @@ app.use('/', authRoutes);
 const adminRoutes = require('./routes/admin');
 app.use('/admin', adminRoutes);
 
+// Ruta para mostrar el formulario de selección de clínica
+app.get('/select-clinica', (req, res) => {
+    res.render('selectClinica'); // Asegúrate de que este es el nombre correcto de tu plantilla Pug
+});
+// Ruta para manejar la selección de clínica
+app.post('/seleccionar-clinica', authController.seleccionarClinica);
 // Registrar las rutas de pacientes
 const pacientesRouter = require('./routes/pacientes');
 app.use('/pacientes', pacientesRouter);
@@ -90,7 +104,11 @@ app.use('/registro-pendiente', pacientesRouter);
 // Registrar las rutas de médicos
 const medicosRoutes = require('./routes/medicos');
 app.use('/medicos', medicosRoutes);
-
+// Ruta para ver el historial de consultas de un paciente (puede ser accesible por médicos o pacientes)
+app.get('/medicos/historial/:idPaciente', isAuthenticated, (req, res) => {
+    console.log(`Accediendo al historial del paciente con ID: ${req.params.idPaciente}`);
+    medicosController.verHistorialPaciente(req, res); // Llama al controlador para manejar la lógica
+});
 // Registrar las rutas de citas
 const citasRoutes = require('./routes/citas');
 app.use('/citas', citasRoutes);
@@ -98,7 +116,8 @@ app.use('/citas', citasRoutes);
 // Registrar las rutas de historial clínico
 const historiasRoutes = require('./routes/historias');
 app.use('/historias', isAuthenticated, isPacienteOrMedico, historiasRoutes);
-
+//ruta para la descarga del historial clinico desde paciente 
+router.get('/download/:id', historiasController.downloadPDF);
 
 
 // Ruta para ver mis turnos

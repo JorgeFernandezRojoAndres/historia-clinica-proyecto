@@ -8,67 +8,82 @@ html(lang="en")
     link(rel="icon" href="/favicon.ico" type="image/x-icon")
 
   body
-    if !clinicaSeleccionada
-      main.contenedor
-        h1 Seleccione su Clínica
-        div.botones
-          button.btn-clinica(onclick="location.href='/saludplus'")
-            img(src="/images/saludplus.png" alt="SaludPlus Logo")
-            | Clínica Integral SaludPlus
-          button.btn-clinica(onclick="location.href='/vidatotal'")
-            img(src="/images/vidatotal.png" alt="Vida Total Logo")
-            | Centro Médico Vida Total
-    else
-      header
-        h1 TurnoExpress
-        nav
-          ul
-            if !user
+    header
+      h1 TurnoExpress
+      nav
+        ul
+          if !user
+            li
+              a(href="/login/paciente")
+                img(src="/images/soypacienteBTN.png" alt="Paciente Logo" class="icono-boton")
+            li
+              a(href="/login/medico")
+                img(src="/images/soyDoctorBTN.png" alt="Médico Logo" class="icono-boton")
+            li
+              a(href="/login/secretaria")
+                img(src="/images/soyAdminBTN.png" alt="Administrador Logo" class="icono-boton")
+          else
+            if user.role === 'secretaria'
               li
-                a(href="/login/paciente")
-                  img(src="/images/soypacienteBTN.png" alt="Paciente Logo" class="icono-boton")
-                  
+                a(href="/secretaria/pacientes") Pacientes
               li
-                a(href="/login/medico")
-                  img(src="/images/soyDoctorBTN.png" alt="Médico Logo" class="icono-boton")
-                  
+                a(href="/secretaria/citas") Citas
+            if user.role === 'medico'
               li
-                a(href="/login/secretaria")
-                  img(src="/images/soyAdminBTN.png" alt="Administrador Logo" class="icono-boton")
-                  
-            else
-              if user.role === 'secretaria'
-                li
-                  a(href="/secretaria/pacientes") Pacientes
-                li
-                  a(href="/secretaria/medicos") Médicos
-                li
-                  a(href="/secretaria/citas") Citas
-              if user.role === 'medico'
-                li
-                  a(href="/medicos") Médicos
-                li
-                  a(href="/medicos/citas") Mis Citas
-              if user.role === 'paciente'
-                li
-                  a(href="/paciente/mi-perfil") Mi Perfil
+                a(href="/medicos") Médicos
               li
-                a(href="/logout") Cerrar Sesión
+                a(href="/medicos/citas") Mis Citas
+            if user.role === 'paciente'
+              li
+                a(href="/paciente/mi-perfil") Mi Perfil
+            li
+              a(href="/logout") Cerrar Sesión
 
-      if user && user.role === 'secretaria'
-        section.accesos-rapidos
-          h2.accesos-titulo Accesos rápidos
-          div.botones-rapidos
-            button.btn-rapido(onclick="window.location.href='/secretaria/pacientes/new'") Agregar Paciente
-            button.btn-rapido(onclick="window.location.href='/secretaria/medicos/new'") Agregar Médico
-            button.btn-rapido(onclick="window.location.href='/secretaria/citas/new'") Nueva Cita
+    if user && user.role === 'secretaria'
+      section.accesos-rapidos
+        h2.accesos-titulo Accesos rápidos
+        div.botones-rapidos
+          button.btn-rapido(onclick="window.location.href='/secretaria/pacientes/new'") Agregar Paciente
+          button.btn-rapido(onclick="window.location.href='/secretaria/citas/new'") Nueva Cita
+          button.btn-rapido(id="selectClinicBtn", type="button") Seleccionar Clínica
 
-      main
-        block content
+    main
+      block content
 
     footer
       p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}
 
-    // Agregar tus scripts aquí
+    // Modal para seleccionar clínica
+    #clinicModal(style="display:none;")
+      .modal-content
+        h2 Seleccionar Clínica
+        form(action="/seleccionar-clinica" method="POST")
+          button(type="button" onclick="selectClinic(1)") Clínica 1
+          button(type="button" onclick="selectClinic(2)") Clínica 2
+          button(type="button" onclick="closeModal()") Cerrar
+
+    // Scripts
+    script.
+      function selectClinic(id) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/seleccionar-clinica';
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'idClinica';
+        input.value = id;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+      }
+
+      function closeModal() {
+        document.getElementById('clinicModal').style.display = 'none';
+      }
+
+      document.getElementById('selectClinicBtn').onclick = function() {
+        document.getElementById('clinicModal').style.display = 'block';
+      };
+
     script(src="/botondinamicoAgendaEnCita.js")
     script(src="/searchPaciente.js")

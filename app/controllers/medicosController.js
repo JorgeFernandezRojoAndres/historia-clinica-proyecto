@@ -1,15 +1,32 @@
 const moment = require('moment'); 
 const db = require('../../config/database');
 const citasController = require('./citasController');
-const generarHorariosLibres = require('../../utils/horariosLibres');
+const { generarHorariosLibres } = require('../../utils/horariosLibres');
 
 
 
-// Listar todos los médicos, manejando nulos con IFNULL
+
+
 exports.listAll = (req, res) => {
-    const sql = 'SELECT idMedico, nombre, especialidad, telefono, email, dni FROM medicos';
+    const idClinica = req.session.idClinica;
 
-    db.query(sql, (error, results) => {
+    // Verificar que el idClinica esté definido en la sesión
+    if (!idClinica) {
+        return res.redirect('/seleccion-clinica'); // Redirige si no hay clínica seleccionada
+    }
+
+    // Consulta SQL que filtra médicos según la clínica seleccionada
+    const sql = `
+        SELECT m.idMedico, m.nombre, IFNULL(m.especialidad, 'No especificada') AS especialidad, 
+               IFNULL(m.telefono, 'Sin teléfono') AS telefono, 
+               IFNULL(m.email, 'Sin email') AS email, 
+               IFNULL(m.dni, 'Sin DNI') AS dni
+        FROM medicos AS m
+        JOIN medicos_clinicas AS mc ON m.idMedico = mc.idMedico
+        WHERE mc.idClinica = ?;
+    `;
+
+    db.query(sql, [idClinica], (error, results) => {
         if (error) {
             console.error('Error al obtener los médicos:', error);
             res.status(500).send("Error al obtener los médicos");
@@ -18,17 +35,44 @@ exports.listAll = (req, res) => {
         }
     });
 };
+
+
+// Función para obtener el historial de un paciente desde la base de datos
+async function obtenerHistorialPaciente(idPaciente) {
+    const sql = `
+        SELECT citas.idCita, medicos.nombre AS nombreMedico, pacientes.nombre AS nombrePaciente, 
+               citas.fechaHora, citas.motivoConsulta, citas.estado
+        FROM citas
+        JOIN medicos ON citas.idMedico = medicos.idMedico
+        JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+        WHERE citas.idPaciente = ?
+        ORDER BY citas.fechaHora DESC
+    `;
+    return new Promise((resolve, reject) => {
+        db.query(sql, [idPaciente], (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+}
+
 // Controlador para ver el historial de atenciones de un paciente
 exports.verHistorialPaciente = (req, res) => {
     const idPaciente = req.params.idPaciente;
 
     const sql = `
-        SELECT citas.idCita, medicos.nombre AS nombreMedico, citas.fechaHora, citas.motivoConsulta, citas.estado
-        FROM citas
-        JOIN medicos ON citas.idMedico = medicos.idMedico
-        WHERE citas.idPaciente = ?
-        ORDER BY citas.fechaHora DESC
-    `;
+    SELECT citas.idCita, medicos.nombre AS nombreMedico, medicos.especialidad, pacientes.nombre AS nombrePaciente, 
+           citas.fechaHora, citas.motivoConsulta, citas.estado
+    FROM citas
+    LEFT JOIN medicos ON citas.idMedico = medicos.idMedico
+    LEFT JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+    WHERE citas.idPaciente = ?
+    ORDER BY citas.fechaHora DESC
+`;
+
 
     db.query(sql, [idPaciente], (error, results) => {
         if (error) {
@@ -43,7 +87,6 @@ exports.verHistorialPaciente = (req, res) => {
     });
 };
 
-
 // Mostrar formulario para un nuevo médico
 exports.showNewForm = (req, res) => {
     res.render('newMedico');  
@@ -52,17 +95,28 @@ exports.showNewForm = (req, res) => {
 // Crear un nuevo médico
 exports.create = (req, res) => {
     const { nombre, especialidad, dni, telefono, email } = req.body;
-    const sql = 'INSERT INTO medicos (nombre, especialidad, dni, telefono, email) VALUES (?, ?, ?, ?, ?)';
+    const idClinica = req.session.idClinica;
 
-    db.query(sql, [nombre, especialidad, dni, telefono, email], (error) => {
+    const sql = 'INSERT INTO medicos (nombre, especialidad, dni, telefono, email) VALUES (?, ?, ?, ?, ?)';
+    db.query(sql, [nombre, especialidad, dni, telefono, email], (error, result) => {
         if (error) {
             console.error('Error al crear el médico:', error);
-            res.status(500).send("Error al crear el médico");
-        } else {
-            res.redirect('/medicos');
+            return res.status(500).send("Error al crear el médico");
         }
+
+        // Asociar el médico a la clínica seleccionada
+        const idMedico = result.insertId;
+        const sqlClinica = 'INSERT INTO medicos_clinicas (idMedico, idClinica) VALUES (?, ?)';
+        db.query(sqlClinica, [idMedico, idClinica], (error) => {
+            if (error) {
+                console.error('Error al asociar el médico con la clínica:', error);
+                return res.status(500).send("Error al asociar el médico con la clínica");
+            }
+            res.redirect('/medicos');
+        });
     });
 };
+
 exports.obtenerCitasDesdeMedico = (req, res) => {
     citasController.obtenerCitasJSON(req, res);
 };
@@ -117,7 +171,34 @@ exports.verAgenda = (req, res) => {
     const idMedico = req.params.id;
     const fechaSeleccionada = req.query.fecha || new Date().toISOString().split('T')[0];
     const usuario = req.session.user; // Obtener el usuario autenticado
+    const idClinica = req.session.idClinica; // Obtener la clínica seleccionada de la sesión
 
+    // Log de la clínica seleccionada
+    console.log(`Clínica seleccionada en la sesión: ${idClinica}`);
+
+    // Consulta para verificar que el médico está asociado a la clínica seleccionada
+    const sqlVerificarClinica = `
+    SELECT 1 FROM medicos_clinicas
+    WHERE idMedico = ? AND idClinica IN (?)
+`;
+    
+    db.query(sqlVerificarClinica, [idMedico, idClinica], (error, resultados) => {
+        if (error) {
+            console.error('Error al verificar la clínica del médico:', error);
+            return res.status(500).send('Error al verificar la clínica del médico');
+        }
+
+        // Si el médico no está asociado a la clínica seleccionada
+        if (resultados.length === 0) {
+            console.log(`El médico con ID ${idMedico} no está asociado a la clínica con ID ${idClinica}`);
+            return res.status(403).send('El médico no está asociado a la clínica seleccionada');
+        }
+
+        // Continuar con la siguiente parte: Consulta de turnos regulares
+        obtenerTurnosRegulares(idMedico, fechaSeleccionada, usuario, res);
+    });
+};
+const obtenerTurnosRegulares = (idMedico, fechaSeleccionada, usuario, res) => {
     // Consulta para obtener los turnos regulares
     const sqlRegulares = `
         SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado 
@@ -126,6 +207,17 @@ exports.verAgenda = (req, res) => {
         WHERE citas.idMedico = ? AND DATE(citas.fechaHora) = ? AND citas.tipoTurno = 'regular'
     `;
 
+    db.query(sqlRegulares, [idMedico, fechaSeleccionada], (errorRegulares, regulares) => {
+        if (errorRegulares) {
+            console.error('Error al obtener los turnos regulares:', errorRegulares);
+            return res.status(500).send('Error al obtener los turnos regulares');
+        }
+
+        // Continuar con la siguiente parte: Consulta de sobreturnos
+        obtenerSobreturnos(idMedico, fechaSeleccionada, regulares, usuario, res);
+    });
+};
+const obtenerSobreturnos = (idMedico, fechaSeleccionada, regulares, usuario, res) => {
     // Consulta para obtener los sobreturnos
     const sqlSobreturnos = `
         SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado 
@@ -134,66 +226,62 @@ exports.verAgenda = (req, res) => {
         WHERE citas.idMedico = ? AND DATE(citas.fechaHora) = ? AND citas.tipoTurno = 'sobreturno'
     `;
 
-    db.query(sqlRegulares, [idMedico, fechaSeleccionada], (errorRegulares, regulares) => {
-        if (errorRegulares) {
-            console.error('Error al obtener los turnos regulares:', errorRegulares);
-            return res.status(500).send('Error al obtener los turnos regulares');
+    db.query(sqlSobreturnos, [idMedico, fechaSeleccionada], (errorSobreturnos, sobreturnos) => {
+        if (errorSobreturnos) {
+            console.error('Error al obtener los sobreturnos:', errorSobreturnos);
+            return res.status(500).send('Error al obtener los sobreturnos');
         }
 
-        db.query(sqlSobreturnos, [idMedico, fechaSeleccionada], (errorSobreturnos, sobreturnos) => {
-            if (errorSobreturnos) {
-                console.error('Error al obtener los sobreturnos:', errorSobreturnos);
-                return res.status(500).send('Error al obtener los sobreturnos');
-            }
+        // Formatear la fecha y hora antes de enviarla a la vista
+        formatearCitas(regulares);
+        formatearCitas(sobreturnos);
 
-            // Formatear la fecha y hora antes de enviarla a la vista
-            regulares.forEach(cita => {
-                if (cita.fechaHora && moment(cita.fechaHora).isValid()) {
-                    cita.fechaHora = moment(cita.fechaHora).format('DD/MM/YYYY HH:mm');
-                } else {
-                    cita.fechaHora = 'Sin definir';
-                }
-            });
+        // Generar los horarios libres si el usuario es secretaria o paciente
+        let horariosLibres = [];
+        if (usuario.role === 'secretaria' || usuario.role === 'paciente') {
+            horariosLibres = generarHorariosLibres(fechaSeleccionada, regulares.concat(sobreturnos));
+        }
 
-            sobreturnos.forEach(cita => {
-                if (cita.fechaHora && moment(cita.fechaHora).isValid()) {
-                    cita.fechaHora = moment(cita.fechaHora).format('DD/MM/YYYY HH:mm');
-                } else {
-                    cita.fechaHora = 'Sin definir';
-                }
-            });
-
-            // Generar los horarios libres solo si el usuario es secretaria
-            let horariosLibres = [];
-            if (usuario.role === 'secretaria') {
-                horariosLibres = generarHorariosLibres(fechaSeleccionada, regulares.concat(sobreturnos));
-            }
-
-            // Enviar los turnos regulares, sobreturnos y horarios libres a la vista
-            res.render('agenda_medico', { 
-                regulares, 
-                sobreturnos, 
-                horariosLibres,
-                fechaHoy: fechaSeleccionada,
-                medicoId: idMedico
-            });
+        // Enviar los turnos regulares, sobreturnos y horarios libres a la vista
+        res.render('agenda_medico', { 
+            regulares, 
+            sobreturnos, 
+            horariosLibres,
+            fechaHoy: fechaSeleccionada,
+            medicoId: idMedico
         });
     });
 };
 
+const formatearCitas = (citas) => {
+    citas.forEach(cita => {
+        if (cita.fechaHora && moment(cita.fechaHora).isValid()) {
+            cita.fechaHora = moment(cita.fechaHora).format('DD/MM/YYYY HH:mm');
+        } else {
+            cita.fechaHora = 'Sin definir';
+        }
+    });
+};
+
+
+
+//funcion para ver agenda del dia del medico 
 
 exports.verAgendaDelDia = (req, res) => {
     const idMedico = req.params.id;
     const today = new Date().toISOString().split('T')[0];
+    const idClinica = req.session.idClinica; // Obtener el idClinica de la sesión
+
     const sql = `
         SELECT citas.idCita, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado, medicos.nombre AS nombreMedico
         FROM citas
         JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
         JOIN medicos ON citas.idMedico = medicos.idMedico
-        WHERE citas.idMedico = ? AND DATE(citas.fechaHora) = ?
+        JOIN medicos_clinicas AS mc ON medicos.idMedico = mc.idMedico
+        WHERE citas.idMedico = ? AND DATE(citas.fechaHora) = ? AND mc.idClinica = ?
     `;
 
-    db.query(sql, [idMedico, today], (error, results) => {
+    db.query(sql, [idMedico, today, idClinica], (error, results) => {
         if (error) {
             console.error('Error al obtener la agenda del día:', error);
             return res.status(500).send('Error al obtener la agenda del día');
@@ -207,10 +295,11 @@ exports.verAgendaDelDia = (req, res) => {
         res.render('agenda_medico', {
             citas: results,
             nombreMedico: results.length > 0 ? results[0].nombreMedico : 'Médico sin citas',
-            agendaDelDia: true // Agregar esta variable para desactivar el selector de fecha
+            agendaDelDia: true // Variable para desactivar el selector de fecha
         });
     });
 };
+
 
 
 
@@ -232,14 +321,20 @@ function renderAgenda(res, results, mostrarFiltro) {
 // Buscar médicos por nombre
 exports.search = (req, res) => {
     const query = req.query.query?.trim();
+    const idClinica = req.session.idClinica;
     if (!query) {
         return res.status(400).send('Debe ingresar un término de búsqueda');
     }
 
-    const sql = 'SELECT * FROM medicos WHERE nombre LIKE ?';
+    const sql = `
+        SELECT m.*
+        FROM medicos AS m
+        JOIN medicos_clinicas AS mc ON m.idMedico = mc.idMedico
+        WHERE m.nombre LIKE ? AND mc.idClinica = ?
+    `;
     const searchTerm = `%${query}%`;
 
-    db.query(sql, [searchTerm], (error, results) => {
+    db.query(sql, [searchTerm, idClinica], (error, results) => {
         if (error) {
             console.error('Error al buscar médicos:', error);
             return res.status(500).send('Error al buscar médicos');
@@ -248,6 +343,7 @@ exports.search = (req, res) => {
         res.render('medicos', { medicos: results });
     });
 };
+
 
 // Cambio de contraseña del médico
 exports.changePassword = async (req, res) => {

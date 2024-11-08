@@ -42,9 +42,14 @@ block content
   .form-group
     // Botón para manejar los horarios libres de los médicos
     button(type="button" onclick="window.location.href='/admin/manejar-horarios-libres'") Manejar Horarios Libres de Médicos
-  // Botón para ver pacientes pendientes de confirmación
-.form-group
-  button(type="button" onclick="window.location.href='/admin/pacientes-pendientes'") Ver Pacientes Pendientes de Confirmación
+
+  .form-group
+    // Botón para ver pacientes pendientes de confirmación
+    button(type="button" onclick="window.location.href='/admin/pacientes-pendientes'") Ver Pacientes Pendientes de Confirmación
+
+  .form-group
+    // Botón para ver todos los médicos
+    button(type="button" onclick="window.location.href='/admin/ver-medicos'") Ver Médicos
 
   // Script para manejar la carga dinámica de médicos y el botón de horarios
   script.
@@ -58,7 +63,7 @@ block content
       especialidadSelector.addEventListener('change', function() {
         const especialidadSeleccionada = this.value;
         medicoSelector.innerHTML = '<option value="">-- Selecciona un médico --</option>';
-        
+
         medicos.forEach(medico => {
           if (medico.especialidad === especialidadSeleccionada) {
             const option = document.createElement('option');
