@@ -5,11 +5,12 @@ const { repetirHorarios } = require('../../utils/repetirHorarios');
 
 const moment = require('moment');
 
-// Función para ver los horarios libres de un médico específico
-exports.verHorariosLibres = (req, res) => {
-    const { idMedico } = req.params; // Obtener el ID del médico desde la URL
-    const fecha = moment().format('YYYY-MM-DD'); // Fecha actual
-    const horaActual = moment().format('HH:mm'); // Hora actual
+/// Función para ver los horarios libres de un médico específico
+exports.verHorariosLibres = (req, res) => { 
+    const { idMedico } = req.params;
+    const fecha = moment().format('YYYY-MM-DD');
+    const horaActual = moment().format('HH:mm');
+    const role = req.user?.role || req.session?.user?.role || 'usuario';
 
     // Primero, obtenemos el nombre del médico
     const sqlNombreMedico = 'SELECT nombre FROM medicos WHERE idMedico = ?';
@@ -25,43 +26,51 @@ exports.verHorariosLibres = (req, res) => {
 
         const nombreMedico = resultadosMedico[0].nombre;
 
-        // Luego, obtenemos las citas para ese médico en la fecha actual
-        const sqlCitas = 'SELECT fechaHora FROM citas WHERE idMedico = ? AND DATE(fechaHora) = ?';
-        db.query(sqlCitas, [idMedico, fecha], (error, citas) => {
+        // Consulta para obtener las clínicas disponibles
+        const sqlClinicas = 'SELECT idClinica, nombre FROM clinicas';
+        db.query(sqlClinicas, (error, clinicas) => {
             if (error) {
-                console.error('Error al obtener citas del médico:', error);
-                return res.status(500).send('Error al obtener citas del médico');
+                console.error('Error al obtener las clínicas:', error);
+                return res.status(500).send('Error al obtener las clínicas');
             }
 
-            // Obtener los horarios libres, excluyendo las citas
-            let horariosLibres = generarHorariosLibres(fecha, citas); // Generar horarios iniciales
+            // Luego, obtenemos las citas para ese médico en la fecha actual
+            const sqlCitas = 'SELECT fechaHora FROM citas WHERE idMedico = ? AND DATE(fechaHora) = ?';
+            db.query(sqlCitas, [idMedico, fecha], (error, citas) => {
+                if (error) {
+                    console.error('Error al obtener citas del médico:', error);
+                    return res.status(500).send('Error al obtener citas del médico');
+                }
 
-            // Filtrar los horarios que ya pasaron respecto a la hora actual
-            horariosLibres = horariosLibres.filter(horario => {
-                const horarioFechaHora = moment(`${horario.fecha} ${horario.hora}`, 'DD/MM/YYYY HH:mm');
-                return horarioFechaHora.isAfter(moment()); // Filtra solo los horarios que son después de la hora actual
+                // Generar horarios iniciales
+                let horariosLibres = generarHorariosLibres(fecha, citas); 
+
+                // Filtrar los horarios que ya pasaron respecto a la hora actual
+                horariosLibres = horariosLibres.filter(horario => {
+                    const horarioFechaHora = moment(`${horario.fecha} ${horario.hora}`, 'DD/MM/YYYY HH:mm');
+                    return horarioFechaHora.isAfter(moment());
+                });
+
+                // Verificar si el parámetro 'eliminado' está presente en la URL
+                if (req.query.fecha && req.query.hora) {
+                    const fechaEliminada = req.query.fecha;
+                    const horaEliminada = req.query.hora;
+                    
+                    // Filtrar los horarios eliminados
+                    horariosLibres = horariosLibres.filter(horario => 
+                        !(horario.fecha === fechaEliminada && horario.hora === horaEliminada)
+                    );
+                }
+
+                // Renderizar la vista con los datos
+                res.render('verHorarios', { 
+                    horariosLibres, 
+                    idMedico, 
+                    nombreMedico, 
+                    clinicas, 
+                    role // Pasamos el rol del usuario a la vista
+                });
             });
-
-            // Verificar si el parámetro 'eliminado' está presente en la URL (indica que un horario fue eliminado)
-            if (req.query.fecha && req.query.hora) {
-                const fechaEliminada = req.query.fecha;
-                const horaEliminada = req.query.hora;
-                
-                // Filtrar los horarios eliminados, ya que no deben volver a aparecer
-                horariosLibres = horariosLibres.filter(horario => 
-                    !(horario.fecha === fechaEliminada && horario.hora === horaEliminada)
-                );
-            }
-
-            // Si no hay horarios disponibles, mostrar mensaje
-            if (horariosLibres.length === 0) {
-                return res.render('verHorarios', { horariosLibres, idMedico, nombreMedico, noHayHorarios: true });
-            }
-
-            console.log("Horarios libres generados:", horariosLibres);
-
-            // Finalmente, renderizamos la vista con los horarios libres y el nombre del médico
-            res.render('verHorarios', { horariosLibres, idMedico, nombreMedico });
         });
     });
 };
@@ -69,49 +78,121 @@ exports.verHorariosLibres = (req, res) => {
 
 
 
+
+
+
+// Función para agregar horario libre
 exports.agregarHorarioLibre = (req, res) => {
     const { idMedico, fecha, horaInicio, horaFin } = req.body;
-    const tipoTurno = 'libre';
+    const idClinica = req.body.idClinica || req.session.clinicId;
 
-    // Validación para que horaFin no sea anterior a horaInicio
-    if (moment(horaFin, 'HH:mm').isBefore(moment(horaInicio, 'HH:mm'))) {
-        return res.status(400).send('La hora de fin debe ser posterior a la hora de inicio.');
+    // Comprobar si idClinica está presente
+    if (!idClinica) {
+        // Obtén las clínicas y horarios si faltan en `req`
+        obtenerClinicasYHorarios(req, idMedico, (error, clinicas, nombreMedico, horariosLibres) => {
+            if (error) {
+                return res.status(500).render('verHorarios', {
+                    errorMessage: "Error al obtener datos de la clínica",
+                    idMedico,
+                    clinicas: [],
+                    nombreMedico: "Nombre del Médico",
+                    horariosLibres: []
+                });
+            }
+
+            // Renderizar vista con mensaje de error por clínica no seleccionada
+            res.status(400).render('verHorarios', {
+                errorMessage: "La clínica no ha sido seleccionada",
+                idMedico,
+                clinicas,
+                nombreMedico,
+                horariosLibres
+            });
+        });
+        return;
     }
 
-    // Verificar si el horario se solapa con otros existentes para el mismo médico
-    const verificarSolapamientoSql = `
-        SELECT * FROM horarios_libres
-        WHERE idMedico = ? 
-        AND fechaHora = ?
+    // Consulta para insertar el nuevo horario
+    const agregarHorarioSql = `
+        INSERT INTO horarios_medicos (idMedico, fecha, horaInicio, horaFin, estado, tipoTurno, idClinica)
+        VALUES (?, ?, ?, ?, 'libre', 'laboral', ?)
     `;
 
-    const fechaHora = `${fecha} ${horaInicio}`; // Fecha con hora de inicio combinada
-
-    db.query(verificarSolapamientoSql, [idMedico, fechaHora], (error, resultados) => {
+    db.query(agregarHorarioSql, [idMedico, fecha, horaInicio, horaFin, idClinica], (error) => {
         if (error) {
-            console.error('Error al verificar superposición de horarios:', error);
-            return res.status(500).send('Error al verificar horarios');
+            console.error("Error al agregar horario libre:", error);
+
+            // Obtén las clínicas y horarios si ocurre un error al agregar el horario
+            obtenerClinicasYHorarios(req, idMedico, (err, clinicas, nombreMedico, horariosLibres) => {
+                if (err) {
+                    return res.status(500).render('verHorarios', {
+                        errorMessage: "Error al obtener datos después de un fallo al agregar el horario",
+                        idMedico,
+                        clinicas: [],
+                        nombreMedico: "Nombre del Médico",
+                        horariosLibres: []
+                    });
+                }
+
+                // Renderizar vista con mensaje de error al agregar el horario
+                res.status(500).render('verHorarios', {
+                    errorMessage: "Error al agregar horario",
+                    idMedico,
+                    clinicas,
+                    nombreMedico,
+                    horariosLibres
+                });
+            });
+            return;
         }
 
-        if (resultados.length > 0) {
-            return res.status(400).send('Este horario se solapa con un horario existente para el médico seleccionado.');
-        }
-
-        // Insertar el nuevo horario libre en la base de datos
-        const agregarHorarioSql = `
-            INSERT INTO horarios_libres (idMedico, fechaHora, horaInicio, horaFin, tipoTurno) 
-            VALUES (?, ?, ?, ?, ?)
-        `;
-
-        db.query(agregarHorarioSql, [idMedico, `${fecha} ${horaInicio}`, horaInicio, horaFin, tipoTurno], (error, results) => {
-            if (error) {
-                console.error('Error al agregar horario libre:', error);
-                return res.status(500).send('Error al agregar horario libre');
+        // Obtener las clínicas y horarios para mostrar mensaje de éxito
+        obtenerClinicasYHorarios(req, idMedico, (err, clinicas, nombreMedico, horariosLibres) => {
+            if (err) {
+                return res.status(500).render('verHorarios', {
+                    errorMessage: "Error al obtener datos después de agregar el horario",
+                    idMedico,
+                    clinicas: [],
+                    nombreMedico: "Nombre del Médico",
+                    horariosLibres: []
+                });
             }
-            res.redirect(`/admin/medico/${idMedico}/horarios-libres`); // Redirigir a la página de horarios
+
+            // Renderizar vista con mensaje de éxito
+            res.render('verHorarios', {
+                message: "Horario agregado correctamente",
+                idMedico,
+                clinicas,
+                nombreMedico,
+                horariosLibres
+            });
         });
     });
 };
+
+// Función auxiliar para obtener las clínicas y los horarios
+function obtenerClinicasYHorarios(req, idMedico, callback) {
+    const obtenerClinicasSql = 'SELECT * FROM clinicas';
+    const obtenerNombreMedicoSql = 'SELECT nombre FROM medicos WHERE idMedico = ?';
+    const obtenerHorariosSql = 'SELECT fecha, horaInicio AS hora FROM horarios_medicos WHERE idMedico = ?';
+
+    db.query(obtenerClinicasSql, (error, clinicas) => {
+        if (error) return callback(error);
+
+        db.query(obtenerNombreMedicoSql, [idMedico], (error, resultadosMedico) => {
+            if (error) return callback(error);
+
+            const nombreMedico = resultadosMedico.length ? resultadosMedico[0].nombre : "Nombre del Médico";
+
+            db.query(obtenerHorariosSql, [idMedico], (error, horariosLibres) => {
+                if (error) return callback(error);
+
+                callback(null, clinicas, nombreMedico, horariosLibres);
+            });
+        });
+    });
+}
+
 
 
 
@@ -145,13 +226,17 @@ exports.asignarClinica = (req, res) => {
 };
 
 // Función para renderizar la vista del administrador
+// Función para obtener y pasar especialidades
 exports.renderAdminDashboard = (req, res) => {
     const sqlEspecialidades = 'SELECT * FROM especialidades';
     const sqlMedicos = `
-        SELECT medicos.idMedico, medicos.nombre, medicos.especialidad, medicos.idEspecialidad 
-        FROM medicos
+        SELECT m.idMedico, m.nombre
+        FROM medicos AS m
+        JOIN medicos_clinicas AS mc ON m.idMedico = mc.idMedico
+        JOIN especialidades AS e ON e.idEspecialidad = m.especialidad
+        WHERE mc.idClinica = ? AND e.idEspecialidad = ?
     `;
-    const sqlClinicas = 'SELECT idClinica, nombre FROM clinicas'; // Nueva consulta para obtener clínicas
+    const sqlClinicas = 'SELECT idClinica, nombre FROM clinicas';
 
     db.query(sqlEspecialidades, (errorEspecialidades, resultadosEspecialidades) => {
         if (errorEspecialidades) {
@@ -159,37 +244,29 @@ exports.renderAdminDashboard = (req, res) => {
             return res.status(500).send('Error al obtener especialidades');
         }
 
-        db.query(sqlMedicos, (errorMedicos, resultadosMedicos) => {
-            if (errorMedicos) {
-                console.error('Error al obtener médicos:', errorMedicos);
-                return res.status(500).send('Error al obtener médicos');
+        db.query(sqlClinicas, (errorClinicas, resultadosClinicas) => {
+            if (errorClinicas) {
+                console.error('Error al obtener clínicas:', errorClinicas);
+                return res.status(500).send('Error al obtener clínicas');
             }
 
-            db.query(sqlClinicas, (errorClinicas, resultadosClinicas) => {
-                if (errorClinicas) {
-                    console.error('Error al obtener clínicas:', errorClinicas);
-                    return res.status(500).send('Error al obtener clínicas');
+            db.query(sqlMedicos, [req.query.clinicId, req.query.specialtyId], (errorMedicos, resultadosMedicos) => {
+                if (errorMedicos) {
+                    console.error('Error al obtener médicos:', errorMedicos);
+                    return res.status(500).send('Error al obtener médicos');
                 }
 
-                const medicosPorEspecialidad = {};
-                resultadosEspecialidades.forEach(especialidad => {
-                    medicosPorEspecialidad[especialidad.id] = resultadosMedicos.filter(
-                        medico => medico.idEspecialidad === especialidad.id
-                    );
-                });
-
-                // Ahora pasamos "clinicas" a la vista
+                // Pasar las especialidades, médicos y clínicas a la vista
                 res.render('escritorioAdministrador', {
                     user: req.session.user,
-                    especialidades: resultadosEspecialidades,
+                    especialidades: resultadosEspecialidades,  // Pasar especialidades
                     medicos: resultadosMedicos,
-                    clinicas: resultadosClinicas // Pasamos las clínicas a la vista
+                    clinicas: resultadosClinicas  // Pasar clínicas
                 });
             });
         });
     });
 };
-
 
 
 // Función para ver los pacientes pendientes de confirmación
@@ -256,41 +333,71 @@ exports.verMedicos = (req, res) => {
 };
 
 exports.getDoctors = (req, res) => {
-    const { clinicId, specialty } = req.query;
+    const { clinicId, specialtyId } = req.query;
 
-    const sql = `
-        SELECT m.idMedico, m.nombre
-        FROM medicos AS m
-        JOIN medicos_clinicas AS mc ON m.idMedico = mc.idMedico
-        JOIN especialidades AS e ON m.especialidad = e.idEspecialidad
-        WHERE mc.idClinica = ? AND e.nombre = ?
-    `;
+    // Verificar que los parámetros estén presentes
+    if (!clinicId || !specialtyId) {
+        console.log('Faltan parámetros:', { clinicId, specialtyId });
+        return res.status(400).json({ error: "Se requiere clinicId y specialtyId" });
+    }
 
-    db.query(sql, [clinicId, specialty], (error, results) => {
+    console.log("Parámetros recibidos:", { clinicId, specialtyId });
+
+    const sqlClinicas = `SELECT idClinica, nombre FROM clinicas`;
+    const sqlDoctors = `
+    SELECT m.idMedico, m.nombre
+    FROM medicos AS m
+    JOIN medicos_clinicas AS mc ON m.idMedico = mc.idMedico
+    JOIN especialidades AS e ON e.idEspecialidad = m.especialidad
+    WHERE mc.idClinica = ? AND e.idEspecialidad = ? 
+`;
+
+    // Obtener las clínicas
+    db.query(sqlClinicas, (error, clinicas) => {
         if (error) {
-            console.error('Error al obtener médicos:', error);
-            return res.status(500).json({ error: 'Error al obtener médicos' });
+            console.error('Error al obtener clínicas:', error);
+            return res.status(500).json({ error: 'Error al obtener clínicas' });
         }
-        res.json(results);
+
+        // Obtener los médicos si se reciben las clínicas
+        db.query(sqlDoctors, [clinicId, specialtyId], (error, doctors) => {
+            if (error) {
+                console.error('Error al obtener médicos:', error);
+                return res.status(500).json({ error: 'Error al obtener médicos' });
+            }
+
+            // Verifica si se encontraron médicos
+            if (doctors.length === 0) {
+                console.log('No se encontraron médicos para los parámetros proporcionados');
+            }
+
+            // Renderizar la vista con clínicas y médicos
+            res.render('escritorioAdministrador', {
+                doctors: doctors,
+                clinicas: clinicas // Pasar las clínicas a la vista
+            });
+        });
     });
 };
+
+
+
 exports.eliminarHorarioLibre = (req, res) => {
     const { idMedico } = req.body;
-    const fecha = req.query.fecha; // '11/11/2024'
-    const hora = req.query.hora; // '08:00'
+    const fecha = req.query.fecha; // Ejemplo: '11/11/2024'
+    const hora = req.query.hora; // Ejemplo: '08:00'
 
     if (!idMedico || !fecha || !hora) {
         console.error("Faltan datos: idMedico, fecha o hora.");
         return res.status(400).send('Faltan datos para eliminar el horario.');
     }
 
-    // Formateo de fecha y hora en el formato 'YYYY-MM-DD HH:MM:SS'
-    const fechaHora = `${fecha.split('/').reverse().join('-')} ${hora}:00`;
-    console.log("FechaHora para eliminar:", fechaHora);
+    // Formateo de fecha en el formato 'YYYY-MM-DD'
+    const fechaFormateada = fecha.split('/').reverse().join('-');
 
-    const sqlEliminar = `DELETE FROM horarios_libres WHERE idMedico = ? AND fechaHora = ?`;
+    const sql = 'DELETE FROM horarios_medicos WHERE idMedico = ? AND fecha = ? AND horaInicio = ?';
 
-    db.query(sqlEliminar, [idMedico, fechaHora], (error, results) => {
+    db.query(sql, [idMedico, fechaFormateada, hora], (error, results) => {
         if (error) {
             console.error('Error al eliminar horario libre:', error);
             return res.status(500).send('Error al eliminar horario libre');
@@ -308,6 +415,7 @@ exports.eliminarHorarioLibre = (req, res) => {
 
 
 
+
 exports.verHorariosMedico = (req, res) => {
     const { idMedico } = req.query;
 
@@ -318,7 +426,7 @@ exports.verHorariosMedico = (req, res) => {
     const medicoSql = `SELECT nombre FROM medicos WHERE idMedico = ?`;
     const horariosSql = `
         SELECT fechaHora, horaInicio, horaFin, estado, tipoTurno
-        FROM horarios_libres
+        FROM horarios_medicos
         WHERE idMedico = ?
         ORDER BY fechaHora, horaInicio
     `;
@@ -341,27 +449,64 @@ exports.verHorariosMedico = (req, res) => {
 };
 
 
-// Ruta para repetir horarios
+// Ruta para repetir 
 exports.repetirHorarios = (req, res) => {
-    const { idMedico, fechaInicio, fechaFin, accion } = req.body;
-  
-    // Validación de las fechas
-    const startDate = moment(fechaInicio);
-    const endDate = moment(fechaFin);
-  
-    // Verificar si las fechas son válidas
-    if (!startDate.isValid() || !endDate.isValid()) {
-      return res.status(400).send('Las fechas proporcionadas no son válidas.');
+    const { idMedico, fechaInicio, fechaFin, horaInicio, horaFin, idClinica } = req.body;
+
+    if (!idMedico || !fechaInicio || !fechaFin || !horaInicio || !horaFin || !idClinica) {
+        return res.status(400).json({ error: "Faltan datos necesarios para repetir el horario" });
     }
-  
-    // Llamar a la función para repetir los horarios dependiendo de la acción
-    repetirHorarios(idMedico, startDate, endDate, accion)
-      .then(() => {
-        res.redirect('/admin/dashboard'); // Redirigir después de la repetición
-      })
-      .catch(error => {
-        console.error('Error al repetir horarios:', error);
-        res.status(500).send('Error al repetir horarios.');
-      });
-  };
-  
+
+    const startDate = moment(fechaInicio, 'YYYY-MM-DD');
+    const endDate = moment(fechaFin, 'YYYY-MM-DD');
+
+    if (!startDate.isValid() || !endDate.isValid() || startDate.isAfter(endDate)) {
+        return res.status(400).json({ error: "Fechas no válidas" });
+    }
+
+    let current = startDate.clone();
+
+    const verificarYActualizarHorario = (fecha, callback) => {
+        const sqlSelect = `
+            SELECT * FROM horarios_medicos
+            WHERE idMedico = ? AND fecha = ? AND horaInicio = ? AND idClinica = ?
+        `;
+        
+        db.query(sqlSelect, [idMedico, fecha, horaInicio, idClinica], (error, results) => {
+            if (error) return callback(error);
+
+            if (results.length > 0) {
+                // Si ya existe, actualizamos el horario
+                const sqlUpdate = `
+                    UPDATE horarios_medicos
+                    SET horaFin = ?, estado = 'libre', tipoTurno = 'laboral'
+                    WHERE idMedico = ? AND fecha = ? AND horaInicio = ? AND idClinica = ?
+                `;
+                db.query(sqlUpdate, [horaFin, idMedico, fecha, horaInicio, idClinica], callback);
+            } else {
+                // Si no existe, lo insertamos
+                const sqlInsert = `
+                    INSERT INTO horarios_medicos (idMedico, fecha, horaInicio, horaFin, estado, tipoTurno, idClinica)
+                    VALUES (?, ?, ?, ?, 'libre', 'laboral', ?)
+                `;
+                db.query(sqlInsert, [idMedico, fecha, horaInicio, horaFin, idClinica], callback);
+            }
+        });
+    };
+
+    const tareas = [];
+    while (current.isSameOrBefore(endDate)) {
+        const fecha = current.format('YYYY-MM-DD');
+        tareas.push(callback => verificarYActualizarHorario(fecha, callback));
+        current.add(1, 'days');
+    }
+
+    // Ejecutamos todas las tareas en paralelo
+    async.parallel(tareas, (error, results) => {
+        if (error) {
+            console.error("Error al repetir horarios:", error);
+            return res.status(500).json({ error: "Error al repetir horarios" });
+        }
+        res.status(200).json({ message: "Horarios repetidos correctamente" });
+    });
+};
