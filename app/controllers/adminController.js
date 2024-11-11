@@ -96,9 +96,10 @@ exports.asignarClinica = (req, res) => {
 exports.renderAdminDashboard = (req, res) => {
     const sqlEspecialidades = 'SELECT * FROM especialidades';
     const sqlMedicos = `
-        SELECT medicos.idMedico, medicos.nombre, medicos.especialidad 
+        SELECT medicos.idMedico, medicos.nombre, medicos.especialidad, medicos.idEspecialidad 
         FROM medicos
     `;
+    const sqlClinicas = 'SELECT idClinica, nombre FROM clinicas'; // Nueva consulta para obtener clínicas
 
     db.query(sqlEspecialidades, (errorEspecialidades, resultadosEspecialidades) => {
         if (errorEspecialidades) {
@@ -112,21 +113,31 @@ exports.renderAdminDashboard = (req, res) => {
                 return res.status(500).send('Error al obtener médicos');
             }
 
-            const medicosPorEspecialidad = {};
-            resultadosEspecialidades.forEach(especialidad => {
-                medicosPorEspecialidad[especialidad.id] = resultadosMedicos.filter(
-                    medico => medico.idEspecialidad === especialidad.id
-                );
-            });
+            db.query(sqlClinicas, (errorClinicas, resultadosClinicas) => {
+                if (errorClinicas) {
+                    console.error('Error al obtener clínicas:', errorClinicas);
+                    return res.status(500).send('Error al obtener clínicas');
+                }
 
-            res.render('escritorioAdministrador', {
-                user: req.session.user,
-                especialidades: resultadosEspecialidades,
-                medicos: resultadosMedicos
+                const medicosPorEspecialidad = {};
+                resultadosEspecialidades.forEach(especialidad => {
+                    medicosPorEspecialidad[especialidad.id] = resultadosMedicos.filter(
+                        medico => medico.idEspecialidad === especialidad.id
+                    );
+                });
+
+                // Ahora pasamos "clinicas" a la vista
+                res.render('escritorioAdministrador', {
+                    user: req.session.user,
+                    especialidades: resultadosEspecialidades,
+                    medicos: resultadosMedicos,
+                    clinicas: resultadosClinicas // Pasamos las clínicas a la vista
+                });
             });
         });
     });
 };
+
 
 
 // Función para ver los pacientes pendientes de confirmación
@@ -169,56 +180,7 @@ exports.rechazarPaciente = (req, res) => {
         res.redirect('/admin/pacientes-pendientes');
     });
 };
-exports.mostrarFormularioAsignarClinica = (req, res) => {
-    const sqlMedicos = 'SELECT idMedico, nombre FROM medicos';
-    const sqlClinicas = 'SELECT idClinica, nombre FROM clinicas';
-    const sqlMedicosClinicas = `
-        SELECT m.nombre AS medicoNombre, m.especialidad AS especialidad, c.nombre AS clinicaNombre
-        FROM medicos m
-        JOIN medicos_clinicas mc ON m.idMedico = mc.idMedico
-        JOIN clinicas c ON mc.idClinica = c.idClinica
-        ORDER BY c.nombre, m.especialidad
-    `;
 
-    db.query(sqlMedicos, (errorMedicos, medicos) => {
-        if (errorMedicos) {
-            console.error('Error al obtener médicos:', errorMedicos);
-            return res.status(500).send('Error al obtener la lista de médicos');
-        }
-
-        db.query(sqlClinicas, (errorClinicas, clinicas) => {
-            if (errorClinicas) {
-                console.error('Error al obtener clínicas:', errorClinicas);
-                return res.status(500).send('Error al obtener la lista de clínicas');
-            }
-
-            db.query(sqlMedicosClinicas, (errorAsignaciones, asignaciones) => {
-                if (errorAsignaciones) {
-                    console.error('Error al obtener asignaciones:', errorAsignaciones);
-                    return res.status(500).send('Error al obtener las asignaciones de médicos y clínicas');
-                }
-
-                // Agrupar médicos por clínica incluyendo su especialidad
-                const medicosPorClinica = asignaciones.reduce((acc, asignacion) => {
-                    if (!acc[asignacion.clinicaNombre]) {
-                        acc[asignacion.clinicaNombre] = [];
-                    }
-                    acc[asignacion.clinicaNombre].push({
-                        nombre: asignacion.medicoNombre,
-                        especialidad: asignacion.especialidad
-                    });
-                    return acc;
-                }, {});
-
-                res.render('formularioAsignarClinica', {
-                    medicos: medicos || [],
-                    clinicas: clinicas || [],
-                    medicosPorClinica: JSON.stringify(medicosPorClinica) // Enviar como JSON
-                });
-            });
-        });
-    });
-};
 exports.verMedicos = (req, res) => {
     const idClinica = req.session.idClinica;
 
@@ -241,3 +203,22 @@ exports.verMedicos = (req, res) => {
     });
 };
 
+exports.getDoctors = (req, res) => {
+    const { clinicId, specialty } = req.query;
+
+    const sql = `
+        SELECT m.idMedico, m.nombre
+        FROM medicos AS m
+        JOIN medicos_clinicas AS mc ON m.idMedico = mc.idMedico
+        JOIN especialidades AS e ON m.especialidad = e.idEspecialidad
+        WHERE mc.idClinica = ? AND e.nombre = ?
+    `;
+
+    db.query(sql, [clinicId, specialty], (error, results) => {
+        if (error) {
+            console.error('Error al obtener médicos:', error);
+            return res.status(500).json({ error: 'Error al obtener médicos' });
+        }
+        res.json(results);
+    });
+};

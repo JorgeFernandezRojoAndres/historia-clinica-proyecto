@@ -33,8 +33,8 @@ router.get('/formulario-registrar-usuario', isAuthenticated, isAdmin, (req, res)
 router.get('/manejar-horarios-libres', isAuthenticated, isAdmin, (req, res) => {
     res.redirect('/admin/dashboard');
 });
-//ruta para renderizar y asignar las clinicas
-router.get('/formulario-asignar-clinica', isAuthenticated, isAdmin, adminController.mostrarFormularioAsignarClinica);
+// Ruta para obtener médicos según la clínica y especialidad seleccionada (para carga dinámica)
+router.get('/get-doctors', isAuthenticated, isAdmin, adminController.getDoctors);
 // Ruta para ver los pacientes pendientes de confirmación
 router.get('/pacientes-pendientes', isAuthenticated, isAdmin, adminController.verPacientesPendientes);
 // Ruta para confirmar paciente
