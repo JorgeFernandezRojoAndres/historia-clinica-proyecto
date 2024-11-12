@@ -685,28 +685,32 @@ textarea {
 
 /* styles.css */
 .containeradm {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 10px;
-  padding: 20px;
+  max-width: 1000px; /* Ancho máximo del contenedor */
+  margin: 100 auto; /* Centra el contenedor horizontalmente */
 }
 
+/* Estilo para las tarjetas de horarios */
 .horario-cardadm {
-  background-color: #f0f0f0;
-  border: 1px solid #7fe389;
-  border-radius: 5px;
-  padding: 10px;
+  background-color: #f7f7f7; /* Fondo gris claro */
+  border: 2px solid #4CAF50; /* Borde verde */
+  border-radius: 5px; /* Bordes redondeados */
+  padding: 15px;
   text-align: center;
-  font-weight: bold;
+  font-weight: normal;
   font-size: 1.1em;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between; /* Espacio entre la fecha, hora y el botón */
+  align-items: center;
 }
-.contraLogin {
-  width: 53%;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-  background-color: #f9f9f9; /* Cambia el color de fondo si lo deseas */
+/* Contenedor de la información de la fecha y hora */
+.horario-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  text-align: left;
+  font-size: 1.2em;
 }
 
 .contraLogin:focus {
@@ -738,11 +742,61 @@ textarea {
   background-color: #007bff; /* Color de fondo azul */
   color: white; /* Color del texto */
   border: none; /* Sin borde */
-  padding: 10px 15px; /* Espaciado interno */
+  padding: 10px 5px; /* Espaciado interno */
   border-radius: 5px; /* Esquinas redondeadas */
   cursor: pointer; /* Cambiar el cursor al pasar el mouse */
   transition: background-color 0.3s ease; /* Transición suave */
 }
 #selectClinicBtn:hover {
   background-color: #0056b3; /* Color más oscuro al pasar el mouse */
+}
+.btn-eliminar {
+  background-color: #dc3545; /* Fondo rojo */
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.btn-eliminar:hover {
+  background-color: #c82333; /* Fondo rojo oscuro */
+  transform: scale(1.05); /* Efecto de zoom */
+}
+.horario-info p {
+  margin: 0; /* Elimina los márgenes predeterminados */
+  font-weight: bold;
+  color: #555; /* Color de texto más suave */
+}
+
+.targetaH {
+  border: 1px solid #28a745; /* Borde verde */
+  border-radius: 8px; /* Bordes redondeados */
+  padding: 2px; /* Espaciado interno */
+  margin: 10px 0; /* Espaciado superior e inferior entre tarjetas */
+  width: 100%; /* Ocupa el 100% del ancho del contenedor */
+  display: flex; /* Alinea los elementos en una línea */
+  align-items: center; /* Centra verticalmente los elementos dentro */
+  justify-content: space-between; /* Distribuye el espacio entre los elementos */
+  box-sizing: border-box; /* Incluye el borde y el relleno en el ancho total */
+}
+
+.infoh h5, .infoh p {
+  display: inline; /* Muestra el texto en línea */
+  margin: 0 5px; /* Espacio entre etiquetas */
+}
+
+.BotnEli {
+  background-color: #dc3545; /* Fondo rojo */
+  color: #fff; /* Texto blanco */
+  border: none; /* Sin borde */
+  padding: 5px 10px; /* Tamaño del botón */
+  font-size: 12px; /* Tamaño de la fuente */
+  border-radius: 4px; /* Bordes redondeados */
+  cursor: pointer; /* Manito en el cursor */
+}
+
+.BotnEli:hover {
+  background-color: #c82333; /* Fondo rojo oscuro al pasar el mouse */
 }
