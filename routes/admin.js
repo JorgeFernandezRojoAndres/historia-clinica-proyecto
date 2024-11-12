@@ -27,22 +27,33 @@ router.get('/formulario-registrar-usuario', isAuthenticated, isAdmin, (req, res)
     res.render('formularioRegistrarUsuario');
 });
 
-
-
 // Ruta para manejar los horarios libres de los médicos
 router.get('/manejar-horarios-libres', isAuthenticated, isAdmin, (req, res) => {
     res.redirect('/admin/dashboard');
 });
+
 // Ruta para obtener médicos según la clínica y especialidad seleccionada (para carga dinámica)
 router.get('/get-doctors', isAuthenticated, isAdmin, adminController.getDoctors);
+
 // Ruta para ver los pacientes pendientes de confirmación
 router.get('/pacientes-pendientes', isAuthenticated, isAdmin, adminController.verPacientesPendientes);
+
 // Ruta para confirmar paciente
 router.post('/confirmar-paciente/:idPaciente', isAuthenticated, isAdmin, adminController.confirmarPaciente);
 
 // Ruta para rechazar paciente
 router.post('/rechazar-paciente/:idPaciente', isAuthenticated, isAdmin, adminController.rechazarPaciente);
+
 // Ruta para ver todos los médicos
-router.get('/ver-medicos', isAuthenticated, isAdmin, adminController.verMedicos); // Ajusta `verMedicos` si usas un nombre diferente
+router.get('/ver-medicos', isAuthenticated, isAdmin, adminController.verMedicos); 
+
+// Ruta para agregar un nuevo horario libre
+router.post('/agregar-horario-libre', isAuthenticated, isAdmin, adminController.agregarHorarioLibre);
+
+// Ruta para eliminar un horario libre existente
+router.post('/eliminar-horario-libre', isAuthenticated, isAdmin, adminController.eliminarHorarioLibre);
+
+// Ruta para ver los horarios de un médico
+router.get('/ver-horarios-medico', isAuthenticated, isAdmin, adminController.verHorariosMedico);
 
 module.exports = router;

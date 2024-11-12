@@ -1,12 +1,78 @@
 extends layout
 
 block content
-  link(rel="stylesheet" href="/path/to/styles.css") 
-  h2 Horarios Libres del Médico
+  link(rel="stylesheet" href="/css/style.css")
+  h2 Horarios Disponibles para el Dr. #{nombreMedico}
+
+  script.
+    console.log("Renderizando página de horarios libres para el médico con ID:", !{idMedico});
+    console.log("Nombre del médico:", !{nombreMedico});
+    console.log("ID del médico en el formulario para agregar horario:", document.querySelector('input[name="idMedico"]').value);
+
+  // Formulario para agregar un nuevo horario libre
+  form(action="/admin/agregar-horario-libre" method="POST" class="form-agregar-horario")
+    input(type="hidden" name="idMedico" value=idMedico) 
+
+    .form-group
+      label(for="fecha") Fecha:
+      input(type="date" name="fecha" required)
+
+    .form-group
+      label(for="horaInicio") Hora de Inicio:
+      input(type="time" name="horaInicio" required)
+
+    .form-group
+      label(for="horaFin") Hora de Fin:
+      input(type="time" name="horaFin" required)
+
+    button(type="submit") Agregar Horario Libre
+
+  // Formulario para repetir los horarios
+  h2 Repetir Horarios
+  form(action="/admin/repetir-horarios" method="POST" class="form-repetir-horarios")
+    input(type="hidden" name="idMedico" value=idMedico) 
+    .form-group
+      label(for="fechaInicio") Fecha de Inicio:
+      input(type="date" name="fechaInicio" required)
+
+    .form-group
+      label(for="fechaFin") Fecha de Fin:
+      input(type="date" name="fechaFin" required)
+
+    button(type="submit" name="accion" value="año") Repetir Horarios para el Año
+    button(type="submit" name="accion" value="mes") Repetir Horarios para el Mes
 
   .containeradm
+    script.
+      console.log("Horarios libres cargados:", !{JSON.stringify(horariosLibres)});
+      console.log("ID del médico en la vista de eliminación de horario:", !{idMedico});
+
+    // Comprobamos si hay horarios libres
     if horariosLibres.length
+      // Filtramos los horarios que ya han pasado respecto a la hora actual
+      - var horaActual = new Date().getHours();
+      - horariosLibres = horariosLibres.filter(horario => {
+      -   var horaHorario = parseInt(horario.hora.split(':')[0]);
+      -   return horaHorario > horaActual; 
+      - });
+
+      // Verificamos si después de filtrar hay horarios disponibles
+      if horariosLibres.length === 0
+        p No hay horarios disponibles para el médico #{nombreMedico} en el día de hoy.
+
       each horario in horariosLibres
-        .horario-cardadm= horario
+        .targetaH
+          .infoh
+            h5 Fecha:
+            p= horario.fecha
+            h5 Hora:
+            p= horario.hora
+            h5 Estado:
+            p= horario.estado || 'No especificado'
+            h5 Tipo de Turno:
+            p= horario.tipoTurno || 'No especificado'
+          form(action=`/admin/eliminar-horario-libre?fecha=${encodeURIComponent(horario.fecha)}&hora=${encodeURIComponent(horario.hora)}` method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este horario?');")
+            input(type="hidden" name="idMedico" value=idMedico)
+            button(type="submit" class="BotnEli") Eliminar
     else
       p No hay horarios libres para mostrar.

@@ -15,7 +15,7 @@ function generarHorariosLibres(fecha, citas, opciones = {}) {
     for (let hora = inicioMañana; hora < finMañana; hora++) {
         for (let minuto = 0; minuto < 60; minuto += intervalo) {
             const horaFormateada = `${hora.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`;
-            horariosLibres.push(horaFormateada);
+            horariosLibres.push({ fecha: moment(fecha).format('DD/MM/YYYY'), hora: horaFormateada });
         }
     }
 
@@ -23,21 +23,23 @@ function generarHorariosLibres(fecha, citas, opciones = {}) {
     for (let hora = inicioTarde; hora < finTarde; hora++) {
         for (let minuto = 0; minuto < 60; minuto += intervalo) {
             const horaFormateada = `${hora.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`;
-            horariosLibres.push(horaFormateada);
+            horariosLibres.push({ fecha: moment(fecha).format('DD/MM/YYYY'), hora: horaFormateada });
         }
     }
 
     // Filtrar los horarios que ya están ocupados por citas
     citas.forEach(cita => {
         const horaCita = moment(cita.fechaHora).format('HH:mm');
-        const index = horariosLibres.indexOf(horaCita);
+        const index = horariosLibres.findIndex(horario => horario.hora === horaCita);
         if (index > -1) {
-            horariosLibres.splice(index, 1); // Eliminar el horario ocupado
+            horariosLibres.splice(index, 1); // Eliminar horario ocupado
         }
     });
-
+    console.log("Horarios generados:", horariosLibres);
     return horariosLibres;
 }
+
+
 
 // Nueva función para agregar horarios libres a la base de datos
 function agregarHorarioLibre(idMedico, fechaHora, callback) {
@@ -50,8 +52,24 @@ function agregarHorarioLibre(idMedico, fechaHora, callback) {
         callback(null, results);
     });
 }
-
+// Función para eliminar un horario libre
+function eliminarHorarioLibre(idMedico, fechaHora, callback) {
+    const sql = 'DELETE FROM horarios_libres WHERE idMedico = ? AND fechaHora = ?';
+    db.query(sql, [idMedico, fechaHora], (error, results) => {
+        if (error) {
+            console.error('Error al eliminar horario libre:', error);
+            return callback(error);
+        }
+        if (results.affectedRows === 0) {
+            console.log('No se encontró el horario para eliminar.');
+            return callback(null, { message: 'No se encontró el horario para eliminar' });
+        }
+        console.log('Horario eliminado con éxito:', results);
+        callback(null, results);
+    });
+}
 module.exports = {
     generarHorariosLibres,
-    agregarHorarioLibre
+    agregarHorarioLibre,
+    eliminarHorarioLibre
 };

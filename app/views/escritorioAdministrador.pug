@@ -5,7 +5,7 @@ block content
   p Aquí puedes gestionar configuraciones administrativas.
 
   // Formulario para agregar horario libre
-  h2 Agregar Horario Libre
+  h2 Gestionar Medico 
   form(action="/admin/agregar-horario-libre" method="POST")
 
     .form-group
@@ -30,10 +30,7 @@ block content
     .form-group
       button(type="button" id="verHorariosButton") Ver Horarios del Médico
 
-    .form-group
-      label(for="fechaHora") Fecha y Hora:
-      input(type="datetime-local" name="fechaHora" required)
-    button(type="submit") Agregar Horario Libre
+    
 
   // Botones adicionales para funciones administrativas
   h2 Funciones Administrativas
