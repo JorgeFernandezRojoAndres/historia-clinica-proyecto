@@ -16,7 +16,6 @@ router.get('/dashboard', isAuthenticated, isAdmin, adminController.renderAdminDa
 
 // Ruta para ver los horarios libres de un médico específico en una nueva ventana
 router.get('/medico/:idMedico/horarios-libres', isAuthenticated, isAdmin, adminController.verHorariosLibres);
-router.post('/repetir-horarios', isAuthenticated, isAdmin, adminController.repetirHorarios);
 
 // Rutas de administración
 router.post('/agregar-horario-libre', isAuthenticated, isAdmin, adminController.agregarHorarioLibre);

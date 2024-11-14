@@ -63,30 +63,27 @@ html(lang="en")
           button(type="button" onclick="closeModal()") Cerrar
 
     // Scripts
-    block scripts
-      script.
-        function selectClinic(id) {
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = '/seleccionar-clinica';
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = 'idClinica';
-          input.value = id;
-          form.appendChild(input);
-          document.body.appendChild(form);
-          form.submit();
-        }
+    script.
+      function selectClinic(id) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/seleccionar-clinica';
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'idClinica';
+        input.value = id;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+      }
 
-        function closeModal() {
-          document.getElementById('clinicModal').style.display = 'none';
-        }
+      function closeModal() {
+        document.getElementById('clinicModal').style.display = 'none';
+      }
 
-        document.getElementById('selectClinicBtn').onclick = function() {
-          document.getElementById('clinicModal').style.display = 'block';
-        };
+      document.getElementById('selectClinicBtn').onclick = function() {
+        document.getElementById('clinicModal').style.display = 'block';
+      };
 
-      script(src="/botondinamicoAgendaEnCita.js")
-      script(src="/searchPaciente.js")
-      script(src="/selectorMedico.js")
-      script(src="/public/js/medico-selection.js")
+    script(src="/botondinamicoAgendaEnCita.js")
+    script(src="/searchPaciente.js")
