@@ -12,7 +12,6 @@ html
         label(for="fecha") Seleccionar Fecha:
         input(type="date" id="fecha" name="fecha" value=fechaHoy onchange="cambiarFecha()")
 
-    // Contenedor para mostrar los turnos regulares en una tabla
     h2 Turnos Regulares
     div#citasContainer
       if regulares && regulares.length > 0
@@ -31,7 +30,6 @@ html
       else
         p No hay turnos regulares disponibles para este médico.
 
-    // Contenedor para mostrar los sobreturnos en una tabla
     h2 Sobreturnos
     div#sobreturnosContainer
       if sobreturnos && sobreturnos.length > 0
@@ -50,7 +48,6 @@ html
       else
         p No hay sobreturnos disponibles para este médico.
 
-    // Mostrar horarios libres solo si existen y si el rol no es "Medico"
     if horariosLibres && horariosLibres.length > 0 && user.role !== 'Medico'
       h2 Horarios Libres
       table
@@ -68,29 +65,30 @@ html
     else
       p No hay horarios libres disponibles.
 
-    // Script para seleccionar un horario y cambiar la fecha
     script.
-      function cambiarFecha() {
-        const fecha = document.getElementById('fecha').value;
-        if (fecha) {
-          const medicoId = '#{medicoId}';
-          window.location.href = `/medicos/${medicoId}/agenda?fecha=${fecha}`;
-        }
-      }
-
+      // Esta es una función para seleccionar el horario
       function seleccionarHorario(fecha, hora) {
         const fechaHora = `${fecha}T${hora}:00`;
+
+        console.log("Fecha y hora seleccionada:", fechaHora); // Verifica que la fecha y hora son correctas
 
         if (window.opener && !window.opener.closed) {
           const fechaHoraInput = window.opener.document.getElementById('fechaHora');
           if (fechaHoraInput) {
-            fechaHoraInput.value = fechaHora; 
+            // Si el campo existe, actualiza su valor
+            fechaHoraInput.value = fechaHora;
           } else {
+            // Si no se encuentra el campo, mostrar alerta
             alert("No se encontró el campo de fecha y hora en la ventana principal.");
           }
         } else {
-          alert("La ventana principal no está disponible.");
+          // Si la ventana principal no está disponible, se almacena en sessionStorage
+          alert("La ventana principal no está disponible. Guardando en sessionStorage.");
+          sessionStorage.setItem('fechaHoraSeleccionada', fechaHora);
         }
 
+        // Cerrar la ventana secundaria
         window.close();
       }
+
+  script(src="/selectorMedico.js")

@@ -4,6 +4,12 @@ block content
   link(rel="stylesheet" href="/css/style.css")
   h2 Horarios Disponibles para el Dr. #{nombreMedico}
 
+  // Mostrar mensaje de éxito o error si existen
+  if message
+    .alerta.alerta-exito= message
+  if errorMessage
+    .alerta.alerta-error= errorMessage
+
   script.
     console.log("Renderizando página de horarios libres para el médico con ID:", !{idMedico});
     console.log("Nombre del médico:", !{nombreMedico});
@@ -12,6 +18,13 @@ block content
   // Formulario para agregar un nuevo horario libre
   form(action="/admin/agregar-horario-libre" method="POST" class="form-agregar-horario")
     input(type="hidden" name="idMedico" value=idMedico) 
+
+    .form-group
+      label(for="clinica") Seleccionar Clínica:
+      select(name="idClinica" required)
+        option(value="" selected disabled) -- Selecciona una clínica --
+        each clinica in clinicas
+          option(value=clinica.idClinica) #{clinica.nombre}
 
     .form-group
       label(for="fecha") Fecha:
@@ -39,8 +52,8 @@ block content
       label(for="fechaFin") Fecha de Fin:
       input(type="date" name="fechaFin" required)
 
-    button(type="submit" name="accion" value="año") Repetir Horarios para el Año
-    button(type="submit" name="accion" value="mes") Repetir Horarios para el Mes
+  
+    button(type="submit") Repetir Horarios
 
   .containeradm
     script.
@@ -49,7 +62,7 @@ block content
 
     // Comprobamos si hay horarios libres
     if horariosLibres.length
-      // Filtramos los horarios que ya han pasado respecto a la hora actual
+      // Filtramos los horarios que ya pasaron respecto a la hora actual
       - var horaActual = new Date().getHours();
       - horariosLibres = horariosLibres.filter(horario => {
       -   var horaHorario = parseInt(horario.hora.split(':')[0]);
@@ -64,13 +77,14 @@ block content
         .targetaH
           .infoh
             h5 Fecha:
-            p= horario.fecha
+            // Convertir la fecha al formato DD/MM/YYYY
+            - var formattedFecha = new Date(horario.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            p= formattedFecha
             h5 Hora:
             p= horario.hora
-            h5 Estado:
-            p= horario.estado || 'No especificado'
-            h5 Tipo de Turno:
-            p= horario.tipoTurno || 'No especificado'
+            // Mostrar Estado y Tipo de Turno solo si el rol no es administrador
+            if role !== 'administrador'
+              
           form(action=`/admin/eliminar-horario-libre?fecha=${encodeURIComponent(horario.fecha)}&hora=${encodeURIComponent(horario.hora)}` method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este horario?');")
             input(type="hidden" name="idMedico" value=idMedico)
             button(type="submit" class="BotnEli") Eliminar

@@ -9,20 +9,21 @@ block content
     select(name="especialidadSelector" id="especialidadSelector")
       option(value="") -- Selecciona una especialidad --
       each especialidad in especialidades
-        option(value=especialidad.nombre) #{especialidad.nombre}
+        option(value=especialidad.idEspecialidad) #{especialidad.nombre} 
     br
 
     //- Selector de Médicos
     label(for="idMedico") Médico:
     select(name="idMedico" id="idMedico" required)
       option(value="") -- Selecciona un médico --
+      each medico in medicos
+        option(value=medico.idMedico) #{medico.nombre} 
     br
 
     label(for="especialidadMedico") Especialidad del Médico:
     input(type="text" id="especialidadMedico" readonly)
     br
 
-    //- Campo de paciente
     label(for="buscarPaciente") Buscar Paciente:
     if nombrePaciente
       input(type="text" id="buscarPaciente" name="nombrePaciente" value=nombrePaciente readonly)
@@ -31,11 +32,9 @@ block content
       input(type="text" id="buscarPaciente" placeholder="Ingresa nombre o DNI" autocomplete="off" required)
       input(type="hidden" name="idPaciente" id="idPaciente")
 
-    // Este es el contenedor para las sugerencias de autocompletado
     ul#listaResultados(style="border: 1px solid #ddd; padding: 5px; max-height: 150px; overflow-y: auto; position: absolute; background: white; width: 200px; z-index: 1000; display: none;")
 
-    //- Botón para ver la agenda del médico seleccionado
-    a#verAgendaButton.btn.btn-primary(href="#") Ver Agenda del Médico
+    a#verAgendaButton.btn.btn-primary(href="#" target="_blank") Ver Agenda del Médico
 
     label(for="fechaHora") Fecha y Hora:
     input(type="datetime-local" name="fechaHora" id="fechaHora" required)
@@ -45,7 +44,6 @@ block content
     input(type="text" name="motivoConsulta" required)
     br
 
-    //- Selector de Tipo de Turno
     label(for="tipoTurno") Tipo de Turno:
     select(name="tipoTurno" id="tipoTurno" required)
       option(value="regular") Regular
@@ -54,16 +52,18 @@ block content
 
     button(type="submit") Crear Cita
 
+block scripts
+  script(src="/selectorMedico.js")
   script.
     document.addEventListener('DOMContentLoaded', function() {
       const especialidadSelector = document.getElementById('especialidadSelector');
       const medicoSelector = document.getElementById('idMedico');
       const verAgendaButton = document.getElementById('verAgendaButton');
-      const medicos = !{JSON.stringify(medicos)};
+      const medicos = !{JSON.stringify(medicos)}; // Aquí pasamos los médicos al script
       const buscarPacienteInput = document.getElementById('buscarPaciente');
       const listaResultados = document.getElementById('listaResultados');
 
-      // Evento para filtrar médicos por especialidad
+      // Filtrado de médicos por especialidad
       especialidadSelector.addEventListener('change', function() {
         const especialidadSeleccionada = this.value;
         medicoSelector.innerHTML = '<option value="">-- Selecciona un médico --</option>';
@@ -79,7 +79,6 @@ block content
         });
       });
 
-      // Cambiar la especialidad del médico seleccionado
       medicoSelector.addEventListener('change', function() {
         const medicoSeleccionado = this.options[this.selectedIndex];
         const medicoId = medicoSeleccionado.value;
@@ -88,13 +87,12 @@ block content
 
         if (medicoId) {
           verAgendaButton.href = `/medicos/${medicoId}/agenda`;
-          verAgendaButton.style.display = 'inline-block'; // Mostrar botón solo si se selecciona un médico
+          verAgendaButton.style.display = 'inline-block';
         } else {
-          verAgendaButton.style.display = 'none'; // Ocultar botón si no hay médico seleccionado
+          verAgendaButton.style.display = 'none';
         }
       });
 
-      // Autocompletado para Buscar Paciente
       buscarPacienteInput.addEventListener('input', async function() {
         const query = buscarPacienteInput.value.trim();
         if (query.length > 0) {
@@ -106,14 +104,14 @@ block content
             console.error('Error al buscar pacientes:', error);
           }
         } else {
-          listaResultados.style.display = 'none'; // Ocultar si no hay query
+          listaResultados.style.display = 'none';
         }
       });
 
       function mostrarResultados(pacientes) {
-        listaResultados.innerHTML = ''; // Limpiar resultados anteriores
+        listaResultados.innerHTML = '';
         if (pacientes.length > 0) {
-          listaResultados.style.display = 'block'; // Mostrar el contenedor de resultados
+          listaResultados.style.display = 'block';
           pacientes.forEach(paciente => {
             const li = document.createElement('li');
             li.textContent = `${paciente.nombre} (ID: ${paciente.idPaciente})`;
@@ -122,17 +120,16 @@ block content
             listaResultados.appendChild(li);
           });
         } else {
-          listaResultados.style.display = 'none'; // Ocultar si no hay resultados
+          listaResultados.style.display = 'none';
         }
       }
 
       function seleccionarPaciente(paciente) {
         buscarPacienteInput.value = paciente.nombre;
-        listaResultados.style.display = 'none'; // Ocultar resultados
-        document.getElementById('idPaciente').value = paciente.idPaciente; // Asignar ID al campo oculto
+        listaResultados.style.display = 'none';
+        document.getElementById('idPaciente').value = paciente.idPaciente;
       }
 
-      // Ocultar la lista de resultados si se hace clic fuera
       document.addEventListener('click', function(e) {
         if (!buscarPacienteInput.contains(e.target) && !listaResultados.contains(e.target)) {
           listaResultados.style.display = 'none';

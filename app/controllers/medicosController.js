@@ -579,3 +579,29 @@ exports.templateNota = (req, res) => {
 };
 
 
+exports.listarMedicosPorClinica = (req, res) => {
+    const idClinica = req.session.idClinica;
+    console.log("ID de la clínica seleccionada para cargar médicos:", idClinica);  // Depuración
+
+    if (!idClinica) {
+        return res.status(400).send("No se ha seleccionado una clínica.");
+    }
+
+    const sql = `
+        SELECT m.idMedico, m.nombre, m.especialidad 
+        FROM medicos m
+        JOIN medicos_clinicas mc ON m.idMedico = mc.idMedico
+        WHERE mc.idClinica = ?
+    `;
+
+    db.query(sql, [idClinica], (error, resultados) => {
+        if (error) {
+            console.error("Error al obtener médicos:", error);
+            return res.status(500).send("Error al obtener médicos.");
+        }
+
+        console.log("Médicos obtenidos:", resultados);  // Depuración
+
+        res.render('vistaMedicos', { medicos: resultados });  // Asegúrate de que estás pasando la variable `medicos` a la vista
+    });
+};
