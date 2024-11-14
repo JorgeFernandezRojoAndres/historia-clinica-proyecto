@@ -41,14 +41,12 @@ function generarHorariosLibres(fecha, citas, opciones = {}) {
 
 
 
-function agregarHorarioLibre(idMedico, fecha, horaInicio, horaFin, idClinica, callback) {
-    const agregarHorarioSql = `
-        INSERT INTO horarios_medicos (idMedico, fecha, horaInicio, horaFin, estado, tipoTurno, idClinica)
-        VALUES (?, ?, ?, ?, 'libre', 'laboral', ?)
-    `;
-    db.query(agregarHorarioSql, [idMedico, fecha, horaInicio, horaFin, idClinica], (error, results) => {
+// Nueva función para agregar horarios libres a la base de datos
+function agregarHorarioLibre(idMedico, fechaHora, callback) {
+    const sql = 'INSERT INTO horarios_libres (idMedico, fechaHora) VALUES (?, ?)';
+    db.query(sql, [idMedico, fechaHora], (error, results) => {
         if (error) {
-            console.error("Error al agregar horario libre:", error);
+            console.error('Error al agregar horario libre:', error);
             return callback(error);
         }
         callback(null, results);
@@ -56,13 +54,7 @@ function agregarHorarioLibre(idMedico, fecha, horaInicio, horaFin, idClinica, ca
 }
 // Función para eliminar un horario libre
 function eliminarHorarioLibre(idMedico, fechaHora, callback) {
-    const sqlEliminar = `
-    DELETE FROM horarios_medicos
-    WHERE idMedico = ?
-    AND fecha = ?
-    AND horaInicio = ?
-`;
-
+    const sql = 'DELETE FROM horarios_libres WHERE idMedico = ? AND fechaHora = ?';
     db.query(sql, [idMedico, fechaHora], (error, results) => {
         if (error) {
             console.error('Error al eliminar horario libre:', error);

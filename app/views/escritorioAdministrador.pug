@@ -5,10 +5,9 @@ block content
   p Aquí puedes gestionar configuraciones administrativas.
 
   // Formulario para agregar horario libre
-  h2 Gestionar Médico
+  h2 Gestionar Medico 
   form(action="/admin/agregar-horario-libre" method="POST")
 
-    // El campo para seleccionar clínica se mantiene, pero se eliminará la lógica que filtra médicos por clínica
     .form-group
       label(for="clinicaSelector") Seleccionar Clínica:
       select(name="idClinica" id="clinicaSelector" required)
@@ -20,26 +19,18 @@ block content
       label(for="especialidadSelector") Especialidad:
       select(name="especialidadSelector" id="especialidadSelector" required)
         option(value="") -- Selecciona una especialidad --
-        // Verificar si especialidades está definida antes de intentar iterar
-        if especialidades && especialidades.length > 0
-          each especialidad in especialidades
-            option(value=especialidad.idEspecialidad) #{especialidad.nombre}
-        else
-          option(value="") No hay especialidades disponibles
+        each especialidad in especialidades
+          option(value=especialidad.nombre) #{especialidad.nombre}
 
     .form-group
       label(for="idMedico") Médico:
       select(name="idMedico" id="idMedico" required)
         option(value="") -- Selecciona un médico --
-        // Verificar si doctors está definido antes de intentar iterar
-        if doctors && doctors.length > 0
-          each doctor in doctors
-            option(value=doctor.idMedico) #{doctor.nombre}
-        else
-          option(value="") No hay médicos disponibles
 
     .form-group
       button(type="button" id="verHorariosButton") Ver Horarios del Médico
+
+    
 
   // Botones adicionales para funciones administrativas
   h2 Funciones Administrativas

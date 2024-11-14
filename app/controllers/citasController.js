@@ -487,6 +487,7 @@ exports.listarMisTurnos = (req, res) => {
     });
 };
 
+// Crear una nueva cita
 
 // Crear una nueva cita
 exports.createCita = (req, res) => {

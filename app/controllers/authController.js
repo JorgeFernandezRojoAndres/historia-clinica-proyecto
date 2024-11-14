@@ -202,39 +202,18 @@ exports.loginAdministrador = (req, res) => {
     };
     
     exports.seleccionarClinica = (req, res) => {
-        const { idClinica } = req.body;  // Obtener el ID de la clínica del formulario
-        
-        // Verificar si idClinica está presente en el cuerpo de la solicitud
-        console.log("ID de clínica recibido en el formulario:", idClinica);
-        
-        if (!idClinica) {
-            console.error("Error: No se ha seleccionado una clínica.");
-            return res.status(400).send("Debe seleccionar una clínica");
-        }
-        
-        // Guardar el ID de la clínica en la sesión
-        req.session.idClinica = idClinica;
-        console.log(`Clínica seleccionada guardada en la sesión: ${idClinica}`);  // Imprimir en consola para depuración
-    
-        // Verificar el estado de la sesión
-        console.log("Sesión actual:", req.session);
+        const { idClinica } = req.body; // Obtener el ID de la clínica del formulario
+        req.session.idClinica = idClinica; // Guardar el ID en la sesión
+        console.log(`Clínica seleccionada: ${idClinica}`); // Para depuración
+        console.log(`Sesión actual:`, req.session); // Imprimir la sesión para ver su estado
     
         // Redirigir según el rol del usuario
-        if (req.session.user && req.session.user.role === 'paciente') {
-            console.log("Redirigiendo al perfil del paciente");
-            res.redirect('/paciente/mi-perfil');  // Redirigir al perfil del paciente
-        } else if (req.session.user && req.session.user.role === 'secretaria') {
-            console.log("Redirigiendo a la página de pacientes de la secretaria");
-            res.redirect('/secretaria/pacientes');  // Redirigir a la página de pacientes de la secretaria
-        } else if (req.session.user && req.session.user.role === 'medico') {
-            console.log("Redirigiendo a la página de médicos");
-            res.redirect('/medicos');  // Redirigir a la página de médicos
-        } else if (req.session.user && req.session.user.role === 'admin') {
-            console.log("Redirigiendo al dashboard del administrador");
-            res.redirect('/admin/dashboard');  // Redirigir al dashboard del administrador
+        if (req.session.user.role === 'paciente') {
+            res.redirect('/paciente/mi-perfil'); // Redirigir a la página del paciente
+        } else if (req.session.user.role === 'secretaria') {
+            res.redirect('/secretaria/pacientes'); // Redirigir a la página de pacientes de la secretaria
         } else {
-            console.log("Redirigiendo al inicio (error de rol)");
-            res.redirect('/');  // Redirigir al inicio o página de error si no hay un rol válido
+            res.redirect('/'); // Redirigir a la página principal o un manejo de error
         }
     };
     

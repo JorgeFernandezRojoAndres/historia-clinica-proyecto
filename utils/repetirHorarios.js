@@ -32,7 +32,7 @@ function repetirHorarios(idMedico, fechaInicio, fechaFin) {
                         };
 
                         // Insertar el horario libre en la base de datos
-                        const insertSql = 'INSERT INTO horarios_medicos (idMedico, fechaHora) VALUES (?, ?)';
+                        const insertSql = 'INSERT INTO horarios_libres (idMedico, fechaHora) VALUES (?, ?)';
                         db.query(insertSql, [idMedico, horarioLibre.fechaHora], (err) => {
                             if (err) {
                                 console.error('Error al agregar horario libre:', err);
