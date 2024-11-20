@@ -77,20 +77,54 @@ exports.registrarUsuario = (req, res) => {
         res.redirect('/admin/dashboard');
     });
 };
+exports.formularioAsignarClinica = (req, res) => {
+    const sqlMedicos = 'SELECT idMedico, nombre FROM medicos';
+    const sqlClinicas = 'SELECT idClinica, nombre FROM clinicas';
+
+    db.query(sqlMedicos, (errMedicos, medicos) => {
+        if (errMedicos) {
+            console.error('Error al obtener médicos:', errMedicos);
+            return res.status(500).send('Error al obtener médicos.');
+        }
+
+        db.query(sqlClinicas, (errClinicas, clinicas) => {
+            if (errClinicas) {
+                console.error('Error al obtener clínicas:', errClinicas);
+                return res.status(500).send('Error al obtener clínicas.');
+            }
+
+            res.render('formularioAsignarClinica', { medicos, clinicas });
+        });
+    });
+};
 
 // Función para asignar una clínica a un médico
 exports.asignarClinica = (req, res) => {
     const { idMedico, idClinica } = req.body;
 
-    const sql = 'UPDATE medicos SET idClinica = ? WHERE idMedico = ?';
-    db.query(sql, [idClinica, idMedico], (error) => {
+    if (!idMedico || !idClinica) {
+        console.error('Faltan parámetros: idMedico o idClinica');
+        return res.status(400).send('Debe proporcionar el ID del médico y el ID de la clínica.');
+    }
+
+    // Inserción en la tabla medicos_clinicas
+    const sql = `
+        INSERT INTO medicos_clinicas (idMedico, idClinica)
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE idMedico = VALUES(idMedico), idClinica = VALUES(idClinica)
+    `;
+
+    db.query(sql, [idMedico, idClinica], (error) => {
         if (error) {
             console.error('Error al asignar clínica:', error);
-            return res.status(500).send('Error al asignar clínica');
+            return res.status(500).send('Error al asignar clínica al médico.');
         }
-        res.redirect('/admin/dashboard');
+
+        console.log(`Clínica con ID ${idClinica} asignada correctamente al médico con ID ${idMedico}.`);
+        res.redirect('/admin/dashboard'); // Redirigir al panel del administrador
     });
 };
+
 
 // Función para renderizar la vista del administrador
 exports.renderAdminDashboard = (req, res) => {

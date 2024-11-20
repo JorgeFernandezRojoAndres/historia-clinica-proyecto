@@ -27,6 +27,8 @@ router.get('/formulario-registrar-usuario', isAuthenticated, isAdmin, (req, res)
     res.render('formularioRegistrarUsuario');
 });
 
+// Ruta para el formulario de asignar clínica a médico
+router.get('/formulario-asignar-clinica', isAuthenticated, isAdmin, adminController.formularioAsignarClinica);
 
 
 // Ruta para manejar los horarios libres de los médicos

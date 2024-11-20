@@ -168,36 +168,52 @@ exports.delete = (req, res) => {
 
 // Ver la agenda del médico con citas actuales
 exports.verAgenda = (req, res) => {
-    const idMedico = req.params.id;
-    const fechaSeleccionada = req.query.fecha || new Date().toISOString().split('T')[0];
-    const usuario = req.session.user; // Obtener el usuario autenticado
+    const idMedico = req.params.id; // ID del médico desde los parámetros
+    const fechaSeleccionada = req.query.fecha || new Date().toISOString().split('T')[0]; // Fecha seleccionada o actual
+    const usuario = req.session.user; // Obtener el usuario autenticado desde la sesión
     const idClinica = req.session.idClinica; // Obtener la clínica seleccionada de la sesión
 
-    // Log de la clínica seleccionada
-    console.log(`Clínica seleccionada en la sesión: ${idClinica}`);
+    // Logs iniciales para depuración
+    console.log(`Verificando agenda del médico: ID Médico: ${idMedico}`);
+    console.log(`Clínica seleccionada: ID Clínica: ${idClinica}`);
+    console.log(`Usuario autenticado:`, usuario);
+    console.log(`Fecha seleccionada: ${fechaSeleccionada}`);
+
+    // Validar que todos los datos necesarios están disponibles
+    if (!idMedico) {
+        console.error('Falta el ID del médico.');
+        return res.status(400).send('El ID del médico es obligatorio.');
+    }
+    if (!idClinica) {
+        console.error('No se ha seleccionado una clínica.');
+        return res.redirect('/select-clinica'); // Redirigir para seleccionar clínica
+    }
 
     // Consulta para verificar que el médico está asociado a la clínica seleccionada
     const sqlVerificarClinica = `
-    SELECT 1 FROM medicos_clinicas
-    WHERE idMedico = ? AND idClinica IN (?)
-`;
-    
+        SELECT 1 
+        FROM medicos_clinicas
+        WHERE idMedico = ? AND idClinica = ?
+    `;
+
     db.query(sqlVerificarClinica, [idMedico, idClinica], (error, resultados) => {
         if (error) {
-            console.error('Error al verificar la clínica del médico:', error);
-            return res.status(500).send('Error al verificar la clínica del médico');
+            console.error('Error al verificar la asociación médico-clínica:', error);
+            return res.status(500).send('Error al verificar la asociación entre el médico y la clínica.');
         }
 
-        // Si el médico no está asociado a la clínica seleccionada
         if (resultados.length === 0) {
-            console.log(`El médico con ID ${idMedico} no está asociado a la clínica con ID ${idClinica}`);
-            return res.status(403).send('El médico no está asociado a la clínica seleccionada');
+            console.warn(`El médico con ID ${idMedico} no está asociado a la clínica con ID ${idClinica}.`);
+            return res.status(403).send('No tiene permiso para acceder a esta clínica.');
         }
 
-        // Continuar con la siguiente parte: Consulta de turnos regulares
+        // Si la verificación es exitosa, continuar con la lógica de turnos regulares
+        console.log(`El médico con ID ${idMedico} está asociado a la clínica con ID ${idClinica}.`);
         obtenerTurnosRegulares(idMedico, fechaSeleccionada, usuario, res);
     });
 };
+
+
 const obtenerTurnosRegulares = (idMedico, fechaSeleccionada, usuario, res) => {
     // Consulta para obtener los turnos regulares
     const sqlRegulares = `
