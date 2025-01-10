@@ -750,7 +750,7 @@ textarea {
 #selectClinicBtn:hover {
   background-color: #0056b3; /* Color más oscuro al pasar el mouse */
 }
-<<<<<<< HEAD
+
 .btn-eliminar {
   background-color: #dc3545; /* Fondo rojo */
   color: white;
@@ -800,7 +800,7 @@ textarea {
 
 .BotnEli:hover {
   background-color: #c82333; /* Fondo rojo oscuro al pasar el mouse */
-=======
+
 .contenedor-horizontal {
   display: flex;
   justify-content: center;
@@ -837,5 +837,6 @@ textarea {
   font-size: 1rem;
   font-weight: bold;
   color: #333;
->>>>>>> solucion-problema
+
+}
 }
