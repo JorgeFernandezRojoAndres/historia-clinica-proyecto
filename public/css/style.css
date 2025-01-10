@@ -750,6 +750,7 @@ textarea {
 #selectClinicBtn:hover {
   background-color: #0056b3; /* Color más oscuro al pasar el mouse */
 }
+<<<<<<< HEAD
 .btn-eliminar {
   background-color: #dc3545; /* Fondo rojo */
   color: white;
@@ -799,4 +800,42 @@ textarea {
 
 .BotnEli:hover {
   background-color: #c82333; /* Fondo rojo oscuro al pasar el mouse */
+=======
+.contenedor-horizontal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* Espaciado entre los elementos */
+}
+
+.card-clinica {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  width: 300px; /* Ajusta según sea necesario */
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-clinica:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-clinica img {
+  width: 190px; /* Ajusta el tamaño de la imagen */
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.card-clinica span {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+>>>>>>> solucion-problema
 }

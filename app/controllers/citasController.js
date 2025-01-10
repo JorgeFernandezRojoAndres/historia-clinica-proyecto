@@ -29,49 +29,71 @@ exports.listAll = (req, res) => {
 
 
 // Mostrar formulario para una nueva cita
-exports.showNewForm = (req, res) => {
-    // Obtener el usuario autenticado de req.session.user
+exports.showNewForm = async (req, res) => {
     const usuario = req.session.user;
 
     if (!usuario) {
-        // Si el usuario no está definido, redirigir o manejar el error
         return res.status(401).send('Usuario no autenticado');
     }
 
-    const sqlMedicos = 'SELECT * FROM medicos';
-    const sqlEspecialidades = 'SELECT * FROM especialidades';
-  
-    db.query(sqlEspecialidades, (errorEspecialidades, resultsEspecialidades) => {
-        if (errorEspecialidades) {
-            console.error('Error al obtener las especialidades:', errorEspecialidades);
-            return res.status(500).send('Error al obtener las especialidades');
+    try {
+        // Consultas SQL para obtener especialidades y médicos con sus especialidades
+        const [especialidades, medicos] = await Promise.all([
+            new Promise((resolve, reject) => {
+                db.query('SELECT * FROM especialidades', (err, results) => {
+                    if (err) {
+                        console.error('Error al obtener las especialidades:', err);
+                        return reject(err);
+                    }
+                    resolve(results);
+                });
+            }),
+            new Promise((resolve, reject) => {
+                const sqlMedicos = `
+                    SELECT 
+                        medicos.idMedico, 
+                        medicos.nombre, 
+                        especialidades.nombre AS especialidad, 
+                        medicos.telefono, 
+                        medicos.email 
+                    FROM medicos
+                    LEFT JOIN especialidades ON medicos.idEspecialidad = especialidades.idEspecialidad
+                `;
+                db.query(sqlMedicos, (err, results) => {
+                    if (err) {
+                        console.error('Error al obtener los médicos:', err);
+                        return reject(err);
+                    }
+                    resolve(results);
+                });
+            })
+        ]);
+
+        console.log('Especialidades obtenidas:', especialidades);
+        console.log('Médicos obtenidos:', medicos);
+
+        // Configuración de datos para la vista
+        const renderData = {
+            especialidades,
+            medicos,
+            nombrePaciente: null,
+            idPaciente: null
+        };
+
+        if (usuario.role === 'paciente') {
+            renderData.nombrePaciente = usuario.nombre;
+            renderData.idPaciente = usuario.id;
         }
-  
-        db.query(sqlMedicos, (errorMedicos, resultsMedicos) => {
-            if (errorMedicos) {
-                console.error('Error al obtener los médicos:', errorMedicos);
-                return res.status(500).send('Error al obtener los médicos');
-            }
 
-            // Configurar variables para la vista
-            const renderData = {
-                especialidades: resultsEspecialidades,
-                medicos: resultsMedicos,
-                nombrePaciente: null,
-                idPaciente: null
-            };
+        res.render('newCita', renderData);
 
-            // Si el usuario es un paciente, pasar su nombre e ID
-            if (usuario.role === 'paciente') {
-                renderData.nombrePaciente = usuario.nombre;
-                renderData.idPaciente = usuario.id;
-            }
-
-            // Renderizar la vista con los datos correspondientes
-            res.render('newCita', renderData);
-        });
-    });
+    } catch (error) {
+        console.error('Error al cargar el formulario de nueva cita:', error);
+        res.status(500).send('Error al cargar el formulario de nueva cita');
+    }
 };
+
+
 
 // Mostrar los turnos del paciente autenticado
 exports.listarMisTurnos = (req, res) => {
@@ -415,51 +437,6 @@ exports.listAll = (req, res) => {
     });
 };
 
-
-// Mostrar formulario para una nueva cita
-exports.showNewForm = (req, res) => {
-    // Obtener el usuario autenticado de req.session.user
-    const usuario = req.session.user;
-
-    if (!usuario) {
-        // Si el usuario no está definido, redirigir o manejar el error
-        return res.status(401).send('Usuario no autenticado');
-    }
-
-    const sqlMedicos = 'SELECT * FROM medicos';
-    const sqlEspecialidades = 'SELECT * FROM especialidades';
-  
-    db.query(sqlEspecialidades, (errorEspecialidades, resultsEspecialidades) => {
-        if (errorEspecialidades) {
-            console.error('Error al obtener las especialidades:', errorEspecialidades);
-            return res.status(500).send('Error al obtener las especialidades');
-        }
-  
-        db.query(sqlMedicos, (errorMedicos, resultsMedicos) => {
-            if (errorMedicos) {
-                console.error('Error al obtener los médicos:', errorMedicos);
-                return res.status(500).send('Error al obtener los médicos');
-            }
-
-            // Configurar variables para la vista
-            const renderData = {
-                especialidades: resultsEspecialidades,
-                medicos: resultsMedicos,
-                nombrePaciente: null,
-                idPaciente: null
-            };
-
-            // Si el usuario es un paciente, pasar su nombre e ID
-            if (usuario.role === 'paciente') {
-                renderData.nombrePaciente = usuario.nombre;
-                renderData.idPaciente = usuario.id;
-            }
-
-            // Renderizar la vista con los datos correspondientes
-            res.render('newCita', renderData);
-        });
-    });
-};
 
 // Mostrar los turnos del paciente autenticado
 exports.listarMisTurnos = (req, res) => {

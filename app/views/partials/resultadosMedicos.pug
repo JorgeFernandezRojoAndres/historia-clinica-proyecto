@@ -1,0 +1,7 @@
+if medicos.length
+  ul
+    each medico in medicos
+      li
+        a(href=`/admin/medico/${medico.idMedico}/horarios-libres`) #{medico.nombre} - #{medico.especialidad}
+else
+  p No se encontraron resultados.
