@@ -124,7 +124,45 @@ exports.asignarClinica = (req, res) => {
         res.redirect('/admin/dashboard'); // Redirigir al panel del administrador
     });
 };
-
+exports.getHorarios = (req, res) => {
+    const query = req.query.query;
+  
+    const sql = `
+      SELECT h.idHorario, h.fecha, h.horaInicio, h.horaFin, h.estado, h.tipoTurno
+      FROM horarios_medicos AS h
+      INNER JOIN medicos AS m ON h.idMedico = m.idMedico
+      WHERE m.nombre LIKE ?
+      ORDER BY h.fecha, h.horaInicio;
+    `;
+  
+    db.query(sql, [`%${query}%`], (error, horarios) => {
+      if (error) {
+        console.error('Error al obtener horarios:', error);
+        return res.status(500).json({ error: 'Error al obtener horarios.' });
+      }
+      res.json(horarios);
+    });
+  };
+  
+  exports.getHorariosByMedico = (req, res) => {
+    const idMedico = req.params.idMedico;
+  
+    const sql = `
+      SELECT h.idHorario, h.fecha, h.horaInicio, h.horaFin, h.estado, h.tipoTurno
+      FROM horarios_medicos AS h
+      WHERE h.idMedico = ?
+      ORDER BY h.fecha, h.horaInicio;
+    `;
+  
+    db.query(sql, [idMedico], (error, horarios) => {
+      if (error) {
+        console.error('Error al obtener horarios:', error);
+        return res.status(500).json({ error: 'Error al obtener horarios.' });
+      }
+      res.json(horarios);
+    });
+  };
+  
 
 // Función para renderizar la vista del administrador
 exports.renderAdminDashboard = (req, res) => {
@@ -171,8 +209,105 @@ exports.renderAdminDashboard = (req, res) => {
         });
     });
 };
+exports.agregarHorarios = (req, res) => {
+    const { idMedico, fechaInicio, fechaFin, horaInicio, horaFin, tipoTurno } = req.body;
 
+    const sql = `
+        INSERT INTO horarios_libres (idMedico, fecha, horaInicio, horaFin, tipoTurno)
+        VALUES (?, ?, ?, ?, ?)
+    `;
 
+    const fechas = [];
+    let current = moment(fechaInicio);
+    const end = moment(fechaFin);
+
+    while (current.isSameOrBefore(end)) {
+        fechas.push(current.format('YYYY-MM-DD'));
+        current.add(1, 'day');
+    }
+
+    fechas.forEach(fecha => {
+        db.query(sql, [idMedico, fecha, horaInicio, horaFin, tipoTurno], (error) => {
+            if (error) console.error("Error al agregar horario:", error);
+        });
+    });
+
+    res.redirect('/admin/dashboard');
+};
+exports.getHorarios = (req, res) => {
+    const query = req.query.query;
+  
+    const sql = `
+      SELECT idHorario, fecha, horaInicio, horaFin, estado, tipoTurno
+      FROM horarios_medicos
+      WHERE idMedico = (
+        SELECT idMedico FROM medicos WHERE nombre LIKE ?
+      )
+      ORDER BY fecha, horaInicio
+    `;
+  
+    db.query(sql, [`%${query}%`], (error, results) => {
+      if (error) {
+        console.error('Error al obtener horarios:', error);
+        return res.status(500).json({ error: 'Error al obtener horarios.' });
+      }
+      res.json(results);
+    });
+  };
+  exports.eliminarHorario = (req, res) => {
+    const { idHorario } = req.params;
+  
+    const sql = `DELETE FROM horarios_medicos WHERE idHorario = ?`;
+  
+    db.query(sql, [idHorario], (error) => {
+      if (error) {
+        console.error('Error al eliminar horario:', error);
+        return res.status(500).json({ error: 'Error al eliminar el horario.' });
+      }
+      res.status(200).json({ message: 'Horario eliminado correctamente.' });
+    });
+  };
+  exports.editarHorario = (req, res) => {
+    const { idHorario } = req.params;
+    const { horaInicio, horaFin } = req.body;
+  
+    const sql = `
+      UPDATE horarios_medicos
+      SET horaInicio = ?, horaFin = ?
+      WHERE idHorario = ?
+    `;
+  
+    db.query(sql, [horaInicio, horaFin, idHorario], (error) => {
+      if (error) {
+        console.error('Error al editar horario:', error);
+        return res.status(500).json({ error: 'Error al editar el horario.' });
+      }
+      res.status(200).json({ message: 'Horario editado correctamente.' });
+    });
+  };
+  
+  exports.searchMedico = (req, res) => {
+    const query = req.query.query;
+  
+    const sql = `
+      SELECT idMedico, nombre, especialidad 
+      FROM medicos 
+      WHERE nombre LIKE ? 
+      LIMIT 10
+    `;
+  
+    db.query(sql, [`%${query}%`], (error, results) => {
+      if (error) {
+        console.error('Error al buscar médicos:', error);
+        return res.status(500).send('Error al buscar médicos');
+      }
+  
+      // Renderizar la vista parcial con los resultados
+      res.render('partials/resultadosMedicos', { medicos: results });
+    });
+  };
+  
+  
 
 // Función para ver los pacientes pendientes de confirmación
 exports.verPacientesPendientes = (req, res) => {

@@ -16,6 +16,7 @@ router.get('/dashboard', isAuthenticated, isAdmin, adminController.renderAdminDa
 
 // Ruta para ver los horarios libres de un médico específico en una nueva ventana
 router.get('/medico/:idMedico/horarios-libres', isAuthenticated, isAdmin, adminController.verHorariosLibres);
+router.get('/medico/:idMedico/horarios', isAuthenticated, isAdmin, adminController.getHorariosByMedico);
 
 // Rutas de administración
 router.post('/agregar-horario-libre', isAuthenticated, isAdmin, adminController.agregarHorarioLibre);
@@ -26,6 +27,12 @@ router.post('/asignar-clinica', isAuthenticated, isAdmin, adminController.asigna
 router.get('/formulario-registrar-usuario', isAuthenticated, isAdmin, (req, res) => {
     res.render('formularioRegistrarUsuario');
 });
+// Ruta para obtener los horarios del médico
+router.get('/medico/horarios', isAuthenticated, isAdmin, adminController.getHorarios);
+
+
+// Ruta para buscar médicos dinámicamente
+router.get('/medicos/search', adminController.searchMedico);
 
 // Ruta para el formulario de asignar clínica a médico
 router.get('/formulario-asignar-clinica', isAuthenticated, isAdmin, adminController.formularioAsignarClinica);

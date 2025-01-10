@@ -4,54 +4,62 @@ block content
   h1 Bienvenido, #{user.username} (Administrador)
   p Aquí puedes gestionar configuraciones administrativas.
 
-  // Formulario para agregar horario libre
-  h2 Agregar Horario Libre
-  form(action="/admin/agregar-horario-libre" method="POST")
+  // Formulario para buscar médico
+  h2 Buscar Horarios del Médico
+  .input-group
+    input#buscarMedico(type="text" placeholder="Escribe el nombre del médico...")
 
-    .form-group
-      label(for="clinicaSelector") Seleccionar Clínica:
-      select(name="idClinica" id="clinicaSelector" required)
-        option(value="") -- Selecciona una clínica --
-        each clinica in clinicas
-          option(value=clinica.idClinica) #{clinica.nombre}
+  // Tabla de horarios del médico
+  h2 Horarios del Médico
+  table
+    thead
+      tr
+        th Fecha
+        th Hora Inicio
+        th Hora Fin
+        th Tipo Turno
+        th Estado
+        th Acciones
+    tbody#horariosTableBody
+      tr
+        td(colspan="6") No hay horarios disponibles para este médico.
 
+  // Formulario para agregar múltiples horarios
+  h2 Agregar Horarios en Bloque
+  form#agregarHorariosForm(action="/admin/agregar-horarios" method="POST")
+    input(type="hidden" name="idMedico" id="idMedicoSeleccionado" value="")
     .form-group
-      label(for="especialidadSelector") Especialidad:
-      select(name="especialidadSelector" id="especialidadSelector" required)
-        option(value="") -- Selecciona una especialidad --
-        each especialidad in especialidades
-          option(value=especialidad.nombre) #{especialidad.nombre}
-
+      label(for="fechaInicio") Fecha de Inicio:
+      input(type="date" name="fechaInicio" id="fechaInicio" required)
     .form-group
-      label(for="idMedico") Médico:
-      select(name="idMedico" id="idMedico" required)
-        option(value="") -- Selecciona un médico --
-
+      label(for="fechaFin") Fecha de Fin:
+      input(type="date" name="fechaFin" id="fechaFin" required)
     .form-group
-      button(type="button" id="verHorariosButton") Ver Horarios del Médico
-
+      label(for="horaInicio") Hora de Inicio:
+      input(type="time" name="horaInicio" id="horaInicio" required)
     .form-group
-      label(for="fechaHora") Fecha y Hora:
-      input(type="datetime-local" name="fechaHora" required)
-    button(type="submit") Agregar Horario Libre
+      label(for="horaFin") Hora de Fin:
+      input(type="time" name="horaFin" id="horaFin" required)
+    .form-group
+      label(for="tipoTurno") Tipo de Turno:
+      select(name="tipoTurno" id="tipoTurno")
+        option(value="regular") Regular
+        option(value="sobreturno") Sobreturno
+    button(type="submit") Crear Horarios
 
   // Botones adicionales para funciones administrativas
   h2 Funciones Administrativas
-
   .form-group
     button(type="button" onclick="window.location.href='/admin/formulario-registrar-usuario'") Registrar Usuario
-
   .form-group
     button(type="button" onclick="window.location.href='/admin/formulario-asignar-clinica'") Asignar Clínica a Médico
-
   .form-group
     button(type="button" onclick="window.location.href='/admin/manejar-horarios-libres'") Manejar Horarios Libres de Médicos
-
   .form-group
     button(type="button" onclick="window.location.href='/admin/pacientes-pendientes'") Ver Pacientes Pendientes de Confirmación
-
   .form-group
     button(type="button" onclick="window.location.href='/admin/ver-medicos'") Ver Médicos
 
-  // Referencia al archivo de script externo
-  script(src="/medico-selection.js")
+  // Referencias a los scripts externos
+  script(src="/public/gestionHorarios.js")
+  script(src="/public/searchMedico.js")
