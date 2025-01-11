@@ -800,43 +800,45 @@ textarea {
 
 .BotnEli:hover {
   background-color: #c82333; /* Fondo rojo oscuro al pasar el mouse */
-
-.contenedor-horizontal {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px; /* Espaciado entre los elementos */
 }
 
+/* Contenedor horizontal */
+.contenedor-horizontal {
+  border: 2px solid rgba(255, 221, 0, 0.656); /* Temporal: ayuda a visualizar el contenedor */
+  display: flex; /* Flexbox para alinear horizontalmente */
+  justify-content: center; /* Centra las tarjetas horizontalmente */
+  align-items: flex-start; /* Alinea los elementos al inicio verticalmente */
+  gap: 20px; /* Espacio entre las tarjetas */
+  flex-wrap: wrap; /* Permite ajustar las tarjetas en varias filas si no caben */
+  padding: 20px; /* Espaciado interno del contenedor */
+}
+
+/* Estilo para las tarjetas */
 .card-clinica {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  width: 300px; /* Ajusta según sea necesario */
-  cursor: pointer;
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex; /* Flexbox para alinear contenido interno */
+  flex-direction: column; /* Alinea elementos en columna (imagen y texto) */
+  align-items: center; /* Centra el contenido horizontalmente */
+  border: 1px solid #ddd; /* Borde ligero */
+  border-radius: 8px; /* Esquinas redondeadas */
+  padding: 20px; /* Espaciado interno */
+  transition: transform 0.3s, box-shadow 0.3s; /* Efectos al pasar el cursor */
+  cursor: pointer; /* Cambia el cursor al pasar el mouse */
+  width: 300px; /* Ajusta el ancho de las tarjetas */
+  text-align: center; /* Centra el texto */
 }
 
 .card-clinica:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05); /* Efecto de zoom */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra */
 }
 
 .card-clinica img {
-  width: 190px; /* Ajusta el tamaño de la imagen */
-  height: auto;
-  margin-bottom: 10px;
+  width: 200px; /* Ajusta el tamaño de la imagen */
+  margin-bottom: 10px; /* Espacio debajo de la imagen */
 }
 
 .card-clinica span {
   font-size: 1rem;
   font-weight: bold;
   color: #333;
-
-}
 }

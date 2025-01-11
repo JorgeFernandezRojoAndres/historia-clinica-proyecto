@@ -47,9 +47,12 @@ app.use(session({
 
 // Middleware para gestionar sesiones de usuarios
 app.use((req, res, next) => {
+    console.log('Sesión completa:', req.session);
+    console.log('Usuario en sesión:', req.session.user);
+    console.log('Clínica seleccionada en sesión:', req.session.idClinica);
     res.locals.user = req.session.user; // Disponible en todas las vistas Pug
-    res.locals.clinicaSeleccionada = req.session.clinicaSeleccionada || false;
-    console.log('Sesión de usuario:', req.session.user);
+    res.locals.clinicaSeleccionada = req.session.idClinica || false;
+    
     next();
 });
 

@@ -218,20 +218,61 @@ exports.loginMedico = (req, res) => {
     };
     
     exports.seleccionarClinica = (req, res) => {
-        const { idClinica } = req.body; // Obtener el ID de la clínica del formulario
-        req.session.idClinica = idClinica; // Guardar el ID en la sesión
-        console.log(`Clínica seleccionada: ${idClinica}`); // Para depuración
-        console.log(`Sesión actual:`, req.session); // Imprimir la sesión para ver su estado
+        console.log('Datos enviados desde el formulario:', req.body);
+        console.log('Sesión antes de guardar clínica:', req.session);
+
+        try {
+            // Obtener el ID de la clínica del formulario
+            const { idClinica } = req.body;
     
-        // Redirigir según el rol del usuario
-        if (req.session.user.role === 'paciente') {
-            res.redirect('/paciente/mi-perfil'); // Redirigir a la página del paciente
-        } else if (req.session.user.role === 'secretaria') {
-            res.redirect('/secretaria/pacientes'); // Redirigir a la página de pacientes de la secretaria
-        } else {
-            res.redirect('/'); // Redirigir a la página principal o un manejo de error
+            // Verificar si se recibió un `idClinica`
+            if (!idClinica) {
+                console.error('Error: No se recibió idClinica en la solicitud.');
+                return res.status(400).send('Debe seleccionar una clínica.');
+            }
+    
+            // Guardar el ID de la clínica en la sesión
+            req.session.idClinica = idClinica;
+            req.session.clinicaSeleccionada = true; // Establecer el flag de clínica seleccionada
+    
+            // Logs para depuración
+            console.log(`Clínica seleccionada: ${idClinica}`);
+            console.log('Sesión después de la selección:', req.session);
+    
+            // Verificar si el usuario está autenticado y redirigir según el rol
+            if (req.session.user) {
+                 // Verificar si ya tiene una clínica seleccionada
+            if (!req.session.clinicaSeleccionada) {
+                console.warn('No se ha seleccionado una clínica, redirigiendo...');
+                return res.redirect('/select-clinica');
+            }
+                switch (req.session.user.role) {
+                    case 'paciente':
+                        console.log('Redirigiendo al perfil del paciente...');
+                        return res.redirect('/paciente/mi-perfil');
+                    case 'secretaria':
+                        console.log('Redirigiendo a la página de pacientes de la secretaria...');
+                        return res.redirect('/secretaria/pacientes');
+                    case 'administrador':
+                        console.log('Redirigiendo al panel del administrador...');
+                        return res.redirect('/admin/dashboard');
+                    default:
+                        console.warn('Rol desconocido, redirigiendo al inicio...');
+                        return res.redirect('/');
+                }
+            } else {
+                // Si no hay usuario en sesión, redirigir al login
+                console.warn('Sesión de usuario no encontrada, redirigiendo al login...');
+                return res.redirect('/login');
+            }
+        } catch (error) {
+            console.error('Error en seleccionarClinica:', error);
+            return res.status(500).send('Ocurrió un error al procesar la solicitud.');
         }
     };
+    
+    
+    
     
     
     exports.logout = (req, res) => {

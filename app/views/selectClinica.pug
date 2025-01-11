@@ -10,17 +10,22 @@ html(lang="en")
   body
     main.contenedor
       h1 Seleccione su Clínica
-      div.contenedor-horizontal
-        form(action="/seleccionar-clinica" method="POST")
-          div.card-clinica
-            input(type="hidden" name="idClinica" value="1") 
-            img(src="/images/saludplus.png" alt="SaludPlus Logo")
-            span Clínica Integral SaludPlus
-        form(action="/seleccionar-clinica" method="POST")
-          div.card-clinica
-            input(type="hidden" name="idClinica" value="2") 
-            img(src="/images/vidatotal.png" alt="Vida Total Logo")
-            span Centro Médico Vida Total
+      if clinicaSeleccionada
+        p.clinica-seleccionada Ya has seleccionado la clínica: #{clinicaSeleccionada}
+      else
+        div.contenedor-horizontal
+          form(action="/seleccionar-clinica" method="POST")
+            div.card-clinica
+              input(type="hidden" name="idClinica" value="1")
+              img(src="/images/saludplus.png" alt="SaludPlus Logo")
+              button(type="submit") 
+                span Clínica Integral SaludPlus
+          form(action="/seleccionar-clinica" method="POST")
+            div.card-clinica
+              input(type="hidden" name="idClinica" value="2")
+              img(src="/images/vidatotal.png" alt="Vida Total Logo")
+              button(type="submit") 
+                span Centro Médico Vida Total
 
     footer
       p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}
