@@ -16,7 +16,7 @@ block content
 
     label(for="idMedico") Médico:
     select(name="idMedico" id="idMedico" required)
-      option(value="") -- Selecciona un médico -- 
+      option(value="") -- Selecciona un médico --
     br
 
     label(for="especialidadMedico") Especialidad del Médico:
@@ -33,7 +33,7 @@ block content
 
     ul#listaResultados(style="display: none;")
 
-    a#verAgendaButton.btn.btn-primary(href="#") Ver Agenda del Médico
+    a#verAgendaButton.btn.btn-primary(href=`/medicos/${idMedico || ''}/agenda` target="_blank" disabled=idMedico ? false : true) Ver Agenda del Médico
 
     label(for="fechaHora") Fecha y Hora:
     input(type="datetime-local" name="fechaHora" id="fechaHora" required)
@@ -51,5 +51,4 @@ block content
 
     button(type="submit") Crear Cita
 
-  // Importamos el script externo
-  script(src="/gestionCitas.js")
+  script(src="/js/gestionCitasCombinado.js")

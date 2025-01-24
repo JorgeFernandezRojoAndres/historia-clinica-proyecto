@@ -10,7 +10,7 @@ html
     if !agendaDelDia
       div#fechaSelector
         label(for="fecha") Seleccionar Fecha:
-        input(type="date" id="fecha" name="fecha" value=fechaHoy onchange="cambiarFecha()")
+        input(type="date" id="fecha" name="fecha" value=fechaHoy data-medico-id=medicoId onchange="cambiarFecha()")
 
     // Contenedor para mostrar los turnos regulares en una tabla
     h2 Turnos Regulares
@@ -58,39 +58,13 @@ html
           tr
             th Horario Libre
         tbody
-          each hora in horariosLibres
-            - var ocupado = regulares.concat(sobreturnos).some(cita => cita.fechaHora.includes(hora))
-            if !ocupado
-              tr
-                td= `${fechaHoy} ${hora}`
-                td
-                  button.btn-seleccionar(onclick=`seleccionarHorario('${fechaHoy}', '${hora}')`) Seleccionar
+          each horario in horariosLibres
+            tr
+              td= `${horario.fecha} ${horario.hora}`
+              td
+                button.btn-seleccionar(onclick=`seleccionarHorario('${horario.fecha}', '${horario.hora}')`) Seleccionar
     else
       p No hay horarios libres disponibles.
 
-    // Script para seleccionar un horario y cambiar la fecha
-    script.
-      function cambiarFecha() {
-        const fecha = document.getElementById('fecha').value;
-        if (fecha) {
-          const medicoId = '#{medicoId}';
-          window.location.href = `/medicos/${medicoId}/agenda?fecha=${fecha}`;
-        }
-      }
-
-      function seleccionarHorario(fecha, hora) {
-        const fechaHora = `${fecha}T${hora}:00`;
-
-        if (window.opener && !window.opener.closed) {
-          const fechaHoraInput = window.opener.document.getElementById('fechaHora');
-          if (fechaHoraInput) {
-            fechaHoraInput.value = fechaHora; 
-          } else {
-            alert("No se encontró el campo de fecha y hora en la ventana principal.");
-          }
-        } else {
-          alert("La ventana principal no está disponible.");
-        }
-
-        window.close();
-      }
+    // Importar el archivo JavaScript externo
+    script(src="/js/agendaMedico.js")

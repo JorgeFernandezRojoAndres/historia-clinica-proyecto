@@ -74,5 +74,30 @@ block content
           form(action=`/admin/eliminar-horario-libre?fecha=${encodeURIComponent(horario.fecha)}&hora=${encodeURIComponent(horario.hora)}` method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este horario?');")
             input(type="hidden" name="idMedico" value=idMedico)
             button(type="submit" class="BotnEli") Eliminar
+          // Botón para seleccionar este horario
+          button(type="button" class="seleccionar-horario" data-fecha=horario.fecha data-hora=horario.hora) Seleccionar
     else
       p No hay horarios libres para mostrar.
+
+  // Script para manejar la selección de horarios
+  script.
+    document.addEventListener('DOMContentLoaded', function () {
+      const botonesSeleccionar = document.querySelectorAll('.seleccionar-horario');
+
+      botonesSeleccionar.forEach(boton => {
+        boton.addEventListener('click', function () {
+          const fecha = boton.getAttribute('data-fecha');
+          const hora = boton.getAttribute('data-hora');
+          const fechaHora = `${fecha}T${hora}`; // Combina fecha y hora en formato ISO
+
+          // Enviar el mensaje a la ventana principal
+          if (window.opener) {
+            window.opener.postMessage({ fechaHora }, window.location.origin);
+            console.log('Horario enviado:', fechaHora);
+            window.close(); // Opcional: cerrar la ventana emergente
+          } else {
+            console.error('No se puede enviar el mensaje: no hay ventana principal.');
+          }
+        });
+      });
+    });

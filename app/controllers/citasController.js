@@ -2,30 +2,67 @@ const db = require('../../config/database');
 const { enviarNotificacionAScretaria } = require('../../utils/notificaciones');
 
 
-// Listar todas las citas
 exports.listAll = (req, res) => {
-    const sql = `
-        SELECT citas.idCita, medicos.nombre AS nombreMedico, pacientes.nombre AS nombrePaciente, citas.fechaHora, citas.motivoConsulta, citas.estado
+    const { page = 1, limit = 10, estado, fechaInicio, fechaFin } = req.query;
+    const offset = (page - 1) * limit;
+    const params = [];
+    let sql = `
+        SELECT 
+            citas.idCita, 
+            medicos.nombre AS nombreMedico, 
+            pacientes.nombre AS nombrePaciente, 
+            citas.fechaHora, 
+            citas.motivoConsulta, 
+            citas.estado
         FROM citas
         JOIN medicos ON citas.idMedico = medicos.idMedico
         JOIN pacientes ON citas.idPaciente = pacientes.idPaciente
+        WHERE 1 = 1
     `;
-    db.query(sql, (error, results) => {
+
+    // Filtro por estado
+    if (estado) {
+        sql += ` AND citas.estado = ?`;
+        params.push(estado);
+    }
+
+    // Filtro por rango de fechas
+    if (fechaInicio && fechaFin) {
+        sql += ` AND citas.fechaHora BETWEEN ? AND ?`;
+        params.push(fechaInicio, fechaFin);
+    }
+
+    // Agregar paginación
+    sql += ` LIMIT ? OFFSET ?`;
+    params.push(parseInt(limit), parseInt(offset));
+
+    // Ejecutar consulta
+    db.query(sql, params, (error, results) => {
         if (error) {
             console.error('Error al obtener las citas:', error);
-            res.status(500).send("Error al obtener las citas");
-        } else {
-            console.log('Citas obtenidas:', results);
-            // Formatear las fechas para mostrarlas en el frontend
-            results.forEach(cita => {
-                const fecha = new Date(cita.fechaHora);
-                cita.fechaHora = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
-            });
-            // Renderizar en el frontend (lista o tabla de citas)
-            res.render('citas', { citas: results });
+            return res.status(500).send("Error al obtener las citas");
         }
+
+        // Total de citas para calcular páginas
+        db.query('SELECT COUNT(*) AS total FROM citas', (countError, countResults) => {
+            if (countError) {
+                console.error('Error al contar las citas:', countError);
+                return res.status(500).send("Error al contar las citas");
+            }
+
+            const total = countResults[0].total;
+            const totalPages = Math.ceil(total / limit);
+
+            res.render('citas', { 
+                citas: results, 
+                total, 
+                totalPages, 
+                currentPage: parseInt(page) 
+            });
+        });
     });
 };
+
 
 
 // Mostrar formulario para una nueva cita
@@ -121,39 +158,6 @@ exports.listarMisTurnos = (req, res) => {
     });
 };
 
-// Crear una nueva cita
-
-// Crear una nueva cita
-exports.createCita = (req, res) => {
-    const { idPaciente, idMedico, fechaHora, motivoConsulta, tipoTurno } = req.body;
-
-    // Validación de campos
-    if (!idPaciente || !idMedico || !fechaHora || !motivoConsulta || !tipoTurno) {
-        return res.status(400).send('Faltan datos requeridos para la cita.');
-    }
-
-    const sqlCita = `
-        INSERT INTO citas (idPaciente, idMedico, fechaHora, motivoConsulta, estado, tipoTurno) 
-        VALUES (?, ?, ?, ?, 'En proceso', ?)
-    `;
-
-    // Insertar la cita en la base de datos
-    db.query(sqlCita, [idPaciente, idMedico, fechaHora, motivoConsulta, tipoTurno], (error) => {
-        if (error) {
-            console.error('Error al crear la cita:', error);
-            return res.status(500).send('Error al crear la cita');
-        }
-
-        // Verificar el rol del usuario y redirigir en consecuencia
-        if (req.session.user.role === 'paciente') {
-            return res.redirect('/turnos/mis-turnos');
-        } else if (req.session.user.role === 'secretaria') {
-            return res.redirect('/secretaria/citas');
-        } else {
-            return res.redirect('/'); // Redirigir a la página principal en caso de rol desconocido
-        }
-    });
-};
 
 
 
@@ -197,40 +201,7 @@ exports.showEditForm = (req, res) => {
     });
 };
 
-// Obtener citas en formato JSON 
-exports.obtenerCitasJSON = (req, res) => {
-    const medicoId = req.params.id;                                                                                                                                    
-    console.log('ID del médico:', medicoId);
 
-    const sql = `
-        SELECT fechaHora, motivoConsulta
-        FROM citas
-        WHERE idMedico = ?
-    `;
-
-    db.query(sql, [medicoId], (error, results) => {
-        if (error) {
-            console.error('Error al obtener las citas:', error);
-            return res.status(500).send('Error al obtener las citas');
-        }
-
-        if (results.length === 0) {
-            console.log('No se encontraron citas para el médico:', medicoId);
-            return res.json([]); // Devuelve un array vacío si no hay citas
-        }
-
-        // Formatear cada resultado antes de enviarlo
-        const citasFormateadas = results.map(cita => {
-            return {
-                fecha: new Date(cita.fechaHora).toLocaleString(), // Formato legible de la fecha
-                motivo: cita.motivoConsulta || 'No especificado'  // Verifica que el motivo exista
-            };
-        });
-
-        console.log('Citas formateadas:', citasFormateadas); // Verificar los resultados
-        res.json(citasFormateadas); // Devolver citas formateadas como JSON
-    });
-};
 
 
 // Actualizar una cita
@@ -464,15 +435,33 @@ exports.listarMisTurnos = (req, res) => {
     });
 };
 
-// Crear una nueva cita
 
 // Crear una nueva cita
 exports.createCita = (req, res) => {
     const { idPaciente, idMedico, fechaHora, motivoConsulta, tipoTurno } = req.body;
 
-    // Validación de campos
+    // Validación de campos requeridos
     if (!idPaciente || !idMedico || !fechaHora || !motivoConsulta || !tipoTurno) {
+        console.error('Error: Campos requeridos faltantes en la solicitud.');
         return res.status(400).send('Faltan datos requeridos para la cita.');
+    }
+
+    // Validación de formato para fechaHora
+    const fechaHoraValida = Date.parse(fechaHora);
+    if (isNaN(fechaHoraValida)) {
+        console.error(`Error: Fecha y hora inválida recibida: ${fechaHora}`);
+        return res.status(400).send('El formato de la fecha y hora no es válido.');
+    }
+
+    // Sanitización y formato de datos
+    const sanitizedIdPaciente = parseInt(idPaciente, 10);
+    const sanitizedIdMedico = parseInt(idMedico, 10);
+    const sanitizedMotivoConsulta = motivoConsulta.trim();
+    const sanitizedTipoTurno = tipoTurno.trim();
+
+    if (isNaN(sanitizedIdPaciente) || isNaN(sanitizedIdMedico)) {
+        console.error('Error: ID de paciente o médico inválido.');
+        return res.status(400).send('ID de paciente o médico inválido.');
     }
 
     const sqlCita = `
@@ -481,22 +470,29 @@ exports.createCita = (req, res) => {
     `;
 
     // Insertar la cita en la base de datos
-    db.query(sqlCita, [idPaciente, idMedico, fechaHora, motivoConsulta, tipoTurno], (error) => {
-        if (error) {
-            console.error('Error al crear la cita:', error);
-            return res.status(500).send('Error al crear la cita');
-        }
+    db.query(
+        sqlCita,
+        [sanitizedIdPaciente, sanitizedIdMedico, fechaHora, sanitizedMotivoConsulta, sanitizedTipoTurno],
+        (error) => {
+            if (error) {
+                console.error('Error al crear la cita en la base de datos:', error);
+                return res.status(500).send('Error al crear la cita.');
+            }
 
-        // Verificar el rol del usuario y redirigir en consecuencia
-        if (req.session.user.role === 'paciente') {
-            return res.redirect('/turnos/mis-turnos');
-        } else if (req.session.user.role === 'secretaria') {
-            return res.redirect('/secretaria/citas');
-        } else {
-            return res.redirect('/'); // Redirigir a la página principal en caso de rol desconocido
+            console.log('Cita creada exitosamente.');
+
+            // Verificar el rol del usuario y redirigir en consecuencia
+            if (req.session.user.role === 'paciente') {
+                return res.redirect('/turnos/mis-turnos');
+            } else if (req.session.user.role === 'secretaria') {
+                return res.redirect('/secretaria/citas');
+            } else {
+                return res.redirect('/'); // Redirigir a la página principal en caso de rol desconocido
+            }
         }
-    });
+    );
 };
+
 
 
 
@@ -542,38 +538,47 @@ exports.showEditForm = (req, res) => {
 
 // Obtener citas en formato JSON 
 exports.obtenerCitasJSON = (req, res) => {
-    const medicoId = req.params.id;                                                                                                                                    
+    const medicoId = req.params.id;
+    const { fechaInicio, fechaFin, estado } = req.query; // Parámetros opcionales
+
     console.log('ID del médico:', medicoId);
 
-    const sql = `
-        SELECT fechaHora, motivoConsulta
+    let sql = `
+        SELECT fechaHora, motivoConsulta, estado
         FROM citas
         WHERE idMedico = ?
     `;
+    const params = [medicoId];
 
-    db.query(sql, [medicoId], (error, results) => {
+    // Filtrar por rango de fechas
+    if (fechaInicio && fechaFin) {
+        sql += ' AND fechaHora BETWEEN ? AND ?';
+        params.push(fechaInicio, fechaFin);
+    }
+
+    // Filtrar por estado
+    if (estado) {
+        sql += ' AND estado = ?';
+        params.push(estado);
+    }
+
+    db.query(sql, params, (error, results) => {
         if (error) {
             console.error('Error al obtener las citas:', error);
             return res.status(500).send('Error al obtener las citas');
         }
 
-        if (results.length === 0) {
-            console.log('No se encontraron citas para el médico:', medicoId);
-            return res.json([]); // Devuelve un array vacío si no hay citas
-        }
+        const citasFormateadas = results.map(cita => ({
+            fecha: new Date(cita.fechaHora).toLocaleString(), // Formato legible
+            motivo: cita.motivoConsulta || 'No especificado',
+            estado: cita.estado,
+        }));
 
-        // Formatear cada resultado antes de enviarlo
-        const citasFormateadas = results.map(cita => {
-            return {
-                fecha: new Date(cita.fechaHora).toLocaleString(), // Formato legible de la fecha
-                motivo: cita.motivoConsulta || 'No especificado'  // Verifica que el motivo exista
-            };
-        });
-
-        console.log('Citas formateadas:', citasFormateadas); // Verificar los resultados
-        res.json(citasFormateadas); // Devolver citas formateadas como JSON
+        console.log('Citas formateadas:', citasFormateadas);
+        res.json(citasFormateadas);
     });
 };
+
 
 
 // Actualizar una cita
@@ -603,6 +608,26 @@ exports.update = (req, res) => {
             }
             res.redirect('/citas');
         });
+    });
+};
+exports.actualizarEstadoCita = (req, res) => {
+    const { idCita, nuevoEstado } = req.body;
+
+    // Validación de datos
+    if (!idCita || !nuevoEstado) {
+        return res.status(400).send('Faltan datos requeridos.');
+    }
+
+    const sql = 'UPDATE citas SET estado = ? WHERE idCita = ?';
+
+    db.query(sql, [nuevoEstado, idCita], (error, results) => {
+        if (error) {
+            console.error('Error al actualizar el estado de la cita:', error);
+            return res.status(500).send('Error al actualizar el estado.');
+        }
+
+        console.log(`Estado de la cita ${idCita} actualizado a ${nuevoEstado}`);
+        res.json({ mensaje: 'Estado actualizado correctamente' });
     });
 };
 

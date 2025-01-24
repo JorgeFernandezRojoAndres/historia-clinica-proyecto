@@ -1,15 +1,10 @@
-// Al cargar el DOM, configura dinámicamente el botón de agenda del médico
-document.addEventListener('DOMContentLoaded', () => {
-    configurarBotonAgenda('idMedico', 'verAgendaButton', 'especialidadMedico');
-  });
-  
-  /**
-   * Configura dinámicamente el botón "Ver Agenda del Médico".
-   * @param {string} selectId - ID del selector de médicos.
-   * @param {string} buttonId - ID del botón para abrir la agenda.
-   * @param {string} [especialidadId] - ID del campo de especialidad (opcional).
-   */
-  function configurarBotonAgenda(selectId, buttonId, especialidadId = null) {
+/**
+ * Configura dinámicamente el botón "Ver Agenda del Médico".
+ * @param {string} selectId - ID del selector de médicos.
+ * @param {string} buttonId - ID del botón para abrir la agenda.
+ * @param {string} [especialidadId] - ID del campo de especialidad (opcional).
+ */
+function configurarBotonAgenda(selectId, buttonId, especialidadId = null) {
     console.log("Configurando el botón 'Ver Agenda del Médico'...");
   
     const medicoSelect = document.getElementById(selectId);
@@ -30,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const selectedOption = medicoSelect.options[medicoSelect.selectedIndex];
   
       if (medicoId) {
-        // Configurar el enlace del botón para abrir la agenda en una ventana emergente
+        // Actualizar el enlace del botón
         verAgendaButton.onclick = (e) => {
           e.preventDefault(); // Evita la navegación predeterminada
           window.open(`/medicos/${medicoId}/agenda`, '_blank', 'width=800,height=600');
@@ -48,7 +43,5 @@ document.addEventListener('DOMContentLoaded', () => {
         if (especialidadInput) especialidadInput.value = '';
       }
     });
-  
-    console.log("Configuración del botón 'Ver Agenda del Médico' completada.");
   }
   

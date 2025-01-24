@@ -17,7 +17,7 @@ html(lang="en")
             a(href="/historias") Ver Mi Historial Clínico
           li
             // Enlace para sacar turno con evento click
-            a.btn(href=`/citas/new?estado=En proceso&idPaciente=${paciente.idPaciente}`) Sacar Turno Preregistro
+            a.btn#sacarTurno(href=`/citas/new?estado=En proceso&idPaciente=${paciente.idPaciente}`) Sacar Turno Preregistro
           li
             a(href="/logout") Cerrar Sesión
 
