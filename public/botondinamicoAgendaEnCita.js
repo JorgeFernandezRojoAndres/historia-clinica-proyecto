@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const especialidadInput = especialidadId ? document.getElementById(especialidadId) : null;
   
     if (!medicoSelect || !verAgendaButton) {
-      console.error("No se encontraron los elementos necesarios para configurar el botón.");
+      
       return;
     }
   

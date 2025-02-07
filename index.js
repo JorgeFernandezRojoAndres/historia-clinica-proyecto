@@ -94,8 +94,17 @@ app.use('/admin', adminRoutes);
 
 // Ruta para mostrar el formulario de selección de clínica
 app.get('/select-clinica', (req, res) => {
-    res.render('selectClinica'); // Asegúrate de que este es el nombre correcto de tu plantilla Pug
+    if (!req.session.user) {
+        return res.redirect('/login'); // Si no hay usuario, redirigir al login
+    }
+
+    if (req.session.user.role === 'secretaria') {
+        return res.redirect('/secretaria/pacientes'); // Las secretarias van directo a pacientes
+    }
+
+    res.render('selectClinica', { clinicaSeleccionada: req.session.idClinica || false });
 });
+
 // Ruta para manejar la selección de clínica
 app.post('/seleccionar-clinica', authController.seleccionarClinica);
 // Registrar las rutas de pacientes
@@ -103,6 +112,9 @@ const pacientesRouter = require('./routes/pacientes');
 app.use('/pacientes', pacientesRouter);
 app.use('/paciente', pacientesRouter);
 app.use('/registro-pendiente', pacientesRouter);
+app.get('/test-listado-medicos', (req, res) => {
+    res.render('listadoMedicos'); 
+});
 
 // Registrar las rutas de médicos
 const medicosRoutes = require('./routes/medicos');

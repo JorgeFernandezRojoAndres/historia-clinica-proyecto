@@ -28,6 +28,8 @@ html(lang="en")
                 a(href="/secretaria/pacientes") Pacientes
               li
                 a(href="/secretaria/citas") Citas
+              li
+                a(href="/secretaria/ver-medicos") Médicos
             if user.role === 'medico'
               li
                 a(href="/medicos") Médicos
@@ -62,28 +64,7 @@ html(lang="en")
           button(type="button" onclick="selectClinic(2)") Clínica 2
           button(type="button" onclick="closeModal()") Cerrar
 
-    // Scripts
-    script.
-      function selectClinic(id) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/seleccionar-clinica';
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'idClinica';
-        input.value = id;
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
-      }
-
-      function closeModal() {
-        document.getElementById('clinicModal').style.display = 'none';
-      }
-
-      document.getElementById('selectClinicBtn').onclick = function() {
-        document.getElementById('clinicModal').style.display = 'block';
-      };
-
+    // Scripts externos
+    script(src="/js/secretaria.js")
     script(src="/botondinamicoAgendaEnCita.js")
-    script(src="/searchPaciente.js")
+    script(src="/js/searchPaciente.js")

@@ -25,7 +25,10 @@ router.get('/pacientes/search', (req, res) => {
 });
 
 // **Rutas de gestión de médicos**
-router.get('/medicos', medicosController.listAll);
+// Ruta para ver el listado de médicos en la vista de la secretaria
+router.get('/ver-medicos', medicosController.listAll);
+
+
 router.get('/medicos/new', medicosController.showNewForm);
 router.post('/medicos', medicosController.create);
 router.get('/medicos/:id/edit', medicosController.showEditForm);

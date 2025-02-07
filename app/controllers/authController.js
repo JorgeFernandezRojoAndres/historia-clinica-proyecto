@@ -220,32 +220,23 @@ exports.loginMedico = (req, res) => {
     exports.seleccionarClinica = (req, res) => {
         console.log('Datos enviados desde el formulario:', req.body);
         console.log('Sesión antes de guardar clínica:', req.session);
-
+    
         try {
-            // Obtener el ID de la clínica del formulario
             const { idClinica } = req.body;
     
-            // Verificar si se recibió un `idClinica`
             if (!idClinica) {
                 console.error('Error: No se recibió idClinica en la solicitud.');
                 return res.status(400).send('Debe seleccionar una clínica.');
             }
     
-            // Guardar el ID de la clínica en la sesión
             req.session.idClinica = idClinica;
             req.session.clinicaSeleccionada = true; // Establecer el flag de clínica seleccionada
     
-            // Logs para depuración
             console.log(`Clínica seleccionada: ${idClinica}`);
             console.log('Sesión después de la selección:', req.session);
     
-            // Verificar si el usuario está autenticado y redirigir según el rol
+            // Redirigir según el rol
             if (req.session.user) {
-                 // Verificar si ya tiene una clínica seleccionada
-            if (!req.session.clinicaSeleccionada) {
-                console.warn('No se ha seleccionado una clínica, redirigiendo...');
-                return res.redirect('/select-clinica');
-            }
                 switch (req.session.user.role) {
                     case 'paciente':
                         console.log('Redirigiendo al perfil del paciente...');
@@ -270,6 +261,9 @@ exports.loginMedico = (req, res) => {
             return res.status(500).send('Ocurrió un error al procesar la solicitud.');
         }
     };
+    
+    
+    
     
     
     

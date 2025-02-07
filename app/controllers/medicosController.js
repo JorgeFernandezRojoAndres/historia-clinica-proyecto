@@ -10,18 +10,18 @@ const { generarHorariosLibres } = require('../../utils/horariosLibres');
 exports.listAll = (req, res) => {
     const idClinica = req.session.idClinica;
 
-    // Verificar que el idClinica esté definido en la sesión
     if (!idClinica) {
-        return res.redirect('/seleccion-clinica'); // Redirige si no hay clínica seleccionada
+        return res.redirect('/seleccionar-clinica'); // Redirige si no hay clínica seleccionada
     }
 
-    // Consulta SQL que filtra médicos según la clínica seleccionada
     const sql = `
-        SELECT m.idMedico, m.nombre, IFNULL(m.especialidad, 'No especificada') AS especialidad, 
-               IFNULL(m.telefono, 'Sin teléfono') AS telefono, 
-               IFNULL(m.email, 'Sin email') AS email, 
-               IFNULL(m.dni, 'Sin DNI') AS dni
+        SELECT m.idMedico, m.nombre, 
+               COALESCE(e.nombre, 'Sin especialidad') AS especialidad, 
+               COALESCE(m.telefono, 'Sin teléfono') AS telefono, 
+               COALESCE(m.email, 'Sin email') AS email, 
+               COALESCE(m.dni, 'Sin DNI') AS dni
         FROM medicos AS m
+        LEFT JOIN especialidades AS e ON m.idEspecialidad = e.idEspecialidad
         JOIN medicos_clinicas AS mc ON m.idMedico = mc.idMedico
         WHERE mc.idClinica = ?;
     `;
@@ -29,13 +29,12 @@ exports.listAll = (req, res) => {
     db.query(sql, [idClinica], (error, results) => {
         if (error) {
             console.error('Error al obtener los médicos:', error);
-            res.status(500).send("Error al obtener los médicos");
-        } else {
-            res.render('medicos', { medicos: results });
+            return res.status(500).send("Error al obtener los médicos");
         }
+        res.render('listadoMedicos', { medicos: results });
+ // <-- Asegúrate de que esta vista existe
     });
 };
-
 
 // Función para obtener el historial de un paciente desde la base de datos
 async function obtenerHistorialPaciente(idPaciente) {
