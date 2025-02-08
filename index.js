@@ -1,3 +1,5 @@
+require('dotenv').config();
+ 
 const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
@@ -16,6 +18,9 @@ const citasController = require('./app/controllers/citasController');
 const authController = require('./app/controllers/authController');
 const { isAuthenticated, isPacienteOrMedico } = require('./middleware/roleMiddleware');
 const notificaciones = require('./utils/notificaciones');
+const openaiRoutes = require('./routes/openai');
+const { getResponse } = require('./openaiService');
+
 
 // Inicializar Express
 const app = express();
@@ -57,41 +62,27 @@ app.use((req, res, next) => {
 });
 
 // Definir rutas principales
-app.get('/', (req, res) => {
-    if (!req.session.user) {
-        // Si no hay usuario en la sesión, renderiza el formulario para seleccionar la clínica
-        return res.render('layout', { title: 'TurnoExpress', clinicaSeleccionada: false });
-    }
-    
-    // Si hay un usuario autenticado, renderiza la página principal con la clínica seleccionada
-    res.render('layout', { title: 'TurnoExpress', clinicaSeleccionada: true });
-});
 
 app.get('/saludplus', (req, res) => {
     req.session.clinicaSeleccionada = true;
     res.render('layout', { title: 'Clínica Integral SaludPlus', clinicaSeleccionada: true });
 });
-
 app.get('/vidatotal', (req, res) => {
     req.session.clinicaSeleccionada = true;
     res.render('layout', { title: 'Centro Médico Vida Total', clinicaSeleccionada: true });
 });
-
 // Registrar las rutas de especialidades
 const especialidadesRouter = require('./routes/especialidades');
 app.use('/especialidades', especialidadesRouter);
-
 // Registrar las rutas de secretaria
 const secretariaRoutes = require('./routes/secretaria');
 app.use('/secretaria', secretariaRoutes);
 // Registrar las rutas de autenticación
 const authRoutes = require('./routes/auth');
 app.use('/', authRoutes);
-
 // Registrar las rutas del administrador (nuevo archivo de rutas)
 const adminRoutes = require('./routes/admin');
 app.use('/admin', adminRoutes);
-
 // Ruta para mostrar el formulario de selección de clínica
 app.get('/select-clinica', (req, res) => {
     if (!req.session.user) {
@@ -131,9 +122,6 @@ app.use('/citas', citasRoutes);
 // Registrar las rutas de historial clínico
 const historiasRoutes = require('./routes/historias');
 app.use('/historias', isAuthenticated, isPacienteOrMedico, historiasRoutes);
-//ruta para la descarga del historial clinico desde paciente 
-router.get('/download/:id', historiasController.downloadPDF);
-
 
 // Ruta para ver mis turnos
 app.get('/turnos/mis-turnos', isAuthenticated, citasController.listarMisTurnos);
@@ -156,10 +144,19 @@ app.post('/addMedicalRecord', async (req, res) => {
         res.status(500).send("Error al insertar el registro médico");
     }
 });
-
+app.use('/openai', openaiRoutes);  // Ruta OpenAI
+// Ruta de inicio
 // Marcar citas pasadas como completadas al iniciar la aplicación
 citasController.marcarCitasCompletadas();
-
+app.get('/', (req, res) => {
+    if (!req.session.user) {
+        // Si no hay usuario en la sesión, renderiza el formulario para seleccionar la clínica
+        return res.render('layout', { title: 'TurnoExpress', clinicaSeleccionada: false });
+    }
+    
+    // Si hay un usuario autenticado, renderiza la página principal con la clínica seleccionada
+    res.render('layout', { title: 'TurnoExpress', clinicaSeleccionada: true });
+});
 // Iniciar el servidor
 server.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
