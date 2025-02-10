@@ -55,16 +55,15 @@ html(lang="en")
     footer
       p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}
 
-    // Modal para seleccionar clínica
-    #clinicModal(style="display:none;")
-      .modal-content
-        h2 Seleccionar Clínica
-        form(action="/seleccionar-clinica" method="POST")
-          button(type="button" onclick="selectClinic(1)") Clínica 1
-          button(type="button" onclick="selectClinic(2)") Clínica 2
-          button(type="button" onclick="closeModal()") Cerrar
+    // Pasar la variable `user` al archivo JS
+    script.
+      console.log('Usuario:', #{JSON.stringify(user)});
+      window.user = #{JSON.stringify(user)};
+      
 
     // Scripts externos
     script(src="/js/secretaria.js")
     script(src="/botondinamicoAgendaEnCita.js")
     script(src="/js/searchPaciente.js")
+    script(src="/js/selectClinic.js")
+    

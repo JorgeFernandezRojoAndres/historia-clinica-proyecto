@@ -18,8 +18,7 @@ const citasController = require('./app/controllers/citasController');
 const authController = require('./app/controllers/authController');
 const { isAuthenticated, isPacienteOrMedico } = require('./middleware/roleMiddleware');
 const notificaciones = require('./utils/notificaciones');
-const openaiRoutes = require('./routes/openai');
-const { getResponse } = require('./openaiService');
+
 
 
 // Inicializar Express
@@ -144,7 +143,7 @@ app.post('/addMedicalRecord', async (req, res) => {
         res.status(500).send("Error al insertar el registro médico");
     }
 });
-app.use('/openai', openaiRoutes);  // Ruta OpenAI
+ 
 // Ruta de inicio
 // Marcar citas pasadas como completadas al iniciar la aplicación
 citasController.marcarCitasCompletadas();

@@ -144,53 +144,27 @@ exports.loginMedico = (req, res) => {
 
     db.query(sqlMedico, [username], (error, results) => {
         if (error || results.length === 0) {
-            console.error('Error o credenciales incorrectas:', error);
+            console.error('Error o credenciales incorrectas:', error || "No se encontró el médico.");
             return res.status(401).render('loginmedicos', { message: 'Credenciales incorrectas' });
         }
 
         const user = results[0];
         console.log("Usuario encontrado:", user);
 
-        // Verificar la contraseña (DNI o contraseña hasheada)
-        if (password === user.dni || bcrypt.compareSync(password, user.password)) {
+        // Verifica si el DNI coincide con la contraseña ingresada
+        if (password === user.dni) {
             req.session.user = { id: user.idMedico, role: 'Medico', nombre: user.nombre };
             console.log("Sesión guardada:", req.session.user);
-
-            // Consultar las clínicas asignadas al médico
-            const sqlClinicas = 'SELECT idClinica FROM medicos_clinicas WHERE idMedico = ?';
-            db.query(sqlClinicas, [user.idMedico], (errClinicas, clinicas) => {
-                if (errClinicas) {
-                    console.error('Error al cargar clínicas asociadas al médico:', errClinicas);
-                    return res.status(500).render('loginmedicos', { message: 'Error al cargar clínicas.' });
-                }
-
-                // Manejar asignación de clínicas
-                if (clinicas.length === 1) {
-                    req.session.idClinica = clinicas[0].idClinica;
-                    console.log(`Clínica asignada automáticamente: ${clinicas[0].idClinica}`);
-                } else if (clinicas.length > 1) {
-                    req.session.idClinica = null;
-                    console.log('Varias clínicas asociadas. Se requiere selección manual.');
-                } else {
-                    req.session.idClinica = null;
-                    console.log('El médico no tiene clínicas asociadas.');
-                }
-
-                // Redirigir según estado de la contraseña
-                if (user.password_change_required) {
-                    console.log("Redirigiendo al cambio de contraseña");
-                    return res.redirect('/cambiar-contrasena');
-                }
-
-                console.log("Redirigiendo al perfil del médico");
-                return res.redirect('/medicos/perfil');
-            });
+            
+            // Redirigir a la vista del perfil del médico
+            return res.redirect('/medicos/perfil');
         } else {
             console.error('Contraseña incorrecta');
             return res.status(401).render('loginmedicos', { message: 'Credenciales incorrectas' });
         }
     });
 };
+
 
     exports.cambiarContrasena = (req, res) => {
         const newPassword = req.body.newPassword;

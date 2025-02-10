@@ -6,11 +6,12 @@ block content
   nav
     ul
       li
-        a(onclick=`window.open('/medicos/${user.id}/agenda', 'AgendaMedico', 'width=800,height=600,resizable=yes,scrollbars=yes'); return false;`) Ver Agenda
+        a(onclick="abrirAgenda(); return false;") Ver Agenda
       li
         a(href="/historias") Historial Clínico
       li
         a(href="/logout") Cerrar Sesión
+
   main
     section.accesos-rapidos
       h2 Accesos Rápidos
@@ -21,7 +22,7 @@ block content
             img(src="/images/btnIniCon.png" alt="Iniciar Consulta - #{citas[0].nombrePaciente}")
         else
           //- Botón de sobreturno cuando no hay citas regulares
-          button.btn-rapido(onclick=`window.open('/medicos/atender-sobreturno', 'Atender Sobreturno', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
+          button.btn-rapido(onclick="abrirSobreturno()")
             img(src="/images/btnAtenderSobreturno.png" alt="Atender Sobreturno")
 
           //- Campo de búsqueda de paciente para sobreturno
@@ -33,62 +34,34 @@ block content
           button.btn-rapido(onclick="cargarHistorialSobreturno()")
             img(src="/images/btnAtenderSobreturno.png" alt="Atender Sobreturno")
 
-        // Script para manejar el autocompletado de búsqueda de paciente
-        script.
-          document.addEventListener('DOMContentLoaded', function() {
-            const inputBuscarPaciente = document.getElementById('buscarPacienteSobreturno');
-            const listaResultados = document.getElementById('listaResultadosSobreturno');
-
-            inputBuscarPaciente.addEventListener('input', function() {
-              const query = this.value;
-              if (query.length >= 2) {
-                fetch(`/pacientes/buscar?query=${query}`)
-                  .then(response => response.json())
-                  .then(pacientes => {
-                    listaResultados.innerHTML = '';
-                    pacientes.forEach(paciente => {
-                      const li = document.createElement('li');
-                      li.textContent = `${paciente.nombre} - DNI: ${paciente.dni}`;
-                      li.onclick = () => seleccionarPacienteSobreturno(paciente);
-                      listaResultados.appendChild(li);
-                    });
-                  })
-                  .catch(error => console.error('Error al buscar pacientes:', error));
-              } else {
-                listaResultados.innerHTML = '';
-              }
-            });
-          });
-
-          function seleccionarPacienteSobreturno(paciente) {
-            document.getElementById('buscarPacienteSobreturno').value = paciente.nombre;
-            window.open(`/medicos/historial/${paciente.idPaciente}`, 'HistorialPaciente', 'width=800,height=600,resizable=yes,scrollbars=yes');
-          }
       //- Verificar si hay pacientes antes de mostrar el botón de historial
       if pacientes && pacientes.length > 0
-          button.btn-rapido(onclick=`window.open('/medicos/historial', 'BuscarHistorial', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
+          button.btn-rapido(onclick="abrirHistorial()")
             img(src="/images/btnHDA.png" alt="Historial de Atenciones")
       else
         p No hay pacientes disponibles.
 
       //- Botones adicionales para el médico
-      button.btn-rapido(onclick=`window.open('/medicos/registrar-evolucion', 'Registrar Evolucion', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
+      button.btn-rapido(onclick="abrirVentana('/medicos/registrar-evolucion', 'Registrar Evolución')")
         img(src="/images/btnREvo.png" alt="Registrar Evolución")
 
-      button.btn-rapido(onclick=`window.open('/medicos/agregar-diagnostico', 'Agregar Diagnostico', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
+      button.btn-rapido(onclick="abrirVentana('/medicos/agregar-diagnostico', 'Agregar Diagnóstico')")
         img(src="/images/btnAgDiag.png" alt="Agregar Diagnóstico")
 
-      button.btn-rapido(onclick=`window.open('/medicos/agregar-alergias', 'Agregar Alergias', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
+      button.btn-rapido(onclick="abrirVentana('/medicos/agregar-alergias', 'Agregar Alergias')")
         img(src="/images/btnAGALE.png" alt="Agregar Alergias")
 
-      button.btn-rapido(onclick=`window.open('/medicos/registrar-antecedentes', 'Registrar Antecedentes', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
+      button.btn-rapido(onclick="abrirVentana('/medicos/registrar-antecedentes', 'Registrar Antecedentes')")
         img(src="/images/btnREGant.png" alt="Registrar Antecedentes")
 
-      button.btn-rapido(onclick=`window.open('/medicos/registrar-habitos', 'Registrar Habitos', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
+      button.btn-rapido(onclick="abrirVentana('/medicos/registrar-habitos', 'Registrar Hábitos')")
         img(src="/images/btnREHABB.png" alt="Registrar Hábitos")
 
-      button.btn-rapido(onclick=`window.open('/medicos/medicamentos', 'Registrar Medicamentos', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
+      button.btn-rapido(onclick="abrirVentana('/medicos/medicamentos', 'Registrar Medicamentos')")
         img(src="/images/btnMEENus.png" alt="Registrar Medicamentos en Uso")
 
-      button.btn-rapido(onclick=`window.open('/medicos/template-nota', 'Template Nota', 'width=800,height=600,resizable=yes,scrollbars=yes')`)
+      button.btn-rapido(onclick="abrirVentana('/medicos/template-nota', 'Template Nota')")
         img(src="/images/templatebtn.png" alt="Usar Template de Nota Clínica")
+
+  // Cargar script externo
+  script(src="/js/escritorioMedico.js")
