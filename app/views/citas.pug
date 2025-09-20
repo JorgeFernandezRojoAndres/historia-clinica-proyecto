@@ -1,0 +1,47 @@
+extends layout
+
+block content
+  h2 Listado de Citas
+
+  // Filtros
+  div.filtros
+    // Filtro por nombre de médico
+    label(for="filtroMedico") Filtrar por Médico:
+    input(type="text" id="filtroMedico" placeholder="Ingresa el nombre del médico")
+
+    // Filtro por estado (solo visible para secretarias)
+    if user.role === 'secretaria'
+      label(for="filtroEstado") Filtrar por Estado:
+      select(id="filtroEstado")
+        option(value="") Todos
+        each estado in ['Pendiente', 'En proceso', 'Confirmado', 'Completado', 'Cancelado']
+          option(value=estado)= estado
+
+  // Tabla de citas
+  table(class="table table-striped" id="tablaCitas")
+    thead
+      tr
+        th Médico
+        th Paciente
+        th Fecha y Hora
+        th Motivo de Consulta
+        th Estado
+        th Acciones
+    tbody
+      if citas.length > 0
+        each cita in citas
+          tr
+            td= cita.nombreMedico
+            td= cita.nombrePaciente
+            td= cita.fechaHora
+            td= cita.motivoConsulta
+            td= cita.estado
+            td.acciones
+              a.btn.btn-primary(href=`/citas/edit/${cita.idCita}`) Editar
+              a.btn.btn-danger(href=`/citas/delete/${cita.idCita}` onclick="return confirm('¿Estás seguro de que deseas eliminar esta cita?')") Eliminar
+      else
+        tr
+          td(colspan="6") No hay citas disponibles.
+
+  // Importar script externo para el filtrado
+  script(src="/js/filtrarCitas.js")

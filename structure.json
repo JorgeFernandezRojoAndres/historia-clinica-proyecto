@@ -1,0 +1,6 @@
+{
+  "config": {
+    "config.js": "module.exports = {\n  root: __dirname,\n  db: {\n      database: 'medicappdb', \n      username: 'root', \n      password:'jorge007',\n \n      options: {\n          host: 'localhost',\n          port: 3306, \n          ssl: {\n              rejectUnauthorized: false,\n          },\n      },\n  },\n};\n",
+    "database.js": "const mysql = require('mysql2');\nconst config = require('./config').db; // Asegúrate de que la ruta es correcta para importar config.js\n\n// Crear un pool de conexiones\nconst pool = mysql.createPool({\n    host: config.options.host, // 'localhost'\n    user: config.username, // 'root'\n    database: config.database, // Tu base de datos en XAMPP\n    password: config.password, // Generalmente vacío en XAMPP\n    port: 3306, // Puerto por defecto de XAMPP\n    waitForConnections: true,\n    connectionLimit: 10,  // Número máximo de conexiones simultáneas\n    queueLimit: 0  // No limitar las solicitudes en cola\n});\n\n// Verificar que la conexión sea exitosa\npool.getConnection((error, connection) => {\n    if (error) {\n        console.error('Error conectando a la base de datos:', error);\n        return;\n    }   \n    if (connection) connection.release();\n    console.log('Conexión establecida con el pool');\n});\n\nmodule.exports = pool;\n"
+  }
+}

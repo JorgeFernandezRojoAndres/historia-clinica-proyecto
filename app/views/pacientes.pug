@@ -1,0 +1,36 @@
+extends layout
+
+block content
+  h1 Listado de Pacientes
+
+  form(id="formBuscarPaciente", onsubmit="return false")
+    input(type="text" id="buscarPaciente" name="query" placeholder="Buscar paciente por nombre")
+
+  table
+    thead
+      tr
+        th Nombre
+        th Fecha de Nacimiento
+        th DNI
+        th Dirección
+        th Teléfono
+        th Acciones
+    tbody#tablaPacientes
+      if pacientes.length === 0
+        tr
+          td(colspan="6") No hay pacientes registrados.
+      else
+        each paciente in pacientes
+          tr
+            td= paciente.nombre
+            td= paciente.fechaNacimiento
+            td= paciente.dni
+            td= paciente.direccion
+            td= paciente.telefono
+            td
+              a(href=`/secretaria/pacientes/${paciente.idPaciente}/edit`) Editar
+              form(action=`/secretaria/pacientes/${paciente.idPaciente}/delete?_method=DELETE` method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar a este paciente?');")
+                button(type="submit") Eliminar
+              a(href=`/historias/${paciente.idPaciente}`) Historial
+
+  script(src="/searchPaciente.js")

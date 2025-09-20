@@ -1,0 +1,48 @@
+doctype html
+html
+  head
+    title Consulta del Paciente
+    link(rel="stylesheet" href="/css/style.css")
+  body
+    h1 Consulta de #{cita.nombrePaciente}
+
+    // Mostrar detalles de la cita
+    p Fecha y Hora: #{new Date(cita.fechaHora).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })} #{new Date(cita.fechaHora).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+    p Motivo de Consulta: #{cita.motivoConsulta}
+
+    // Formulario para registrar la evolución
+    h2 Evolución
+    form(action=`/evolucion/nueva/${cita.idCita}`, method="POST")
+      textarea(name="evolucion" placeholder="Escribe la evolución aquí..." required)
+
+    // Formulario para registrar el diagnóstico
+    h2 Diagnóstico
+    form(action=`/diagnostico/nuevo/${cita.idCita}`, method="POST")
+      input(type="text" name="diagnostico" placeholder="Escribe el diagnóstico aquí..." required)
+
+    // Otros formularios para alergias, antecedentes, hábitos, etc.
+    h2 Alergias
+    form(action=`/alergia/nueva/${cita.idCita}`, method="POST")
+      input(type="text" name="alergia" placeholder="Nombre de la alergia" required)
+      select(name="importancia" required)
+        option(value="leve") Leve
+        option(value="normal") Normal
+        option(value="alta") Alta
+      input(type="date" name="fechaDesde" placeholder="Desde" required)
+      input(type="date" name="fechaHasta" placeholder="Hasta" required)
+
+    h2 Antecedentes Patológicos
+    form(action=`/antecedentes/nuevo/${cita.idCita}`, method="POST")
+      input(type="text" name="antecedente" placeholder="Escribe el antecedente aquí..." required)
+      input(type="date" name="fechaDesde" placeholder="Desde" required)
+      input(type="date" name="fechaHasta" placeholder="Hasta" required)
+
+    h2 Hábitos
+    form(action=`/habitos/nuevo/${cita.idCita}`, method="POST")
+      input(type="text" name="habito" placeholder="Escribe el hábito aquí..." required)
+      input(type="date" name="fechaDesde" placeholder="Desde" required)
+      input(type="date" name="fechaHasta" placeholder="Hasta" required)
+
+    h2 Medicamentos en Uso
+    form(action=`/medicamentos/nuevo/${cita.idCita}`, method="POST")
+      input(type="text" name="medicamento" placeholder="Escribe el medicamento aquí..." required)

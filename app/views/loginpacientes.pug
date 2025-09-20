@@ -1,0 +1,20 @@
+extends layout
+
+block content
+  div.login-container
+    div.form-container
+      h2 Iniciar Sesión
+      form(action="/login/paciente" method="POST")
+        div
+          label(for="dni") DNI:
+          input(type="text" id="dni" name="dni" required)
+        div
+          button(type="submit" class="btn btn-primary") Iniciar Sesión
+
+      // Nuevo botón para el registro del paciente
+      div.register-container
+        p No estás registrado?
+        a.btn.btn-secondary(href="/register/paciente") Registrarme como Paciente
+
+    div.image-container
+      img(src="/images/clinica.jpg" alt="Imagen de clínica")

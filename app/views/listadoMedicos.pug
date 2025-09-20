@@ -1,0 +1,49 @@
+extends layout.pug
+
+block content
+  h1 Listado de Médicos
+
+  // Formulario de búsqueda por apellido
+  form(action="/medicos/search" method="GET")
+    input(type="text" id="buscarMedico" name="query" placeholder="Buscar médico por apellido")
+
+  // Tabla para mostrar los médicos
+  table
+    thead
+      tr
+        
+        th Nombre
+        th Especialidad
+        th Teléfono
+        th Email
+        th DNI
+        th Acciones
+    tbody
+      if medicos.length === 0
+        tr
+          td(colspan="7") No hay médicos registrados.
+      else
+        each medico in medicos
+          tr
+            
+            td= medico.nombre || 'Sin nombre'
+            td= medico.especialidad || 'Sin especialidad'
+            td= medico.telefono || 'Sin teléfono'
+            td= medico.email || 'Sin email'
+            td= medico.dni || 'Sin DNI'
+            td
+              // Botón para editar
+              a.btn.btn-warning(href=`/secretaria/medicos/${medico.idMedico}/edit`) Editar
+              | &nbsp;
+
+              // Botón para eliminar con confirmación
+              form(
+                action=`/medicos/${medico.idMedico}/delete?_method=DELETE`
+                method="POST"
+                style="display:inline;"
+                onsubmit="return confirm('¿Estás seguro de que deseas eliminar a este médico?');"
+              )
+                button.btn.btn-danger(type="submit") Eliminar
+
+  // Script para manejar la búsqueda
+  script(src="/searchMedico.js")

@@ -1,0 +1,27 @@
+extends layout
+
+block content
+  h2 Listado de Historias Clínicas
+
+  // Solo muestra el botón "Nueva Historia Clínica" si el usuario es secretaria o administrador
+  if user.role === 'secretaria' || user.role === 'administrador'
+    a(href="/historias/new" class="btn btn-primary") Nueva Historia Clínica
+
+  table
+    tr
+      th Paciente
+      th Detalles
+      th Acciones
+    each historia in historias
+      tr
+        td= historia.nombrePaciente 
+        td= historia.detalles
+        td
+          // Solo muestra las acciones de "Editar" y "Eliminar" si el usuario es secretaria o administrador
+          if user.role === 'secretaria' || user.role === 'administrador'
+            a(href=`/historias/edit/${historia.idHistoria}`) Editar
+            a(href=`/historias/delete/${historia.idHistoria}`) Eliminar
+
+          // Solo muestra el botón "Descargar PDF" si el usuario es paciente
+          if user.role === 'paciente'
+            a.btn(href=`/historias/download/${historia.idHistoria}`) Descargar PDF

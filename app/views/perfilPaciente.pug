@@ -1,0 +1,58 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Perfil de Paciente
+    link(rel="stylesheet" href="/css/style.css")
+
+  body
+    header
+      h1 Perfil de Paciente
+      nav
+        ul
+          li: a(href="/turnos/mis-turnos") Ver Mis Turnos
+          li: a(href="/historias") Ver Mi Historial Clínico
+          li: a.btn#sacarTurno(href=`/citas/new?estado=En proceso&idPaciente=${paciente.idPaciente}`) Sacar Turno Preregistro
+          li: a(href="/logout") Cerrar Sesión
+
+    main
+      h2 Información del Paciente
+      div
+        p
+          strong Nombre: 
+          | #{paciente.nombre}
+        p
+          strong Fecha de Nacimiento: 
+          | #{new Date(paciente.fechaNacimiento).toLocaleDateString('es-ES')}
+        p
+          strong DNI: 
+          | #{paciente.dni}
+        p
+          strong Dirección: 
+          | #{paciente.direccion}
+        p
+          strong Teléfono: 
+          | #{paciente.telefono}
+
+        p
+          a.btn.btn-primary(href=`/pacientes/edit/${paciente.idPaciente}`) Editar Información
+
+    // Modal para el Chatbot
+    #chatBotModal(style="display:none;")
+      .modal-content
+        h2 Chat con TurnoExpress
+        #chatHistory
+          p Hola, ¿en qué puedo ayudarte?
+        form(action="#" id="chatForm")
+          input(type="text" id="userMessage" placeholder="Escribe tu mensaje...")
+          button(type="submit") Enviar
+
+    footer
+      p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}
+
+    // Scripts
+    script(src="https://cdn.botpress.cloud/webchat/v2.2/inject.js")
+    script(src="https://files.bpcontent.cloud/2025/02/10/15/20250210150452-T5Q4WO6D.js")
+    script(src="/js/chatbot.js")
+

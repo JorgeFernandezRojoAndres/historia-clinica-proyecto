@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  h2 Añadir Nuevo Médico
+  form(action="/medicos" method="POST")
+    label(for="nombre") Nombre:
+    input(type="text" name="nombre" required)
+    
+    br
+    label(for="dni") DNI:
+    input(type="text" name="dni" required)
+    br
+    label(for="telefono") Teléfono:
+    input(type="text" name="telefono" required)
+    br
+
+    label(for="email") Email:
+    input(type="email" name="email" required)
+    br
+
+    label(for="especialidad") Especialidad:
+    input(type="text" name="especialidad" required)
+    br
+
+    button(type="submit") Crear Médico

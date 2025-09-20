@@ -1,0 +1,45 @@
+extends layout
+
+block content
+  h2 Editar Historia Clínica
+
+  form(action=`/historias/update/${historia.idHistoria}` method="POST")
+
+    div
+      label(for="dni") DNI del Paciente
+      input(type="text" name="dni" id="dni" value=historia.dniPaciente readonly) 
+    div
+      label(for="nombre") Nombre del Paciente
+      input(type="text" name="nombre" id="nombre" value=historia.nombrePaciente readonly)
+    div   
+      label(for="detalles") Detalles
+      textarea(name="detalles" id="detalles")= historia.detalles
+    div
+      label(for="fechaDiagnostico") Fecha del Diagnóstico
+      input(type="date" name="fechaDiagnostico" value=historia.fechaDiagnostico)
+    div
+      label(for="medicamentos") Medicamentos
+      textarea(name="medicamentos")= historia.medicamentos
+    div
+      label(for="alergias") Alergias
+      textarea(name="alergias")= historia.alergias
+    div
+      label(for="condicionActual") Condición Actual
+      textarea(name="condicionActual")= historia.condicionActual
+    div
+      label(for="pruebasDiagnosticas") Pruebas Diagnósticas
+      textarea(name="pruebasDiagnosticas")= historia.pruebasDiagnosticas
+    div
+      label(for="fechaProximaCita") Fecha Próxima Cita
+      input(type="date" name="fechaProximaCita" value=historia.fechaProximaCita)
+    div
+      label(for="especialistaReferido") Especialista Referido
+      input(type="text" name="especialistaReferido" value=historia.especialistaReferido)
+    div
+      label(for="urlDocumento") URL del Documento
+      input(type="text" name="urlDocumento" value=historia.urlDocumento)
+    div
+      label(for="notasMedicas") Notas Médicas
+      textarea(name="notasMedicas")= historia.notasMedicas
+    div
+      button(type="submit") Actualizar Historia Clínica

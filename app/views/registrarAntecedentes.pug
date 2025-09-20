@@ -1,0 +1,34 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Registrar Antecedentes
+    link(rel="stylesheet" href="/css/style.css")
+
+  body
+    h1 Registrar Antecedentes
+
+    // Formulario para registrar antecedentes del paciente
+    form(action="/medicos/registrar-antecedentes" method="POST")
+      // Campo oculto para enviar el ID del paciente
+      input(type="hidden" name="idPaciente" value=idPaciente)
+
+      // Campo de texto para mostrar el nombre del paciente (solo lectura)
+      label(for="paciente") Paciente:
+      input#paciente(type="text" name="paciente" readonly value=paciente)
+
+      // Campo para ingresar los antecedentes
+      label(for="antecedentes") Antecedentes:
+      textarea#antecedentes(name="antecedentes" rows="4" required)
+
+      // Botón de envío
+      button(type="submit") Guardar Antecedentes
+
+    // Mostrar mensaje de error si existe
+    if error
+      p.error= error
+
+    // Mostrar mensaje de éxito si existe
+    if success
+      p.success= success

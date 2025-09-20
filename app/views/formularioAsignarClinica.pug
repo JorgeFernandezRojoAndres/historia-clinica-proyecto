@@ -1,0 +1,103 @@
+extends layout
+
+block content
+  h2 Asignar Clínica a Médico
+
+  // Formulario para asignar clínica
+  form(action="/admin/asignar-clinica" method="POST")
+    .form-group
+      label(for="idMedico") Médico:
+      select(name="idMedico" id="idMedico" required)
+        option(value="") -- Selecciona un médico --
+        if medicos && medicos.length
+          each medico in medicos
+            option(value=medico.idMedico) #{medico.nombre}
+        else
+          option(value="") No hay médicos disponibles
+
+    .form-group
+      label(for="idClinica") Clínica:
+      select(name="idClinica" id="idClinica" required)
+        option(value="") -- Selecciona una clínica --
+        if clinicas && clinicas.length
+          each clinica in clinicas
+            option(value=clinica.idClinica) #{clinica.nombre}
+        else  
+          option(value="") No hay clínicas disponibles
+
+    button(type="submit") Asignar Clínica
+
+  // Sección para mostrar médicos asignados por clínica
+  h2 Médicos Asignados a Clínicas
+
+  // Contenedor dinámico
+  div#clinicasContainer
+
+  // Script para procesar el JSON y generar tablas dinámicamente
+  script.
+    const medicosPorClinica = !{JSON.stringify(medicosPorClinica)}; // Deserializar JSON en JavaScript
+
+    const container = document.getElementById('clinicasContainer');
+
+    if (Object.keys(medicosPorClinica).length > 0) {
+      Object.keys(medicosPorClinica).forEach(clinicaNombre => {
+        // Crear el título de la clínica
+        const titulo = document.createElement('h3');
+        titulo.textContent = clinicaNombre;
+        container.appendChild(titulo);
+
+        // Crear la tabla
+        const table = document.createElement('table');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.marginBottom = '20px';
+
+        // Crear encabezado de la tabla
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        headerRow.style.backgroundColor = '#f2f2f2';
+        headerRow.style.textAlign = 'left';
+        const thNombre = document.createElement('th');
+        thNombre.textContent = 'Médico';
+        thNombre.style.border = '1px solid #ddd';
+        thNombre.style.padding = '8px';
+        const thEspecialidad = document.createElement('th');
+        thEspecialidad.textContent = 'Especialidad';
+        thEspecialidad.style.border = '1px solid #ddd';
+        thEspecialidad.style.padding = '8px';
+        headerRow.appendChild(thNombre);
+        headerRow.appendChild(thEspecialidad);
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // Crear cuerpo de la tabla
+        const tbody = document.createElement('tbody');
+        medicosPorClinica[clinicaNombre].forEach(medico => {
+          const row = document.createElement('tr');
+          row.style.border = '1px solid #ddd';
+
+          const tdNombre = document.createElement('td');
+          tdNombre.textContent = medico.nombre;
+          tdNombre.style.padding = '8px';
+          tdNombre.style.border = '1px solid #ddd';
+
+          const tdEspecialidad = document.createElement('td');
+          tdEspecialidad.textContent = medico.especialidad;
+          tdEspecialidad.style.padding = '8px';
+          tdEspecialidad.style.border = '1px solid #ddd';
+
+          row.appendChild(tdNombre);
+          row.appendChild(tdEspecialidad);
+          tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+
+        // Agregar la tabla al contenedor
+        container.appendChild(table);
+      });
+    } else {
+      const mensaje = document.createElement('p');
+      mensaje.textContent = 'No hay médicos asignados a ninguna clínica.';
+      mensaje.style.color = 'red';
+      container.appendChild(mensaje);
+    }

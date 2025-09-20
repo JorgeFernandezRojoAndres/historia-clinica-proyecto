@@ -1,0 +1,54 @@
+extends layout
+
+block content
+  h2 Nueva Cita
+
+  // Pasamos los datos de médicos como JSON
+  script#medicosData(type="application/json") !{JSON.stringify(medicos)}
+
+  form(action="/citas/new" method="POST")
+    label(for="especialidadSelector") Especialidad:
+    select(name="especialidadSelector" id="especialidadSelector")
+      option(value="") -- Selecciona una especialidad --
+      each especialidad in especialidades
+        option(value=especialidad.nombre) #{especialidad.nombre}
+    br
+
+    label(for="idMedico") Médico:
+    select(name="idMedico" id="idMedico" required)
+      option(value="") -- Selecciona un médico --
+    br
+
+    label(for="especialidadMedico") Especialidad del Médico:
+    input(type="text" id="especialidadMedico" readonly)
+    br
+
+    label(for="buscarPaciente") Buscar Paciente:
+    if nombrePaciente
+      input(type="text" id="buscarPaciente" name="nombrePaciente" value=nombrePaciente readonly)
+      input(type="hidden" name="idPaciente" value=idPaciente)
+    else
+      input(type="text" id="buscarPaciente" placeholder="Ingresa nombre o DNI" autocomplete="off" required)
+      input(type="hidden" name="idPaciente" id="idPaciente")
+
+    ul#listaResultados(style="display: none;")
+
+    a#verAgendaButton.btn.btn-primary(href=`/medicos/${idMedico || ''}/agenda` target="_blank" disabled=idMedico ? false : true) Ver Agenda del Médico
+
+    label(for="fechaHora") Fecha y Hora:
+    input(type="datetime-local" name="fechaHora" id="fechaHora" required)
+    br
+
+    label(for="motivoConsulta") Motivo de Consulta:
+    input(type="text" name="motivoConsulta" required)
+    br
+
+    label(for="tipoTurno") Tipo de Turno:
+    select(name="tipoTurno" id="tipoTurno" required)
+      option(value="regular") Regular
+      option(value="sobreturno") Sobreturno
+    br
+
+    button(type="submit") Crear Cita
+
+  script(src="/js/gestionCitasCombinado.js")

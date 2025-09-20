@@ -1,0 +1,215 @@
+
+---
+
+## Proyecto: Sistema de Historia Clínica Electrónica
+
+### Descripción del Proyecto
+El proyecto es un **sistema de historia clínica electrónica** que permite gestionar y almacenar la información de pacientes, incluyendo sus datos personales, historial clínico, y detalles médicos relevantes. La aplicación está desarrollada con Node.js, Express y una base de datos MySQL, con Pug como motor de plantillas para las vistas.
+
+### Estructura del Proyecto
+- **app/**: Contiene los controladores de las diferentes funcionalidades del proyecto.
+  - **controllers/**: Contiene la lógica de cada controlador.
+    - `pacientesController.js`: Controlador para manejar todas las operaciones relacionadas con los pacientes.
+    - `historiasController.js`: Controlador para manejar todas las operaciones relacionadas con las historias clínicas.
+    - `medicosController.js`: Controlador para gestionar los médicos y sus citas.
+  - **views/**: Contiene las plantillas Pug para las vistas del proyecto.
+    - `newHistoria.pug`: Formulario para crear una nueva historia clínica.
+    - `pacientes.pug`: Vista para listar pacientes.
+    - `medicos.pug`: Vista para listar los médicos.
+    - `agenda_medico.pug`: Vista para mostrar la agenda de los médicos.
+    - `layout.pug`: Plantilla base del sitio web.
+- **config/**: Contiene los archivos de configuración de la base de datos.
+  - `database.js`: Archivo para configurar la conexión a la base de datos MySQL.
+- **routes/**: Define las rutas del proyecto.
+  - `pacientes.js`: Rutas para manejar las operaciones de los pacientes.
+  - `historias.js`: Rutas para manejar las operaciones de las historias clínicas.
+  - `medicos.js`: Rutas para manejar las operaciones de los médicos, como ver, agregar, editar, y gestionar agendas.
+  - `citas.js`: Rutas para manejar las operaciones de citas médicas.
+
+### Base de Datos
+La base de datos **medicappdb** tiene las siguientes tablas principales:
+
+1. **pacientes**
+   - `idPaciente` (int, PK)
+   - `nombre` (varchar)
+   - `dni` (varchar)
+   - `fechaNacimiento` (date)
+   - `direccion` (varchar)
+   - `telefono` (varchar)
+
+2. **medicos**
+   - `idMedico` (int, PK)
+   - `nombre` (varchar)
+   - `especialidad` (varchar)
+   - `telefono` (varchar)
+   - `email` (varchar)
+   - `dni` (varchar)
+
+3. **historias_clinicas**
+   - `idHistoria` (int, PK)
+   - `idPaciente` (int, FK)
+   - `detalles` (text)
+   - `fechaDiagnostico` (date)
+   - `medicamentos` (text)
+   - `alergias` (text)
+   - `condicionActual` (text)
+   - `pruebasDiagnosticas` (text)
+   - `fechaProximaCita` (date)
+   - `urlDocumento` (varchar)
+   - `notasMedicas` (text)
+   - `especialistaReferido` (text)
+
+4. **citas**
+   - `idCita` (int, PK)
+   - `idMedico` (int, FK)
+   - `idPaciente` (int, FK)
+   - `fechaHora` (datetime)
+   - `motivoConsulta` (varchar)
+   - `estado` (varchar)
+
+### Funcionalidades Implementadas
+
+1. **Gestión de Pacientes**
+   - Listar todos los pacientes.
+   - Crear un nuevo paciente con su nombre, fecha de nacimiento, DNI, dirección y teléfono.
+   - Editar y actualizar los datos de un paciente.
+   - Eliminar un paciente.
+   - Buscar un paciente por su DNI y obtener su historial clínico.
+
+2. **Gestión de Historias Clínicas**
+   - Crear una nueva historia clínica asociada a un paciente.
+   - Listar todas las historias clínicas registradas.
+   - Editar, actualizar o eliminar una historia clínica.
+   - Autocompletar el nombre del paciente y el historial clínico al ingresar el DNI en el formulario de creación de una nueva historia clínica.
+
+3. **Gestión de Médicos**
+   - Listar todos los médicos con nombre, especialidad, teléfono, email y DNI.
+   - Crear un nuevo médico ingresando nombre, especialidad, teléfono, email y DNI.
+   - Editar y actualizar la información de un médico.
+   - Eliminar un médico.
+   - Ver la agenda de citas de un médico específico.
+   - Buscar médicos por apellido utilizando un campo de autocompletado.
+
+4. **Formulario para Crear Historia Clínica**
+   - Se ha implementado un formulario donde el usuario puede ingresar el **DNI del paciente** y el sistema autocompleta el **nombre del paciente** si existe en la base de datos.
+   - Si el paciente tiene historial clínico previo, se muestra en el campo **Detalles** para que pueda ser editado.
+
+5. **Agenda del Médico**
+   - Permite a los médicos ver su agenda de citas para el día actual.
+   - Las citas incluyen información sobre el paciente, la fecha y hora de la cita, el motivo de consulta y el estado de la cita.
+
+### Avances hasta el Momento
+
+1. **Conexión a la Base de Datos**
+   La conexión a la base de datos se configuró en el archivo `database.js`, utilizando el paquete `mysql2` para conectarse a MySQL.
+
+2. **Rutas y Controladores**
+   - Las rutas para manejar las operaciones de pacientes, historias clínicas y médicos están definidas y enlazadas a sus respectivos controladores.
+   - La ruta `/buscarPaciente/:dni` permite buscar un paciente por su DNI y autocompletar su nombre en el formulario de creación de historia clínica.
+
+3. **Formulario de Historia Clínica**
+   El formulario en `newHistoria.pug` permite buscar un paciente por su DNI y, si el paciente tiene una historia clínica previa, se carga automáticamente en el campo de **Detalles**.
+
+4. **Agenda del Médico**
+   La vista `agenda_medico.pug` permite ver las citas de un médico en particular. Utiliza la tabla `citas` de la base de datos para mostrar información sobre los pacientes asignados y el estado de las citas.
+
+5. **Formulario para Médicos**
+   Se han añadido campos para ingresar el **teléfono**, **email**, y **DNI** al agregar y editar médicos.
+
+6. **Integración con GitHub**
+   Se ha creado un repositorio en GitHub para gestionar las versiones del proyecto. La rama predeterminada es `master`, y los cambios se han hecho `push` a dicha rama utilizando Git.
+
+### Próximos Pasos
+
+1. **Mejoras en la Historia Clínica**
+   - Añadir campos adicionales como **medicamentos**, **fecha del diagnóstico**, **próximas citas**, etc., en el formulario y en la lógica del controlador.
+   - Implementar validaciones más robustas tanto en el frontend como en el backend para asegurar que los datos ingresados son correctos.
+
+2. **Seguridad**
+   - Implementar autenticación y autorización para que solo usuarios autorizados puedan acceder a ciertas funcionalidades del sistema (como editar o eliminar registros).
+
+3. **Mejoras de UI**
+   - Mejorar el diseño de las vistas para que sean más amigables para el usuario, utilizando algún framework de CSS como Bootstrap o Tailwind (dependiendo de tus preferencias).
+
+### Comandos Útiles para Git
+
+- **Iniciar Git y subir a un repositorio nuevo**:
+  ```bash
+  git init
+  git remote add origin <URL_DEL_REPOSITORIO>
+  git add .
+  git commit -m "Primera versión del proyecto"
+  git push -u origin master
+  ```
+
+- **Agregar nuevos cambios**:
+  ```bash
+  git add .
+  git commit -m "Descripción de los cambios"
+  git push origin master
+  ```
+
+### Clonar e Instalar el Proyecto
+
+Para clonar el proyecto y configurarlo localmente:
+
+```bash
+git clone https://github.com/JorgeFernandezRojoAndres/historia-clinica-proyecto.git
+cd historia-clinica-proyecto
+npm install
+```
+
+### Configuración de la Base de Datos
+
+1. Crea una base de datos en MySQL llamada `medicappdb`.
+2. Ejecuta las consultas SQL necesarias para crear las tablas `pacientes`, `medicos`, `historias_clinicas`, y `citas`.
+3. Asegúrate de que el archivo `config/database.js` contiene las credenciales correctas para tu base de datos local.
+
+### Variables de Entorno
+
+Crea un archivo `.env` en la raíz del proyecto con la siguiente configuración:
+
+```
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=tu_password
+DB_NAME=medicappdb
+```
+
+### Requisitos
+
+- Node.js v14.0 o superior
+- MySQL v5.7 o superior
+- npm (Gestor de paquetes de Node.js)
+
+### Scripts de npm
+
+- `npm start`: Inicia el servidor de desarrollo.
+- `npm run dev`: Inicia el servidor con nodemon para un desarrollo más rápido (reinicios automáticos).
+
+### Ejemplos de Uso
+
+#### Crear un nuevo paciente
+
+1. Navega a `http://localhost:3000/pacientes/new`.
+2. Completa los campos con los datos del paciente.
+3. Haz clic en "Crear Paciente".
+
+#### Buscar una historia clínica
+
+1. Nave
+
+ga a `http://localhost:3000/historias/new`.
+2. Ingresa el DNI del paciente para autocompletar los datos de su historia clínica, si existe.
+
+#### Ver la agenda de un médico
+
+1. Navega a `http://localhost:3000/medicos`.
+2. Haz clic en "Ver Agenda" junto al nombre del médico que deseas revisar.
+
+### Licencia
+
+Este proyecto está bajo la licencia MIT. Puedes ver los detalles en el archivo `LICENSE`.
+
+---
+

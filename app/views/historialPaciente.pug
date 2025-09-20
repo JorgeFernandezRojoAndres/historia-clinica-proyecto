@@ -1,0 +1,27 @@
+extends layout
+
+block content
+  h1 Historial de Consultas de #{nombrePaciente}
+
+  if historial.length > 0
+    table
+      thead
+        tr
+          th Médico
+          th Fecha y Hora
+          th Motivo de Consulta
+          th Estado
+      tbody
+        each cita in historial
+          tr
+            //- Nombre del médico o fallback
+            td= cita.nombreMedico || 'No registrado'
+
+            //- La fecha ya viene formateada desde SQL con DATE_FORMAT
+            td= cita.fechaHora
+
+            //- Motivo y estado
+            td= cita.motivoConsulta
+            td= cita.estado
+  else
+    p No hay consultas registradas para este paciente.

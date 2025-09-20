@@ -1,0 +1,80 @@
+extends layout
+
+block content
+  h2 Crear Nueva Historia Clínica
+
+  form(action="/historias/new" method="POST")
+    div
+      label(for="dniPaciente") DNI del Paciente
+      input(type="text" name="dniPaciente" id="dniPaciente" required onkeyup="buscarPaciente()")
+    
+    div
+      label(for="nombrePaciente") Nombre del Paciente
+      input(type="text" id="nombrePaciente" readonly)
+    
+    div
+      label(for="detalles") Detalles
+      textarea(name="detalles" id="detalles" required)
+    
+    div
+      label(for="fechaDiagnostico") Fecha del Diagnóstico
+      input(type="date" name="fechaDiagnostico" id="fechaDiagnostico")
+    
+    div
+      label(for="medicamentos") Medicamentos
+      textarea(name="medicamentos" id="medicamentos")
+
+    div
+      label(for="alergias") Alergias
+      textarea(name="alergias" id="alergias")
+    
+    div
+      label(for="condicionActual") Condición Actual
+      textarea(name="condicionActual" id="condicionActual")
+    
+    div
+      label(for="pruebasDiagnosticas") Pruebas Diagnósticas
+      textarea(name="pruebasDiagnosticas" id="pruebasDiagnosticas")
+    
+    div
+      label(for="fechaProximaCita") Fecha Próxima Cita
+      input(type="date" name="fechaProximaCita" id="fechaProximaCita")
+    
+    div
+      label(for="especialistaReferido") Especialista Referido
+      input(type="text" name="especialistaReferido" id="especialistaReferido")
+    
+    div
+      label(for="urlDocumento") URL del Documento (opcional)
+      input(type="url" name="urlDocumento" id="urlDocumento")
+    
+    div
+      label(for="notasMedicas") Notas Médicas
+      textarea(name="notasMedicas" id="notasMedicas")
+
+    div
+      button(type="submit") Crear Historia Clínica
+
+  script.
+    function buscarPaciente() {
+      var dni = document.getElementById('dniPaciente').value;
+      if (dni.length > 0) {
+        fetch(`/historias_clinicas/buscarPaciente/${dni}`)
+          .then(response => response.json())
+          .then(data => {
+            
+            if (data.success) {
+              document.getElementById('nombrePaciente').value = data.nombre;
+              document.getElementById('detalles').value = data.detalles || ''; // Si tiene historial, lo mostramos
+            } else {
+              document.getElementById('nombrePaciente').value = '';
+              document.getElementById('detalles').value = ''; // Limpia el campo si no hay historial
+              alert('Paciente no encontrado o sin historial clínico.');
+            }
+          })
+          .catch(error => console.error('Error al buscar paciente:', error));
+      } else {
+        document.getElementById('nombrePaciente').value = '';
+        document.getElementById('detalles').value = ''; // Limpia los campos si se borra el DNI
+      }
+    }

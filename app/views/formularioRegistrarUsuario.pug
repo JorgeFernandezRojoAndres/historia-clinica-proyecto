@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  h2 Registrar Usuario
+  form(action="/admin/registrar-usuario" method="POST")
+    label(for="username") Nombre de Usuario:
+    input(type="text" name="username" required)
+    label(for="password") Contraseña:
+    input(type="password" name="password" required)
+    label(for="role") Rol:
+    select(name="role" required)
+      option(value="medico") Médico
+      option(value="secretaria") Secretaria
+    button(type="submit") Registrar Usuario

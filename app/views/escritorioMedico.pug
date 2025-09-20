@@ -1,0 +1,75 @@
+extends layout  
+  
+block content  
+  h1 Bienvenido, #{user.nombre}  
+  
+  nav  
+    ul  
+      li  
+        a(onclick="abrirAgenda(); return false;") Ver Agenda  
+        
+      li  
+        a(href="/logout") Cerrar Sesión  
+  
+  main  
+    section.accesos-rapidos  
+      h2 Accesos Rápidos  
+      div.botones-rapidos  
+        //- Verificar si hay citas para mostrar "Iniciar Consulta"  
+        if citas && citas.length > 0  
+          button.btn-rapido(onclick=`window.open('/medicos/iniciar-consulta/${citas[0].idCita}', 'Iniciar Consulta', 'width=800,height=600,resizable=yes,scrollbars=yes')`)  
+            img(src="/images/btnIniCon.png" alt="Iniciar Consulta - #{citas[0].nombrePaciente}")  
+        else  
+          //- Botón de sobreturno cuando no hay citas regulares  
+          button.btn-rapido(onclick="abrirSobreturno()")  
+            img(src="/images/btnAtenderSobreturno.png" alt="Atender Sobreturno")  
+  
+          //- Campo de búsqueda de paciente para sobreturno  
+          label(for="buscarPacienteSobreturno") Buscar Paciente:  
+          input(type="text" id="buscarPacienteSobreturno" placeholder="Ingresa nombre del paciente" autocomplete="off")  
+          ul#listaResultadosSobreturno  
+  
+          //- Botón para cargar el historial del paciente seleccionado  
+          button.btn-rapido(onclick="cargarHistorialSobreturno()")  
+            img(src="/images/btnAtenderSobreturno.png" alt="Atender Sobreturno")  
+  
+      //- Verificar si hay pacientes antes de mostrar el botón de historial  
+      if pacientes && pacientes.length > 0  
+          button.btn-rapido(onclick="abrirHistorial()")  
+            img(src="/images/btnHDA.png" alt="Historial de Atenciones")  
+      else  
+        p No hay pacientes disponibles.  
+  
+      //- Botones adicionales para el médico  
+      button.btn-rapido(onclick="abrirVentana('/medicos/registrar-evolucion', 'Registrar Evolución')")  
+        img(src="/images/btnREvo.png" alt="Registrar Evolución")  
+  
+      button.btn-rapido(onclick="abrirVentana('/medicos/agregar-diagnostico', 'Agregar Diagnóstico')")  
+        img(src="/images/btnAgDiag.png" alt="Agregar Diagnóstico")  
+  
+      button.btn-rapido(onclick="abrirVentana('/medicos/agregar-alergias', 'Agregar Alergias')")  
+        img(src="/images/btnAGALE.png" alt="Agregar Alergias")  
+  
+      button.btn-rapido(onclick="abrirVentana('/medicos/registrar-antecedentes', 'Registrar Antecedentes')")  
+        img(src="/images/btnREGant.png" alt="Registrar Antecedentes")  
+  
+      button.btn-rapido(onclick="abrirVentana('/medicos/registrar-habitos', 'Registrar Hábitos')")  
+        img(src="/images/btnREHABB.png" alt="Registrar Hábitos")  
+  
+      button.btn-rapido(onclick="abrirVentana('/medicos/medicamentos', 'Registrar Medicamentos')")  
+        img(src="/images/btnMEENus.png" alt="Registrar Medicamentos en Uso")  
+  
+      button.btn-rapido(onclick="abrirVentana('/medicos/template-nota', 'Template Nota')")  
+        img(src="/images/templatebtn.png" alt="Usar Template de Nota Clínica")  
+  
+  // Pasar datos del usuario al JavaScript  
+  script.  
+    window.user = {  
+      id: #{user.id},  
+      nombre: '#{user.nombre}',  
+      role: '#{user.role}'  
+    };  
+    window.clinicaSeleccionada = #{idClinica};  
+  
+  // Cargar script externo  
+  script(src="/js/escritorioMedico.js")

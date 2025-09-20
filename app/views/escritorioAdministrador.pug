@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  h1 Bienvenido, #{user.username} (Administrador)
+  p Aquí puedes gestionar configuraciones administrativas.
+
+  // Botones adicionales para funciones administrativas
+  h2 Funciones Administrativas
+  .form-group
+    button(type="button" onclick="window.location.href='/admin/formulario-registrar-usuario'") Registrar Usuario
+  .form-group
+    button(type="button" onclick="window.location.href='/admin/formulario-asignar-clinica'") Asignar Clínica a Médico
+  .form-group
+    button(type="button" onclick="window.location.href='/admin/pacientes-pendientes'") Ver Pacientes Pendientes de Confirmación
+  .form-group
+    button(type="button" onclick="window.location.href='/admin/ver-medicos'") Ver Médicos
+  .form-group
+    button(type="button" onclick="window.location.href='/admin/dias-no-laborables'") 📅 Gestionar Días No Laborables

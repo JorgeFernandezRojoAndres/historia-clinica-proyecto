@@ -1,0 +1,64 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title TurnoExpress
+    link(rel="stylesheet" href="/css/style.css")
+    link(rel="icon" href="/favicon.ico" type="image/x-icon")
+
+  body
+    header
+      h1 TurnoExpress
+      nav
+        ul
+          if !user
+            li
+              a(href="/login/paciente")
+                img(src="/images/soypacienteBTN.png" alt="Paciente Logo" class="icono-boton")
+            li
+              a(href="/login/medico")
+                img(src="/images/soyDoctorBTN.png" alt="Médico Logo" class="icono-boton")
+            li
+              a(href="/login/secretaria")
+                img(src="/images/soyAdminBTN.png" alt="Administrador Logo" class="icono-boton")
+          else
+            if user.role === 'secretaria'
+              li
+                a(href="/secretaria/pacientes") Pacientes
+              li
+                a(href="/secretaria/citas") Citas
+              li
+                a(href="/secretaria/ver-medicos") Médicos
+            if user.role === 'Medico'
+              li
+                a(href="/medicos/agenda") Ver Agenda
+              li
+                a(href="/historias") Historial Clínico
+            if user.role === 'paciente'
+              li
+                a(href="/paciente/mi-perfil") Mi Perfil
+            li
+              a(href="/logout") Cerrar Sesión
+
+    if user && user.role === 'secretaria'
+      section.accesos-rapidos
+        h2.accesos-titulo Accesos rápidos
+        div.botones-rapidos
+          button.btn-rapido(onclick="window.location.href='/secretaria/pacientes/new'") Agregar Paciente
+          button.btn-rapido(onclick="window.location.href='/secretaria/citas/new'") Nueva Cita
+          
+    main
+      block content
+
+    footer
+      p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}
+
+    script.
+      console.log('Usuario:', #{JSON.stringify(user)});
+      window.user = #{JSON.stringify(user)};
+      
+    script(src="/js/secretaria.js")
+    script(src="/botondinamicoAgendaEnCita.js")
+    script(src="/js/searchPaciente.js")
+    script(src="/js/selectClinic.js")

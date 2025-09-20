@@ -1,0 +1,28 @@
+extends layout
+
+block content
+  h2 Listado de Médicos
+
+  table
+    thead
+      tr
+        th ID
+        th Nombre
+        th Especialidad
+        th Teléfono
+        th Email
+        th DNI
+        th Acciones
+    tbody
+      each medico in medicos
+        tr
+          td= medico.idMedico
+          td= medico.nombre
+          td= medico.especialidad
+          td= medico.telefono
+          td= medico.email
+          td= medico.dni
+          td
+            a.btn.btn-warning(href=`/medicos/${medico.idMedico}/edit`) Editar
+            a.btn.btn-danger(href=`/medicos/${medico.idMedico}/delete`) Eliminar
+            a.btn.btn-primary(href=`/medicos/${medico.idMedico}/agenda`) Ver Agenda

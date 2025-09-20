@@ -1,0 +1,80 @@
+extends layout
+
+block content
+  .container.mt-4
+    .card.shadow-lg
+      .card-header.bg-primary.text-white.d-flex.justify-content-between.align-items-center
+        h3.mb-0 📅 Días No Laborables
+        a.btn.btn-light.btn-sm(href="/admin/dashboard") ← Volver al Dashboard
+
+      .card-body
+        // Formulario para agregar día no laborable
+        form#formNoLaborable(action="/admin/dias-no-laborables" method="POST")
+          .row.g-3
+            .col-md-4
+              label.form-label(for="fecha") Fecha
+              input.form-control(type="date" id="fecha" name="fecha" required)
+            .col-md-6
+              label.form-label(for="descripcion") Descripción
+              input.form-control(type="text" id="descripcion" name="descripcion" placeholder="Ej. Feriado Nacional, Navidad, etc.")
+            .col-md-2.d-flex.align-items-end
+              button.btn.btn-success.w-100(type="submit") ➕ Agregar
+
+        hr.my-4
+
+        // Listado de días no laborables
+        if dias.length
+          table.table.table-striped.table-hover
+            thead.table-dark
+              tr
+                th Fecha
+                th Descripción
+                th.text-center Acciones
+            tbody
+              each dia in dias
+                tr
+                  td= new Date(dia.fecha).toLocaleDateString('es-AR')
+                  td= dia.descripcion
+                  td.text-center
+                    form.d-inline(action=`/admin/dias-no-laborables/${dia.id}?_method=DELETE` method="POST" onsubmit="return confirmarEliminar(event)")
+                      button.btn.btn-danger.btn-sm(type="submit")
+                        i.fas.fa-trash-alt
+                        |  Eliminar
+        else
+          .alert.alert-info.text-center
+            | No hay días no laborables cargados aún.
+  
+  // Script SweetAlert2
+  script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
+
+  script.
+    function confirmarEliminar(e) {
+      e.preventDefault();
+      const form = e.target;
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción eliminará el día no laborable.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
+      return false;
+    }
+
+    // Feedback cuando se agrega un día
+    if (window.location.search.includes("success=true")) {
+      Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: 'Día no laborable agregado correctamente.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    }

@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  h1 Registrar Nuevo Paciente
+
+  form(action="/register/paciente" method="POST")
+    div
+      label(for="nombre") Nombre:
+      input(type="text" name="nombre" required)
+    div
+      label(for="fechaNacimiento") Fecha de Nacimiento:
+      input(type="date" name="fechaNacimiento" required)
+    div
+      label(for="dni") DNI:
+      input(type="text" name="dni" required)
+    div
+      label(for="direccion") Dirección:
+      input(type="text" name="direccion" required)
+    div
+      label(for="telefono") Teléfono:
+      input(type="text" name="telefono" required)
+    div
+      button(type="submit") Registrarse

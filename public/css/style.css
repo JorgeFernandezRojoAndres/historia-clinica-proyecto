@@ -1,0 +1,844 @@
+/* stylesheets/style.css */
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background: #f4f4f4;
+  color: #ffffff;
+}
+
+/* Contenedor de selección de clínica */
+.botones {
+  display: flex; /* Usa flexbox */
+  flex-wrap: wrap; /* Permite que los botones pasen a la siguiente línea si es necesario */
+  justify-content: center; /* Centra los botones horizontalmente */
+  gap: 20px; /* Espacio entre los botones */
+  margin-top: 20px; /* Espacio entre el título y los botones */
+}
+.contenedor {
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  background: #fff;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  margin: auto;
+  
+}
+/* Estilo para los botones */
+.btn-clinica {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 60px;
+  width: 300px; /* Ajusta el tamaño a tu gusto */
+  background-color: white; /* Fondo blanco */
+  color: black; /* Texto negro */
+  font-size: 20px; /* Aumenta el tamaño del texto */
+  border: 2px solid #eeba6b; /* Borde  */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 10px;
+}
+.btn-clinica img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+.btn-clinica:hover {
+  background-color: #ebcb3a;
+  transform: scale(1.05);
+}
+
+header, main, footer {
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+    background: #fff;
+    border: 5px solid #000000;
+    margin-top: 20px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    background: #ffffff;
+    color: #fffefe;
+    padding: 20px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 10px;
+}
+
+nav ul li a {
+    color: #000000;
+    text-decoration: none;  
+    cursor: pointer;
+    padding: 10px 15px;
+    background-color: #00000000;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+footer {
+    background: #fdfdfd;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    margin-top: 20px;
+    border-radius: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+table, th, td {
+    border: 1px solid #000000;
+    padding: 12px;
+}
+
+th {
+    background-color: #333;
+    color: white;
+}
+
+td a {
+    margin-right: 10px; /* Añadir espacio entre los botones */
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #ddd;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 16px;
+    color: white;
+    background-color: #f2a52a;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+
+
+.btn:hover {
+    background-color: #000000;
+    color: white;
+    transform: scale(1.05);
+}
+
+form {
+    margin: 20px 0;
+    background-color: #fff; /* Fondo blanco para el formulario */
+    border-radius: 8px; /* Esquinas redondeadas */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra suave */
+    padding: 20px; /* Espaciado interno */
+    transition: transform 0.3s, box-shadow 0.3s; /* Transiciones suaves */
+}
+
+form:hover {
+    transform: scale(1.02); /* Efecto de zoom al pasar el mouse */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Mejora la sombra al pasar el mouse */
+}
+
+input[type="text"], input[type="date"], textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    transition: border-color 0.3s ease; /* Transición para el borde */
+}
+.acciones-rapidas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .acciones-rapidas a.btn {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    width: 200px;
+  }
+  
+  .acciones-rapidas a.btn:hover {
+    background-color: #45a049;
+  }
+  
+
+input[type="text"]:focus, input[type="date"]:focus, textarea:focus {
+    border-color: #007bff; /* Color del borde al enfocar */
+    outline: none; /* Elimina el contorno predeterminado */
+    box-shadow: 0px 1px 3px rgba(0, 123, 255, 0.5); /* Color destacado */
+}
+.accesos-rapidos {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .accesos-titulo {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+  }
+  
+  .botones-rapidos {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  .btn-rapido {
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1em;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-rapido:hover {
+    background-color: #fcfcfc;
+  }
+  .btn-warning {
+    background-color: #ffc107;
+    color: white;
+    border-radius: 5px;
+    padding: 5px 10px;
+    text-decoration: none;
+    margin-right: 5px;
+  }
+  
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border-radius: 5px;
+    padding: 5px 10px;
+    text-decoration: none;
+  }
+  table td {
+    position: relative;
+    text-align: center; /* Centrar el contenido de las celdas */
+}
+table td a.btn,
+table td form .btn {
+    display: inline-block; /* Mantiene los botones en línea */
+    margin: 5px 0; /* Añadir espacio entre los botones */
+    padding: 5px 10px; /* Espaciado interno para los botones */
+    font-size: 14px; /* Tamaño de fuente para los botones */
+}
+table td form {
+  display: inline-block; /* Asegura que los formularios de los botones estén en línea */
+}
+table td a.btn-warning,
+table td a.btn-danger {
+    display: inline-block;
+    margin: 0 5px; /* Espacio horizontal entre los botones */
+    padding: 5px 10px; /* Espaciado interno de los botones */
+    border-radius: 5px;
+    font-size: 14px; /* Tamaño de fuente más pequeño */
+}
+  .btn-primary {
+    background-color: #f1dd80e7;
+    color: rgb(0, 0, 0);
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-right: 5px; /* Espacio entre botones */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+  }
+  .btn-primary:active {
+    background-color: #d4b570; /* Color más oscuro al presionar */
+    transform: translateY(2px); /* Efecto de botón presionado */
+}
+  
+  .btn-primary:hover {
+    background-color: #0b0b0b;
+  }
+  #listaResultados {
+    position: absolute;
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ccc;
+    z-index: 1000;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#listaResultados li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+#listaResultados li:hover {
+    background-color: #f0f0f0;
+}
+.login-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 80%;
+  margin: 40px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.form-container {
+  flex: 1;
+  padding: 40px;
+}
+
+.image-container {
+  flex: 1;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius:20%;
+}
+.login-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 80%;
+  margin: 40px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.form-container {
+  flex: 1;
+  padding: 40px;
+}
+
+.image-container {
+  flex: 1;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+.login-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 80%;
+  margin: 40px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.form-container {
+  flex: 1;
+  padding: 40px;
+}
+
+.image-container {
+  flex: 1;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  color: #000000;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: #ffffff;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+nav ul li {
+  display: inline;
+  margin-right: 15px;
+}
+
+
+
+nav ul li a:hover {
+  background-color: #ffffff;
+}
+
+footer {
+  background: #ffffff;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  margin-top: 20px;
+}
+
+h1 {
+  margin: 0;
+}
+
+h2 {
+  margin: 20px 0;
+}
+
+.accesos-rapidos {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.accesos-rapidos button {
+  background-color: #ffffff;
+  color: rgb(4, 4, 4);
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.accesos-rapidos button:hover {
+  background-color: #ffffff;
+}
+.accesos-rapidos {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.accesos-titulo {
+  font-size: 1.8em;
+  margin-bottom: 20px;
+  color: #333; /* Color del título */
+}
+
+.botones-rapidos {
+  display: flex;
+  flex-wrap: wrap; /* Permite que los botones se ajusten a varias líneas si es necesario */
+  justify-content: center;
+  gap: 15px; /* Espacio entre los botones */
+  margin-top: 10px;
+}
+
+.btn-rapido {
+  background-color: #007bff; /* Color de fondo azul */
+  color: white; /* Color del texto */
+  border: none;
+  padding: 10px 20px; /* Espaciado interno */
+  cursor: pointer;
+  font-size: 16px; /* Tamaño de fuente */
+  border-radius: 5px; /* Esquinas redondeadas */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Efecto de transición */
+}
+
+.btn-rapido:hover {
+  background-color: #0056b3; /* Color al pasar el mouse */
+  transform: scale(1.05); /* Efecto de zoom al pasar el mouse */
+}
+button.btn-rapido img {
+  width: 200px; /* Ajusta el tamaño de la imagen */
+  height: 200px; /* Ajusta el tamaño de la imagen */
+  margin-right: 5px; /* Espacio entre la imagen y el texto */
+}
+
+/* Estilo del calendario */
+#calendar {
+  max-width: 900px;
+  margin: 40px auto;
+  background-color: #f8f9fa; /* Fondo claro */
+  border-radius: 10px; /* Bordes redondeados */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra */
+}
+
+.fc-daygrid-day {
+  border: 1px solid #dee2e6; /* Bordes de las celdas */
+}
+
+.fc-toolbar {
+  background-color: #343a40; /* Color del encabezado */
+  color: white; /* Color del texto */
+}
+
+.fc-toolbar h2 {
+  margin: 0; /* Sin margen para el título */
+}
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5ecc7;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  color: #020000;
+  margin-top: 20px;
+}
+
+table {
+  width: 80%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #060606;
+  color: white;
+}
+
+td {
+  color: #333;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+p {
+  text-align: center;
+  color: #888;
+}
+.icono-boton {
+  width: 200px;  /* Ajusta el tamaño según sea necesario */
+  height: 200px;
+  margin-right: 5px;  /* Espacio entre la imagen y el texto */
+  vertical-align: middle;  /* Centra la imagen con el texto */
+  box-shadow: 0 4px #ffffff;
+  transition: all 0.1s;
+  transform: translateY(3px);      
+}
+table td {
+  position: relative;
+  text-align: center; /* Centra el contenido de las celdas */
+}
+
+table td a.btn,
+table td form .btn {
+  display: inline-block; /* Mantiene los botones en línea */
+  margin: 5px 0; /* Añadir espacio entre los botones */
+  padding: 5px 10px; /* Espaciado interno para los botones */
+}
+
+table td form {
+  display: inline-block; /* Asegura que los formularios de los botones estén en línea */
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: white;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+/* Estilo para los botones de Editar y Eliminar */
+.paEe {
+  display: inline-block;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: rgb(10, 10, 10);
+  background-color: #eecc7d; /* Verde para Editar */
+  text-decoration: none;
+  border-radius: 4px;
+  
+  margin-right: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.paEe:hover {
+  background-color: #dfb266; /* Verde oscuro al pasar el ratón */
+  transform: scale(1.05);
+}
+
+/* Diferenciar el botón de Eliminar */
+form .paEe {
+  background-color: #dc3545; /* Rojo para Eliminar */
+}
+
+form .paEe:hover {
+  background-color: #c82333; /* Rojo oscuro al pasar el ratón */
+}
+input[type="text"],
+input[type="date"],
+textarea {
+  width: 50%; /* Ajusta el ancho al 50% del contenedor */
+  padding: 5px; /* Ajusta el relleno interno */
+  margin-bottom: 10px; /* Agrega espacio entre los campos */
+  font-size: 14px; /* Ajusta el tamaño del texto */
+}
+
+textarea {
+  height: 100px; /* Ajusta la altura de las áreas de texto */
+}
+
+.btn-success {
+  background-color: green;
+  color: white;
+}
+.notificacion {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ffcc00;
+  padding: 10px;
+  border: 1px solid #333;
+  border-radius: 5px;
+  z-index: 1000;
+}
+.badge {
+  background-color: #dc3545; /* Rojo para resaltar */
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-left: 5px;
+  display: none; /* Por defecto oculto */
+}
+
+/* styles.css */
+.containeradm {
+  max-width: 1000px; /* Ancho máximo del contenedor */
+  margin: 100 auto; /* Centra el contenedor horizontalmente */
+}
+
+/* Estilo para las tarjetas de horarios */
+.horario-cardadm {
+  background-color: #f7f7f7; /* Fondo gris claro */
+  border: 2px solid #4CAF50; /* Borde verde */
+  border-radius: 5px; /* Bordes redondeados */
+  padding: 15px;
+  text-align: center;
+  font-weight: normal;
+  font-size: 1.1em;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between; /* Espacio entre la fecha, hora y el botón */
+  align-items: center;
+}
+/* Contenedor de la información de la fecha y hora */
+.horario-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  text-align: left;
+  font-size: 1.2em;
+}
+
+.contraLogin:focus {
+  border-color: #007bff; /* Cambia el color del borde al hacer foco */
+  outline: none;
+}
+.register-container {
+  text-align: center; /* Centra el contenido dentro del contenedor */
+  margin-top: 10px; /* Agrega un margen superior para separación */
+}
+#clinicModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+}
+#selectClinicBtn {
+  background-color: #007bff; /* Color de fondo azul */
+  color: white; /* Color del texto */
+  border: none; /* Sin borde */
+  padding: 10px 5px; /* Espaciado interno */
+  border-radius: 5px; /* Esquinas redondeadas */
+  cursor: pointer; /* Cambiar el cursor al pasar el mouse */
+  transition: background-color 0.3s ease; /* Transición suave */
+}
+#selectClinicBtn:hover {
+  background-color: #0056b3; /* Color más oscuro al pasar el mouse */
+}
+
+.btn-eliminar {
+  background-color: #dc3545; /* Fondo rojo */
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.btn-eliminar:hover {
+  background-color: #c82333; /* Fondo rojo oscuro */
+  transform: scale(1.05); /* Efecto de zoom */
+}
+.horario-info p {
+  margin: 0; /* Elimina los márgenes predeterminados */
+  font-weight: bold;
+  color: #555; /* Color de texto más suave */
+}
+
+.targetaH {
+  border: 1px solid #28a745; /* Borde verde */
+  border-radius: 8px; /* Bordes redondeados */
+  padding: 2px; /* Espaciado interno */
+  margin: 10px 0; /* Espaciado superior e inferior entre tarjetas */
+  width: 100%; /* Ocupa el 100% del ancho del contenedor */
+  display: flex; /* Alinea los elementos en una línea */
+  align-items: center; /* Centra verticalmente los elementos dentro */
+  justify-content: space-between; /* Distribuye el espacio entre los elementos */
+  box-sizing: border-box; /* Incluye el borde y el relleno en el ancho total */
+}
+
+.infoh h5, .infoh p {
+  display: inline; /* Muestra el texto en línea */
+  margin: 0 5px; /* Espacio entre etiquetas */
+}
+
+.BotnEli {
+  background-color: #dc3545; /* Fondo rojo */
+  color: #fff; /* Texto blanco */
+  border: none; /* Sin borde */
+  padding: 5px 10px; /* Tamaño del botón */
+  font-size: 12px; /* Tamaño de la fuente */
+  border-radius: 4px; /* Bordes redondeados */
+  cursor: pointer; /* Manito en el cursor */
+}
+
+.BotnEli:hover {
+  background-color: #c82333; /* Fondo rojo oscuro al pasar el mouse */
+}
+
+/* Contenedor horizontal */
+.contenedor-horizontal {
+  border: 2px solid rgba(255, 221, 0, 0.656); /* Temporal: ayuda a visualizar el contenedor */
+  display: flex; /* Flexbox para alinear horizontalmente */
+  justify-content: center; /* Centra las tarjetas horizontalmente */
+  align-items: flex-start; /* Alinea los elementos al inicio verticalmente */
+  gap: 20px; /* Espacio entre las tarjetas */
+  flex-wrap: wrap; /* Permite ajustar las tarjetas en varias filas si no caben */
+  padding: 20px; /* Espaciado interno del contenedor */
+}
+
+/* Estilo para las tarjetas */
+.card-clinica {
+  display: flex; /* Flexbox para alinear contenido interno */
+  flex-direction: column; /* Alinea elementos en columna (imagen y texto) */
+  align-items: center; /* Centra el contenido horizontalmente */
+  border: 1px solid #ddd; /* Borde ligero */
+  border-radius: 8px; /* Esquinas redondeadas */
+  padding: 20px; /* Espaciado interno */
+  transition: transform 0.3s, box-shadow 0.3s; /* Efectos al pasar el cursor */
+  cursor: pointer; /* Cambia el cursor al pasar el mouse */
+  width: 300px; /* Ajusta el ancho de las tarjetas */
+  text-align: center; /* Centra el texto */
+}
+
+.card-clinica:hover {
+  transform: scale(1.05); /* Efecto de zoom */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra */
+}
+
+.card-clinica img {
+  width: 200px; /* Ajusta el tamaño de la imagen */
+  margin-bottom: 10px; /* Espacio debajo de la imagen */
+}
+
+.card-clinica span {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+}
