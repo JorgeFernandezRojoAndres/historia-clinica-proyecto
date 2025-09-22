@@ -40,14 +40,30 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(compression());
 app.use(methodOverride('_method'));
+// Configuración de sesiones con MySQLStore
+const MySQLStore = require('express-mysql-session')(session);
 
+const sessionStore = new MySQLStore({
+    host: config.db.host,
+    port: config.db.port, 
+    user: config.db.username,
+    password: config.db.password,
+    database: config.db.database
+});
 // Configuración de sesiones
 app.use(session({
-    secret: 'tu_secreto', // Cambia esto a una clave más segura en producción
+    key: 'turnoexpress.sid',
+    secret: 'tu_secreto_super_seguro',
+    store: sessionStore,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 3600000 } // Añadir opciones adicionales
+    cookie: {
+        secure: false, // true si usás https
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 // 1 hora
+    }
 }));
+
 
 // Middleware para gestionar sesiones de usuarios
 app.use((req, res, next) => {

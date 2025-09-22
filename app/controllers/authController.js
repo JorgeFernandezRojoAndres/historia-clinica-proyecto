@@ -59,37 +59,35 @@ exports.loginSecretaria = (req, res) => {
             role: results[0].role
         };
 
-        // Verificar clínicas asociadas a la secretaria
-        const userId = results[0].id; // Asegúrate de que este sea el ID correcto para la consulta
-        const sqlClinicas = 'SELECT idClinica FROM medicos_clinicas WHERE idMedico = ?'; // Ajusta según tu modelo
+        // 🔹 Si es secretaria → acceso a ambas clínicas
+        if (req.session.user.role === 'secretaria') {
+            req.session.idClinica = [1, 2]; // ahora ve todas
 
-        db.query(sqlClinicas, [userId], (errorClinicas, clinicas) => {
-            if (errorClinicas) {
-                console.error('Error al obtener clínicas:', errorClinicas);
-                return res.status(500).render('loginsecretarias', { message: 'Error al verificar clínicas' });
-            }
-
-            if (clinicas.length > 0) {
-                req.session.idClinica = clinicas.map(clinica => clinica.idClinica); // Guarda clínicas en la sesión
-
-                // Redirigir según el rol
-                if (req.session.user.role === 'administrador') {
-                    return res.redirect('/admin/dashboard');
-                } else if (req.session.user.role === 'secretaria') {
-                    // Aquí verificar si ya hay una clínica seleccionada
-                    if (!req.session.idClinica || req.session.idClinica.length === 0) {
-                        return res.redirect('/select-clinica'); // Redirigir a la selección de clínica
-                    }
-                    return res.redirect('/secretaria/pacientes');
-                } else {
-                    return res.status(403).send('Acceso denegado');
+            // ✅ Guardar sesión antes de redirigir
+            return req.session.save((err) => {
+                if (err) {
+                    console.error("Error guardando sesión:", err);
+                    return res.status(500).send("Error al guardar sesión");
                 }
-            } else {
-                return res.render('loginsecretarias', { message: 'No hay clínicas asociadas a su cuenta' });
-            }
-        });
+                return res.redirect('/secretaria/pacientes');
+            });
+        }
+
+        // 🔹 Si fuera admin u otro rol
+        if (req.session.user.role === 'administrador') {
+            return req.session.save((err) => {
+                if (err) {
+                    console.error("Error guardando sesión:", err);
+                    return res.status(500).send("Error al guardar sesión");
+                }
+                return res.redirect('/admin/dashboard');
+            });
+        } else {
+            return res.status(403).send('Acceso denegado');
+        }
     });
 };
+
 
 // Función de inicio de sesión para el administrador
 exports.loginAdministrador = (req, res) => {
@@ -259,12 +257,12 @@ exports.seleccionarClinica = (req, res) => {
 
 
 
-
-
-
-
-
 exports.logout = (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
+    req.session.destroy(err => {
+        if (err) {
+            console.error('Error al destruir sesión:', err);
+        }
+        res.clearCookie('turnoexpress.sid'); // 🔹 Borra la cookie en el navegador
+        res.redirect('/');
+    });
 };

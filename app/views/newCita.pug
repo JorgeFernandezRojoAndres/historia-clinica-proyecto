@@ -3,7 +3,6 @@ extends layout
 block content
   h2 Nueva Cita
 
-  // Pasamos los datos de médicos como JSON
   script#medicosData(type="application/json") !{JSON.stringify(medicos)}
 
   form(action="/citas/new" method="POST")
@@ -47,6 +46,13 @@ block content
     select(name="tipoTurno" id="tipoTurno" required)
       option(value="regular") Regular
       option(value="sobreturno") Sobreturno
+    br
+
+    label(for="clasificacion") Clasificación:
+    select(name="clasificacion" id="clasificacion" required)
+      option(value="VIP") VIP
+      option(value="especial") Especial
+      option(value="regular" selected) Regular
     br
 
     button(type="submit") Crear Cita

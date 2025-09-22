@@ -79,3 +79,15 @@ exports.isPacienteOrSecretaria = (req, res, next) => {
     console.log('Acceso denegado: Solo para pacientes o secretarias');
     return res.status(403).send('Acceso denegado: Solo para pacientes o secretarias');
 };
+// Helper para obtener clínicas permitidas según el rol
+exports.getClinicasPermitidas = (req) => {
+    if (!req.session.user) return [];
+
+    if (req.session.user.role === 'secretaria') {
+        // secretaria puede tener varias
+        return req.session.idClinicas || [];
+    }
+
+    // paciente, médico o admin -> 1 sola
+    return [req.session.idClinica];
+};

@@ -27,5 +27,13 @@ block content
         option(value="Pendiente" selected=(cita.estado === 'Pendiente')) Pendiente
         option(value="En proceso" selected=(cita.estado === 'En proceso')) En proceso
         option(value="Confirmado" selected=(cita.estado === 'Confirmado')) Confirmado
+        option(value="Completado" selected=(cita.estado === 'Completado')) Completado
+        option(value="Cancelado" selected=(cita.estado === 'Cancelado')) Cancelado
+    div
+      label(for="clasificacion") Clasificación:
+      select(name="clasificacion" id="clasificacion" required)
+        option(value="VIP" selected=(cita.clasificacion === 'VIP')) VIP
+        option(value="especial" selected=(cita.clasificacion === 'especial')) Especial
+        option(value="regular" selected=(cita.clasificacion === 'regular')) Regular
 
     button(type="submit") Guardar Cambios

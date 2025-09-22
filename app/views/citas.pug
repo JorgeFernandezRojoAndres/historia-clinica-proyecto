@@ -3,22 +3,41 @@ extends layout
 block content
   h2 Listado de Citas
 
-  // Filtros
   div.filtros
-    // Filtro por nombre de médico
     label(for="filtroMedico") Filtrar por Médico:
     input(type="text" id="filtroMedico" placeholder="Ingresa el nombre del médico")
 
-    // Filtro por estado (solo visible para secretarias)
     if user.role === 'secretaria'
       label(for="filtroEstado") Filtrar por Estado:
-      select(id="filtroEstado")
+      select(id="filtroEstado" name="estado")
         option(value="") Todos
         each estado in ['Pendiente', 'En proceso', 'Confirmado', 'Completado', 'Cancelado']
-          option(value=estado)= estado
+          option(
+            value=estado 
+            selected=(estadoSeleccionado && estadoSeleccionado.toLowerCase() === estado.toLowerCase())
+          )= estado
 
-  // Tabla de citas
-  table(class="table table-striped" id="tablaCitas")
+      label(for="filtroClasificacion") Filtrar por Clasificación:
+      select(id="filtroClasificacion")
+        option(value="") Todos
+        option(value="VIP" selected=(clasificacionSeleccionada === 'VIP')) VIP
+        option(value="especial" selected=(clasificacionSeleccionada === 'especial')) Especial
+        option(value="regular" selected=(clasificacionSeleccionada === 'regular')) Regular
+      
+    label(for="filtroClinica") Filtrar por Clínica:
+    select(id="filtroClinica" name="clinica")
+      option(value="") Todas
+      option(value="1" selected=(clinicaSeleccionada == 1)) Clínica 1
+      option(value="2" selected=(clinicaSeleccionada == 2)) Clínica 2
+
+  if user.role === 'secretaria' && hayPendientes
+    form(action="/secretaria/citas/confirmar-pendientes" method="POST" style="margin: 15px 0;")
+
+      if clinicaSeleccionada
+        input(type="hidden" name="clinica" value=clinicaSeleccionada)
+      button.btn.btn-success(type="submit" onclick="return confirm('¿Confirmar todas las citas pendientes?')") Confirmar todas las pendientes
+
+  table.table.table-striped#tablaCitas
     thead
       tr
         th Médico
@@ -26,22 +45,29 @@ block content
         th Fecha y Hora
         th Motivo de Consulta
         th Estado
+        th Clasificación
         th Acciones
     tbody
       if citas.length > 0
         each cita in citas
-          tr
+          tr(
+            data-estado=cita.estado 
+            data-medico=cita.nombreMedico 
+            data-clasificacion=cita.clasificacion
+          )
             td= cita.nombreMedico
             td= cita.nombrePaciente
             td= cita.fechaHora
             td= cita.motivoConsulta
             td= cita.estado
+            td= cita.clasificacion
             td.acciones
               a.btn.btn-primary(href=`/citas/edit/${cita.idCita}`) Editar
               a.btn.btn-danger(href=`/citas/delete/${cita.idCita}` onclick="return confirm('¿Estás seguro de que deseas eliminar esta cita?')") Eliminar
+              if cita.estado === 'Pendiente'
+                button.btn.btn-success.btn-confirmar(data-id=cita.idCita) Confirmar
       else
         tr
-          td(colspan="6") No hay citas disponibles.
+          td(colspan="7") No hay citas disponibles.
 
-  // Importar script externo para el filtrado
   script(src="/js/filtrarCitas.js")

@@ -1,54 +1,40 @@
 // Función para dar formato a la fecha
 function formatearFecha(fechaISO) {
-  const fecha = new Date(fechaISO);
-  const dia = fecha.getDate().toString().padStart(2, '0');
-  const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-  const año = fecha.getFullYear();
-  return `${dia}/${mes}/${año}`; // Formato DD/MM/YYYY
+    const fecha = new Date(fechaISO);
+    const dia = fecha.getDate().toString().padStart(2, '0');
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    const año = fecha.getFullYear();
+    return `${dia}/${mes}/${año}`; // Formato DD/MM/YYYY
 }
 
-// Esperar a que cargue el DOM
-document.addEventListener("DOMContentLoaded", () => {
-  const inputBuscar = document.getElementById('buscarPaciente');
-  if (!inputBuscar) {
-    console.warn("⚠️ No se encontró el input #buscarPaciente en esta vista, se omite searchPaciente.js");
+// Evento de búsqueda
+document.getElementById('buscarPaciente').addEventListener('input', function (e) { 
+  const query = e.target.value.trim(); 
+  console.log('Valor de búsqueda:', query);
+
+  if (query.length === 0) {
+    actualizarTabla([]); // Limpiar la tabla si el input está vacío
     return;
   }
 
-  // Evento de búsqueda
-  inputBuscar.addEventListener('input', function (e) { 
-    const query = e.target.value.trim(); 
-    console.log('Valor de búsqueda:', query);
-
-    if (query.length === 0) {
-      actualizarTabla([]); // Limpiar la tabla si el input está vacío
-      return;
-    }
-
-    fetch(`/secretaria/pacientes/search?query=${encodeURIComponent(query)}`)
-      .then(response => {
-        console.log('Respuesta del servidor:', response);
-        if (!response.ok) {
-          throw new Error('Error al realizar la búsqueda');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Datos de pacientes:', data);
-        actualizarTabla(data);
-      })
-      .catch(error => console.error('Error al buscar pacientes:', error));
-  });
+  fetch(`/secretaria/pacientes/search?query=${encodeURIComponent(query)}`)
+    .then(response => {
+      console.log('Respuesta del servidor:', response);
+      if (!response.ok) {
+        throw new Error('Error al realizar la búsqueda');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Datos de pacientes:', data);
+      actualizarTabla(data);
+    })
+    .catch(error => console.error('Error al buscar pacientes:', error));
 });
 
 // Función para actualizar la tabla de pacientes
 function actualizarTabla(pacientes) {
   const tablaPacientes = document.getElementById('tablaPacientes');
-  if (!tablaPacientes) {
-    console.warn("⚠️ No se encontró la tabla #tablaPacientes en esta vista.");
-    return;
-  }
-
   tablaPacientes.innerHTML = ''; // Limpia la tabla existente
 
   if (pacientes.length === 0) {
@@ -70,7 +56,7 @@ function actualizarTabla(pacientes) {
     fila.appendChild(nombre);
 
     const fechaNacimiento = document.createElement('td');
-    fechaNacimiento.textContent = formatearFecha(paciente.fechaNacimiento);
+    fechaNacimiento.textContent = formatearFecha(paciente.fechaNacimiento); // Formatear la fecha aquí
     fila.appendChild(fechaNacimiento);
 
     const dni = document.createElement('td');

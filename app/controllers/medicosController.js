@@ -2,6 +2,7 @@ const moment = require('moment');
 const db = require('../../config/database');
 const citasController = require('./citasController');
 const { generarHorariosLibres } = require('../../utils/horariosLibres');
+const { getClinicasPermitidas } = require('../../middleware/roleMiddleware');
 
 exports.listAll = (req, res) => {
     const idClinica = req.session.idClinica;
@@ -601,9 +602,9 @@ exports.templateNota = (req, res) => {
 
 // 📌 Listado de médicos SOLO LECTURA para secretarias
 exports.listAllReadOnly = (req, res) => {
-    const idClinica = req.session.idClinica;
+    const idClinica = req.session.idClinica; // acá es un array [1, 2]
 
-    if (!idClinica) {
+    if (!idClinica || idClinica.length === 0) {
         return res.redirect('/seleccionar-clinica');
     }
 
@@ -615,7 +616,7 @@ exports.listAllReadOnly = (req, res) => {
         FROM medicos AS m
         LEFT JOIN especialidades AS e ON m.idEspecialidad = e.idEspecialidad
         JOIN medicos_clinicas AS mc ON m.idMedico = mc.idMedico
-        WHERE mc.idClinica = ?;
+        WHERE mc.idClinica IN (?);
     `;
 
     db.query(sql, [idClinica], (error, results) => {
@@ -623,7 +624,7 @@ exports.listAllReadOnly = (req, res) => {
             console.error('Error al obtener los médicos (solo lectura):', error);
             return res.status(500).send("Error al obtener los médicos");
         }
-        // Renderiza la vista exclusiva para secretarias
+        console.log("Médicos obtenidos:", results.length);
         res.render('listadoMedicosSecretaria', { medicos: results, user: req.session.user });
     });
 };
