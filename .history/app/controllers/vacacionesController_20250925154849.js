@@ -1,32 +1,21 @@
 const db = require('../../config/database');
 const moment = require('moment');
+
 exports.renderList = (req, res) => {
-  const sqlVacaciones = `
-    SELECT v.idVacacion, v.idMedico, m.nombre AS medico, v.fechaInicio, v.fechaFin
-    FROM vacaciones v
-    JOIN medicos m ON v.idMedico = m.idMedico
-    ORDER BY v.fechaInicio DESC
-  `;
-
-  const sqlMedicos = `SELECT idMedico, nombre FROM medicos`;
-
-  db.query(sqlVacaciones, (errVac, vacaciones) => {
-    if (errVac) {
-      console.error("Error al cargar vacaciones:", errVac);
-      return res.status(500).send("Error al cargar vacaciones");
-    }
-
-    db.query(sqlMedicos, (errMed, medicos) => {
-      if (errMed) {
-        console.error("Error al cargar médicos:", errMed);
-        return res.status(500).send("Error al cargar médicos");
+  db.query(
+    `SELECT v.idVacacion, v.idMedico, m.nombre AS medico, v.fechaInicio, v.fechaFin
+     FROM vacaciones v
+     JOIN medicos m ON v.idMedico = m.idMedico
+     ORDER BY v.fechaInicio DESC`,
+    (err, rows) => {
+      if (err) {
+        console.error("Error al cargar vacaciones:", err);
+        return res.status(500).send("Error al cargar vacaciones");
       }
-
-      res.render("vacaciones", { vacaciones, medicos });
-    });
-  });
+      res.render("vacaciones", { vacaciones: rows });
+    }
+  );
 };
-
 
 exports.create = (req, res) => {
   let { idMedico, fechaInicio, fechaFin } = req.body;

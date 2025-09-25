@@ -238,7 +238,7 @@ exports.verAgenda = (req, res) => {
                     horariosLibres: [],
                     fechaHoy: fechaSeleccionada,
                     medicoId: idMedico,
-                    diaNoLaborable: noLabRows[0]
+                    diaNoLaborable: noLabRows[0] // 👈 para mostrar mensaje en la vista
                 });
             }
 
@@ -263,7 +263,34 @@ exports.verAgenda = (req, res) => {
                         horariosLibres: [],
                         fechaHoy: fechaSeleccionada,
                         medicoId: idMedico,
-                        vacaciones: vacRows
+                        vacaciones: vacRows // 👈 para mostrar mensaje en la vista
+                    });
+                }
+
+                // 👉 Si no hay feriado ni vacaciones → continuar con turnos
+                console.log(`✅ ${fechaSeleccionada} disponible para turnos.`);
+                obtenerTurnosRegulares(idMedico, fechaSeleccionada, usuario, res);
+            });
+        });
+    });
+};
+
+
+            db.query(sqlVacaciones, [idMedico, fechaSeleccionada], (errVac, vacRows) => {
+                if (errVac) {
+                    console.error("Error al verificar vacaciones:", errVac);
+                    return res.status(500).send("Error al verificar vacaciones del médico.");
+                }
+
+                if (vacRows.length > 0) {
+                    console.log(`⛔ El médico con ID ${idMedico} está de vacaciones el día ${fechaSeleccionada}`);
+                    return res.render('agenda_medico', {
+                        regulares: [],
+                        sobreturnos: [],
+                        horariosLibres: [],
+                        fechaHoy: fechaSeleccionada,
+                        medicoId: idMedico,
+                        vacaciones: vacRows // 👈 para mostrar mensaje en la vista
                     });
                 }
 
