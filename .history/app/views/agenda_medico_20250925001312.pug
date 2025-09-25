@@ -6,10 +6,6 @@ html
   body
     h1 Agenda del Médico
 
-    if diaNoLaborable
-      .alert.alert-warning.text-center
-        | No hay turnos disponibles. Día no laborable: #{diaNoLaborable.descripcion}
-
     // Mostrar el selector de fecha solo si no es la agenda del día
     if !agendaDelDia
       div#fechaSelector
@@ -70,4 +66,5 @@ html
     else
       p No hay horarios libres disponibles.
 
+    // Importar el archivo JavaScript externo
     script(src="/js/agendaMedico.js")

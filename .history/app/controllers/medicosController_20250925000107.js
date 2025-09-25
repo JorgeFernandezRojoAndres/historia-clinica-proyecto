@@ -220,61 +220,37 @@ exports.verAgenda = (req, res) => {
             return res.status(403).send('No tiene permiso para acceder a esta clínica.');
         }
 
-        // 🔹 Verificar si la fecha seleccionada es un día no laborable
-        const sqlNoLaborable = `
-            SELECT * FROM dias_no_laborables WHERE fecha = ?
+        // 🔹 Verificar si el médico está de vacaciones en la fecha seleccionada
+        const sqlVacaciones = `
+            SELECT * FROM vacaciones
+            WHERE idMedico = ? 
+              AND ? BETWEEN fechaInicio AND fechaFin
         `;
-        db.query(sqlNoLaborable, [fechaSeleccionada], (errNoLab, noLabRows) => {
-            if (errNoLab) {
-                console.error("Error al verificar días no laborables:", errNoLab);
-                return res.status(500).send("Error al verificar días no laborables.");
+
+        db.query(sqlVacaciones, [idMedico, fechaSeleccionada], (errVac, vacRows) => {
+            if (errVac) {
+                console.error("Error al verificar vacaciones:", errVac);
+                return res.status(500).send("Error al verificar vacaciones del médico.");
             }
 
-            if (noLabRows.length > 0) {
-                console.log(`⛔ ${fechaSeleccionada} es día no laborable (${noLabRows[0].descripcion})`);
+            if (vacRows.length > 0) {
+                console.log(`⛔ El médico con ID ${idMedico} está de vacaciones el día ${fechaSeleccionada}`);
                 return res.render('agenda_medico', {
                     regulares: [],
                     sobreturnos: [],
                     horariosLibres: [],
                     fechaHoy: fechaSeleccionada,
                     medicoId: idMedico,
-                    diaNoLaborable: noLabRows[0] // 👈 para mostrar mensaje en la vista
+                    vacaciones: vacRows // 👈 para mostrar mensaje en la vista
                 });
             }
 
-            // 🔹 Verificar si el médico está de vacaciones en la fecha seleccionada
-            const sqlVacaciones = `
-                SELECT * FROM vacaciones
-                WHERE idMedico = ? 
-                  AND ? BETWEEN fechaInicio AND fechaFin
-            `;
-
-            db.query(sqlVacaciones, [idMedico, fechaSeleccionada], (errVac, vacRows) => {
-                if (errVac) {
-                    console.error("Error al verificar vacaciones:", errVac);
-                    return res.status(500).send("Error al verificar vacaciones del médico.");
-                }
-
-                if (vacRows.length > 0) {
-                    console.log(`⛔ El médico con ID ${idMedico} está de vacaciones el día ${fechaSeleccionada}`);
-                    return res.render('agenda_medico', {
-                        regulares: [],
-                        sobreturnos: [],
-                        horariosLibres: [],
-                        fechaHoy: fechaSeleccionada,
-                        medicoId: idMedico,
-                        vacaciones: vacRows // 👈 para mostrar mensaje en la vista
-                    });
-                }
-
-                // Si no es feriado ni vacaciones → continuar con la lógica de turnos regulares
-                console.log(`El médico con ID ${idMedico} está asociado a la clínica con ID ${idClinica} y disponible.`);
-                obtenerTurnosRegulares(idMedico, fechaSeleccionada, usuario, res);
-            });
+            // Si no está de vacaciones, continuar con la lógica de turnos regulares
+            console.log(`El médico con ID ${idMedico} está asociado a la clínica con ID ${idClinica} y disponible.`);
+            obtenerTurnosRegulares(idMedico, fechaSeleccionada, usuario, res);
         });
     });
 };
-
 const obtenerTurnosRegulares = (idMedico, fechaSeleccionada, usuario, res) => {
     // Consulta para obtener los turnos regulares
     const sqlRegulares = `
