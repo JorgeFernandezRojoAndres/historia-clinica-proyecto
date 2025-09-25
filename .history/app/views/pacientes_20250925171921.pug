@@ -6,13 +6,15 @@ block content
   .container.mt-4
     .d-flex.justify-content-between.align-items-center.mb-3
       h1.mb-0.text-center.p-2.rounded.shadow-sm.bg-light Listado de Pacientes
+      a.btn.btn-success.shadow-sm(href="/secretaria/pacientes/new")
+        i.bi.bi-plus-lg.me-1
+        | Nuevo Paciente
 
     form#formBuscarPaciente.mb-3(role="search", onsubmit="return false")
       .input-group
         input.form-control#buscarPaciente(type="text" name="query" placeholder="Buscar paciente por nombre")
         button.btn.btn-outline-primary(type="submit")
-          i.bi.bi-search.me-1
-          | Buscar
+          i.bi.bi-search
 
     .table-responsive.shadow-sm.rounded
       table.table.table-striped.table-hover.align-middle
@@ -41,6 +43,9 @@ block content
                     a.btn.btn-sm.btn-warning(href=`/secretaria/pacientes/${paciente.idPaciente}/edit`)
                       i.bi.bi-pencil
                       |  Editar
+                    a.btn.btn-sm.btn-info(href=`/historias/${paciente.idPaciente}`)
+                      i.bi.bi-journal-text
+                      |  Historial
                     form.d-inline(action=`/secretaria/pacientes/${paciente.idPaciente}/delete?_method=DELETE` method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar a este paciente?');")
                       button.btn.btn-sm.btn-danger(type="submit")
                         i.bi.bi-trash

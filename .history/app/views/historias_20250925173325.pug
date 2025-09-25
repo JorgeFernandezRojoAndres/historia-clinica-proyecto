@@ -1,0 +1,24 @@
+extends layout
+
+block content
+  h2 Listado de Historias Clínicas
+
+  if user.role === 'secretaria' || user.role === 'administrador'
+    a(href="/secretaria/historias/new" class="btn btn-primary") Nueva Historia Clínica
+
+  table
+    tr
+      th Paciente
+      th Detalles
+      th Acciones
+    each historia in historias
+      tr
+        td= historia.nombrePaciente 
+        td= historia.detalles
+        td
+          if user.role === 'secretaria' || user.role === 'administrador'
+            a(href=`/secretaria/historias/${historia.idHistoria}/edit`) Editar
+            a(href=`/secretaria/historias/${historia.idHistoria}/delete`) Eliminar
+
+          if user.role === 'paciente'
+            a.btn(href=`/historias/download/${historia.idHistoria}`) Descargar PDF

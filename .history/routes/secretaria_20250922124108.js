@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { isAuthenticated, isSecretaria } = require('../middleware/roleMiddleware');
-const historiasController = require('../app/controllers/historiasController');
 
 // Importamos los controladores necesarios
 const pacientesController = require('../app/controllers/pacientesController');
@@ -10,10 +9,6 @@ const citasController = require('../app/controllers/citasController');
 
 // Middleware global para verificar autenticación y rol de secretaria
 router.use(isAuthenticated, isSecretaria);
-
-// **Rutas de historias clínicas accesibles para secretaria**
-router.get('/historias', historiasController.listAll);
-router.get('/historias/:id', historiasController.showById);
 
 // **Rutas de gestión de pacientes**
 router.get('/pacientes', pacientesController.listAll);
@@ -39,5 +34,6 @@ router.post('/citas', citasController.createCita);
 router.get('/citas/:id/edit', citasController.showEditForm);
 router.post('/citas/:id', citasController.update);
 router.delete('/citas/:id/delete', citasController.delete);
+
 
 module.exports = router;

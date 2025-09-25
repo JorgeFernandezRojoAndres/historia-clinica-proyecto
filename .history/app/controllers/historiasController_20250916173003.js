@@ -21,7 +21,7 @@ exports.listAll = (req, res) => {
     });
 
   } else if (req.session.user.role === 'secretaria') {
-    // Secretaria: ve todas las historias (listado completo)
+    // Secretaria: ve todas las historias
     const sqlSecretaria = `
       SELECT hc.idHistoria, p.nombre AS nombrePaciente, hc.detalles
       FROM historias_clinicas hc
@@ -39,19 +39,19 @@ exports.listAll = (req, res) => {
     // Médico: ver historias de los pacientes que tienen citas con él
     const idMedico = req.session.user.id;
     const sqlMedico = `
-      SELECT DISTINCT 
-        hc.idHistoria, 
-        p.nombre AS nombrePaciente, 
-        hc.detalles,
-        m.nombre AS nombreMedico,
-        DATE_FORMAT(c.fechaHora, '%d/%m/%Y %H:%i') AS fechaHora,
-        c.motivoConsulta,
-        c.estado
-      FROM historias_clinicas hc
-      JOIN pacientes p ON hc.idPaciente = p.idPaciente
-      JOIN citas c ON c.idPaciente = p.idPaciente
-      JOIN medicos m ON c.idMedico = m.idMedico
-      WHERE c.idMedico = ?`;
+  SELECT DISTINCT 
+    hc.idHistoria, 
+    p.nombre AS nombrePaciente, 
+    hc.detalles,
+    m.nombre AS nombreMedico,
+    DATE_FORMAT(c.fechaHora, '%d/%m/%Y %H:%i') AS fechaHora,
+    c.motivoConsulta,
+    c.estado
+  FROM historias_clinicas hc
+  JOIN pacientes p ON hc.idPaciente = p.idPaciente
+  JOIN citas c ON c.idPaciente = p.idPaciente
+  JOIN medicos m ON c.idMedico = m.idMedico
+  WHERE c.idMedico = ?`;
 
     db.query(sqlMedico, [idMedico], (error, results) => {
       if (error) {
@@ -59,58 +59,6 @@ exports.listAll = (req, res) => {
         return res.status(500).send('Error al obtener historias clínicas');
       }
       res.render('historialPaciente', { historial: results, nombrePaciente: 'Pacientes atendidos' });
-    });
-
-  } else {
-    res.status(403).send('Acceso no autorizado');
-  }
-};
-
-
-// 🔹 Nuevo método para ver historia individual
-exports.showById = (req, res) => {
-  const idHistoria = req.params.id;
-
-  if (req.session.user.role === 'paciente') {
-    const idPaciente = req.session.user.id;
-    const sql = `
-      SELECT hc.idHistoria, p.nombre AS nombrePaciente, hc.detalles
-      FROM historias_clinicas hc
-      JOIN pacientes p ON hc.idPaciente = p.idPaciente
-      WHERE hc.idHistoria = ? AND hc.idPaciente = ?`;
-
-    db.query(sql, [idHistoria, idPaciente], (err, results) => {
-      if (err || results.length === 0) return res.status(403).send('Acceso denegado');
-      res.render('historialPaciente', { historial: results });
-    });
-
-  } else if (req.session.user.role === 'secretaria') {
-    // Secretaria puede abrir cualquier historia
-    const sql = `
-      SELECT hc.idHistoria, p.nombre AS nombrePaciente, hc.detalles
-      FROM historias_clinicas hc
-      JOIN pacientes p ON hc.idPaciente = p.idPaciente
-      WHERE hc.idHistoria = ?`;
-
-    db.query(sql, [idHistoria], (err, results) => {
-      if (err || results.length === 0) return res.status(404).send('Historia no encontrada');
-      res.render('historialPaciente', { historial: results });
-    });
-
-  } else if (req.session.user.role === 'Medico') {
-    // Médico: solo historias de sus pacientes
-    const idMedico = req.session.user.id;
-    const sql = `
-      SELECT DISTINCT 
-        hc.idHistoria, p.nombre AS nombrePaciente, hc.detalles
-      FROM historias_clinicas hc
-      JOIN pacientes p ON hc.idPaciente = p.idPaciente
-      JOIN citas c ON c.idPaciente = p.idPaciente
-      WHERE hc.idHistoria = ? AND c.idMedico = ?`;
-
-    db.query(sql, [idHistoria, idMedico], (err, results) => {
-      if (err || results.length === 0) return res.status(403).send('Acceso denegado');
-      res.render('historialPaciente', { historial: results });
     });
 
   } else {
