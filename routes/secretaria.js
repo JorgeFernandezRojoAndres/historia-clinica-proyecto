@@ -34,6 +34,6 @@ router.post('/citas', citasController.createCita);
 router.get('/citas/:id/edit', citasController.showEditForm);
 router.post('/citas/:id', citasController.update);
 router.delete('/citas/:id/delete', citasController.delete);
-router.post('/citas/confirmar-pendientes', citasController.confirmarPendientes);
+
 
 module.exports = router;

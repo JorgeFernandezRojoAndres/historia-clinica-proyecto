@@ -1,37 +1,62 @@
 extends layout
 
 block content
-  h1 Listado de Pacientes
+  link(rel="stylesheet", href="/css/paciente.css")
 
-  form(id="formBuscarPaciente", onsubmit="return false")
-    input(type="text" id="buscarPaciente" name="query" placeholder="Buscar paciente por nombre")
+  .container.mt-4
+    .d-flex.justify-content-between.align-items-center.mb-3
+      h1.mb-0.text-center.p-2.rounded.shadow-sm.bg-light Listado de Pacientes
+      a.btn.btn-success.shadow-sm(href="/secretaria/pacientes/new")
+        i.bi.bi-plus-lg.me-1
+        | Nuevo Paciente
 
-  table
-    thead
-      tr
-        th Nombre
-        th Fecha de Nacimiento
-        th DNI
-        th Dirección
-        th Teléfono
-        th Acciones
-    tbody#tablaPacientes
-      if pacientes.length === 0
-        tr
-          td(colspan="6") No hay pacientes registrados.
-      else
-        each paciente in pacientes
+    .d-flex.justify-content-center.gap-3.mb-4
+      button(type="button" onclick="window.location.href='/paciente/mis-turnos'")
+        img(src="/images/pavermisturnos.png" alt="Ver Mis Turnos")
+      button(type="button" onclick="window.location.href='/paciente/historial-clinico'")
+        img(src="/images/pahistoclinico.png" alt="Ver Mi Historial Clínico")
+      button(type="button" onclick="window.location.href='/paciente/sacar-turno-preregistro'")
+        img(src="/images/pasacaturnpre.png" alt="Sacar Turno Preregistro")
+
+    form#formBuscarPaciente.mb-3(role="search", onsubmit="return false")
+      .input-group
+        input.form-control#buscarPaciente(type="text" name="query" placeholder="Buscar paciente por nombre")
+        button.btn.btn-outline-primary(type="submit")
+          i.bi.bi-search
+
+    .table-responsive.shadow-sm.rounded
+      table.table.table-striped.table-hover.align-middle
+        thead.table-dark
           tr
-            td= paciente.nombre
-            td= paciente.fechaNacimiento
-            td= paciente.dni
-            td= paciente.direccion
-            td= paciente.telefono
-            td
-              a(href=`/secretaria/pacientes/${paciente.idPaciente}/edit`) Editar
-              form(action=`/secretaria/pacientes/${paciente.idPaciente}/delete?_method=DELETE` method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar a este paciente?');")
-                button(type="submit") Eliminar
-              a(href=`/historias/${paciente.idPaciente}`) Historial
+            th Nombre
+            th Fecha de Nacimiento
+            th DNI
+            th Dirección
+            th Teléfono
+            th.text-center Acciones
+        tbody#tablaPacientes
+          if pacientes.length === 0
+            tr
+              td.text-center(colspan="6") No hay pacientes registrados.
+          else
+            each paciente in pacientes
+              tr
+                td= paciente.nombre
+                td= paciente.fechaNacimiento
+                td= paciente.dni
+                td= paciente.direccion
+                td= paciente.telefono
+                td.text-center
+                  .btn-group(role="group")
+                    a.btn.btn-sm.btn-warning(href=`/secretaria/pacientes/${paciente.idPaciente}/edit`)
+                      i.bi.bi-pencil
+                      |  Editar
+                    a.btn.btn-sm.btn-info(href=`/historias/${paciente.idPaciente}`)
+                      i.bi.bi-journal-text
+                      |  Historial
+                    form.d-inline(action=`/secretaria/pacientes/${paciente.idPaciente}/delete?_method=DELETE` method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar a este paciente?');")
+                      button.btn.btn-sm.btn-danger(type="submit")
+                        i.bi.bi-trash
+                        |  Eliminar
 
   script(src="/js/searchPaciente.js")
-

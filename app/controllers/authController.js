@@ -26,8 +26,16 @@ exports.loginPaciente = async (req, res) => {
                 nombre: results[0].nombre,
                 role: 'paciente'
             };
-            // Redirigir al formulario de selección de clínica
-            return res.redirect('/select-clinica'); // Asegúrate de que esta ruta exista en tu archivo de rutas
+
+            // ✅ Guardar la sesión antes de redirigir
+            return req.session.save((err) => {
+                if (err) {
+                    console.error("Error guardando sesión:", err);
+                    return res.status(500).send("Error al guardar sesión");
+                }
+                // Redirigir al formulario de selección de clínica
+                return res.redirect('/select-clinica'); 
+            });
         } else {
             // Manejar el caso donde el paciente no se encuentra
             return res.status(401).send('Paciente no encontrado');
@@ -149,14 +157,14 @@ exports.loginMedico = (req, res) => {
 
         // Verifica si el DNI coincide con la contraseña ingresada
         if (password === user.dni) {
-            // 🔹 Cambio aquí: role en minúsculas
+            // 🔹 Guardamos usuario en sesión
             req.session.user = { 
                 id: user.idMedico, 
-                role: 'medico',   // antes decía 'Medico'
+                role: 'medico',   // ahora siempre en minúscula
                 nombre: user.nombre 
             };
 
-            console.log("Sesión guardada:", req.session.user);
+            console.log("Sesión guardada provisional:", req.session.user);
 
             // === Nueva lógica: cargar clínica asociada ===
             const sqlClinicas = 'SELECT idClinica FROM medicos_clinicas WHERE idMedico = ?';
@@ -172,11 +180,21 @@ exports.loginMedico = (req, res) => {
                     req.session.clinicaSeleccionada = true;
 
                     console.log(`Clínica automáticamente seleccionada: ${clinicas[0].idClinica}`);
-                    return res.redirect('/medicos/perfil');
+
+                    // ✅ Guardar la sesión antes de redirigir
+                    return req.session.save(err => {
+                        if (err) {
+                            console.error("Error guardando sesión:", err);
+                            return res.status(500).send("Error al guardar sesión");
+                        }
+                        return res.redirect('/medicos/perfil');
+                    });
+
                 } else {
                     return res.render('loginmedicos', { message: 'No hay clínicas asociadas a su cuenta' });
                 }
             });
+
         } else {
             console.error('Contraseña incorrecta');
             return res.status(401).render('loginmedicos', { message: 'Credenciales incorrectas' });

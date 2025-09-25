@@ -1,0 +1,172 @@
+/* escritorioAdministrador.css */
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5ecc7;
+  margin: 0;
+  padding: 0;
+}
+
+.login-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 80%;
+  margin: 40px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.form-container {
+  flex: 1;
+  padding: 40px;
+}
+
+.form-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-container label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-container input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: #f1dd80e7;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.form-container button:hover {
+  background-color: #0b0b0b;
+  color: #fff;
+}
+
+.form-container button:active {
+  background-color: #d4b570;
+  transform: translateY(2px);
+}
+
+.register-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.register-container p {
+  margin-bottom: 10px;
+  color: #555;
+}
+
+.register-container a {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #6c757d;
+  color: #fff;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.register-container a:hover {
+  background-color: #5a6268;
+}
+
+.image-container {
+  flex: 1;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ========================= */
+/* RESPONSIVE DESIGN */
+/* ========================= */
+
+/* Tablets (pantallas medianas) */
+@media (max-width: 992px) {
+  .login-container {
+    flex-direction: column;
+    width: 90%;
+    margin: 20px auto;
+  }
+
+  .image-container {
+    order: -1; /* Muestra la imagen arriba */
+    width: 100%;
+    height: 250px;
+  }
+
+  .image-container img {
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .form-container {
+    padding: 20px;
+  }
+}
+
+/* Celulares (pantallas chicas) */
+@media (max-width: 576px) {
+  .form-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .form-container button,
+  .register-container a {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .register-container p {
+    font-size: 0.9rem;
+  }
+}
+.funciones-container {
+  display: flex;
+  flex-wrap: wrap;       /* permite que bajen si no entran */
+  justify-content: center; /* centrado en la pantalla */
+  gap: 30px;   /* separación entre botones */
+  margin-top: 20px;            
+}
+.funciones-container .form-group {
+  flex: 0 1 auto; /* que se adapten al contenido */
+}
+.funciones-container button {
+  background: white;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.funciones-container img {
+  width: 120px;   /* aquí das el tamaño uniforme */
+  height: auto;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.funciones-container img:hover {
+  transform: scale(1.49);
+}

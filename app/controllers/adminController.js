@@ -3,21 +3,49 @@ const db = require('../../config/database');
 
 // Función para registrar un usuario con un rol específico
 exports.registrarUsuario = (req, res) => {
-    const { username, password, role } = req.body;
-    const hashedPassword = bcrypt.hashSync(password, 10);
+    const { username, password, role, nombre, dni, telefono, email, idEspecialidad } = req.body;
 
-    const sql = 'INSERT INTO usuarios (username, password, role) VALUES (?, ?, ?)';
-    db.query(sql, [username, hashedPassword, role], (error) => {
-        if (error) {
-            console.error('Error al registrar usuario:', error);
-            return res.status(500).send('Error al registrar usuario');
+    if (role === 'secretaria') {
+        if (!username || !password) {
+            return cargarFormularioConEspecialidades(req, res, 'Usuario y contraseña son requeridos para secretarias');
         }
-        res.redirect('/admin/dashboard');
-    });
+
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        const sqlUsuario = 'INSERT INTO usuarios (username, password, role) VALUES (?, ?, ?)';
+        db.query(sqlUsuario, [username, hashedPassword, role], (error) => {
+            if (error) {
+                console.error('Error al registrar secretaria:', error);
+                return cargarFormularioConEspecialidades(req, res, 'Error al registrar secretaria');
+            }
+            return res.redirect('/admin/dashboard');
+        });
+
+    } else if (role === 'medico') {
+        if (!nombre || !dni || !telefono || !email || !idEspecialidad) {
+            return cargarFormularioConEspecialidades(req, res, '⚠️ Faltan datos obligatorios para registrar al médico. Complete todos los campos.');
+        }
+
+        const sqlMedico = `
+            INSERT INTO medicos (nombre, dni, telefono, email, idEspecialidad) 
+            VALUES (?, ?, ?, ?, ?)
+        `;
+        db.query(sqlMedico, [nombre, dni, telefono, email, idEspecialidad], (error) => {
+            if (error) {
+                console.error('Error al registrar médico:', error);
+                return cargarFormularioConEspecialidades(req, res, 'Error al registrar médico');
+            }
+            return res.redirect('/admin/dashboard');
+        });
+
+    } else {
+        return cargarFormularioConEspecialidades(req, res, 'Rol no reconocido');
+    }
 };
+
 exports.renderAdminDashboard = (req, res) => {
     res.render('escritorioAdministrador', { user: req.session.user });
 };
+
 
 exports.formularioAsignarClinica = (req, res) => {
     const sqlMedicos = 'SELECT idMedico, nombre FROM medicos';
@@ -65,28 +93,44 @@ exports.asignarClinica = (req, res) => {
 };
 
 exports.verMedicos = (req, res) => {
-    const idClinica = req.session.idClinica;
-    const sql = `
-        SELECT 
-            m.idMedico, 
-            m.nombre, 
-            COALESCE(e.nombre, 'Sin especialidad') AS especialidad, 
-            m.telefono, 
-            m.email, 
-            COALESCE(m.dni, 'Sin DNI') AS dni
-        FROM medicos AS m
-        LEFT JOIN especialidades AS e ON m.idEspecialidad = e.idEspecialidad
-        JOIN medicos_clinicas AS mc ON m.idMedico = mc.idMedico
-        WHERE mc.idClinica IN (?)
-    `;
+    const role = req.session.user?.role;
+const isAdmin = role === 'admin' || role === 'administrador';
 
-    db.query(sql, [idClinica], (error, results) => {
+    let sql, params;
+
+    if (isAdmin) {
+        // Admin: ver todos los médicos
+        sql = `
+            SELECT m.idMedico, m.nombre,
+                   COALESCE(e.nombre, 'Sin especialidad') AS especialidad,
+                   m.telefono, m.email,
+                   COALESCE(m.dni, 'Sin DNI') AS dni
+            FROM medicos AS m
+            LEFT JOIN especialidades AS e ON m.idEspecialidad = e.idEspecialidad
+        `;
+        params = [];
+    } else {
+        // Otros roles: filtrar por clínica
+        const idClinica = req.session.idClinica;
+        sql = `
+            SELECT m.idMedico, m.nombre,
+                   COALESCE(e.nombre, 'Sin especialidad') AS especialidad,
+                   m.telefono, m.email,
+                   COALESCE(m.dni, 'Sin DNI') AS dni
+            FROM medicos AS m
+            LEFT JOIN especialidades AS e ON m.idEspecialidad = e.idEspecialidad
+            JOIN medicos_clinicas AS mc ON m.idMedico = mc.idMedico
+            WHERE mc.idClinica IN (?)
+        `;
+        params = [idClinica];
+    }
+
+    db.query(sql, params, (error, results) => {
         if (error) {
             console.error('Error al obtener los médicos:', error);
             return res.status(500).send('Error al obtener los médicos');
         }
         res.render('listadoMedicos', { medicos: results });
-
     });
 };
 
@@ -104,4 +148,38 @@ exports.confirmarPaciente = (req, res) => {
 
 exports.rechazarPaciente = (req, res) => {
     res.send('Paciente rechazado (pendiente de implementación)');
+};
+exports.formularioRegistrarUsuario = (req, res) => {
+    const sqlEspecialidades = 'SELECT idEspecialidad, nombre FROM especialidades';
+
+    db.query(sqlEspecialidades, (error, especialidades) => {
+        if (error) {
+            console.error('Error al obtener especialidades:', error);
+            return res.status(500).send('Error al obtener especialidades');
+        }
+
+        res.render('formularioRegistrarUsuario', { 
+            user: req.session.user,
+            especialidades,
+            message: null
+        });
+    });
+};
+
+exports.agregarEspecialidad = (req, res) => {
+    const { nombre } = req.body;
+
+    if (!nombre) {
+        return res.json({ success: false, message: 'El nombre es obligatorio' });
+    }
+
+    const sql = 'INSERT INTO especialidades (nombre) VALUES (?)';
+    db.query(sql, [nombre], (error, result) => {
+        if (error) {
+            console.error('Error al agregar especialidad:', error);
+            return res.json({ success: false, message: 'Error al guardar especialidad' });
+        }
+
+        res.json({ success: true, idEspecialidad: result.insertId });
+    });
 };

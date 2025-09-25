@@ -4,14 +4,15 @@ html(lang="en")
     meta(charset="UTF-8")
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
     title TurnoExpress
-    link(rel="stylesheet" href="/css/style.css")
+    link(rel="stylesheet" href="/css/layout.css")
+    link(rel="stylesheet" href="/css/login.css")
     link(rel="icon" href="/favicon.ico" type="image/x-icon")
-
+    block styles
   body
-    header
+    header.text-center
       h1 TurnoExpress
-      nav
-        ul
+      nav.mt-3
+        ul.d-flex.justify-content-center.gap-4.list-unstyled
           if !user
             li
               a(href="/login/paciente")
@@ -25,41 +26,48 @@ html(lang="en")
           else
             if user.role === 'secretaria'
               li
-                a(href="/secretaria/pacientes") Pacientes
+                a.btn.btn-primary.m-1(href="/secretaria/pacientes") Pacientes
               li
-                a(href="/secretaria/citas") Citas
+                a.btn.btn-primary.m-1(href="/secretaria/citas") Citas
               li
-                a(href="/secretaria/ver-medicos") Médicos
+                a.btn.btn-primary.m-1(href="/secretaria/ver-medicos") Médicos
             if user.role === 'Medico'
               li
-                a(href="/medicos/agenda") Ver Agenda
+                a.btn.btn-info.m-1(href="/medicos/agenda") Ver Agenda
               li
-                a(href="/historias") Historial Clínico
+                a.btn.btn-info.m-1(href="/historias") Historial Clínico
             if user.role === 'paciente'
               li
-                a(href="/paciente/mi-perfil") Mi Perfil
-            li
-              a(href="/logout") Cerrar Sesión
+                a.btn.btn-secondary.m-1(href="/paciente/mi-perfil") Mi Perfil
+            li.ms-auto
+              a(href="/logout" class="Btn")
+                div.sign
+                  svg(viewBox="0 0 512 512")
+                    path(d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z")
+                div.text Cerrar Sesión
 
     if user && user.role === 'secretaria'
-      section.accesos-rapidos
-        h2.accesos-titulo Accesos rápidos
-        div.botones-rapidos
-          button.btn-rapido(onclick="window.location.href='/secretaria/pacientes/new'") Agregar Paciente
-          button.btn-rapido(onclick="window.location.href='/secretaria/citas/new'") Nueva Cita
+      section.accesos-rapidos.text-center.mt-4
+        h2.accesos-titulo.mb-3 Accesos rápidos
+        div.d-flex.justify-content-center.gap-3
+          a.btn.btn-success.btn-lg.shadow(href="/secretaria/pacientes/new")
+            i.bi.bi-person-plus.me-2
+            | Agregar Paciente
+          a.btn.btn-warning.btn-lg.shadow(href="/secretaria/citas/new")
+            i.bi.bi-calendar-plus.me-2
+            | Nueva Cita
           
     main
       block content
 
-    footer
+    footer.text-center.mt-4
       p Derechos reservados © Fernandez Jorge #{new Date().getFullYear()}
 
     script.
       console.log('Usuario:', #{JSON.stringify(user)});
       window.user = #{JSON.stringify(user)};
-      
+
     script(src="/js/secretaria.js")
     script(src="/botondinamicoAgendaEnCita.js")
     script(src="/js/searchPaciente.js")
     script(src="/js/seleccionarClinica.js")
-

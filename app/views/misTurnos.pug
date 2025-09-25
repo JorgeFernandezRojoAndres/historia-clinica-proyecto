@@ -14,14 +14,13 @@ block content
     tbody
       each turno in turnos
         tr
-          // Mostrar solo la parte de la fecha y la hora en el formato adecuado
           td= new Date(turno.fechaHora).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
           td= turno.nombreMedico
           td= turno.motivoConsulta
           td= turno.estado
           td
-            if turno.estado !== 'Completado'
+            if turno.estado !== 'Completado' && turno.estado !== 'Cancelada'
               a.btn.btn-warning(href=`/citas/edit/${turno.idCita}`) Editar
-              a.btn.btn-danger(href=`/citas/delete/${turno.idCita}` onclick="return confirm('¿Estás seguro de que deseas cancelar este turno?')") Cancelar
-            else
+              a.btn.btn-danger(href=`/citas/cancelar/${turno.idCita}` onclick="return confirm('¿Estás seguro de que deseas cancelar este turno?')") Cancelar
+            else if turno.estado === 'Completado'
               a.btn.btn-success(href=`/citas/delete-completed/${turno.idCita}` onclick="return confirm('¿Estás seguro de que deseas eliminar este turno completado de la lista?')") Eliminar

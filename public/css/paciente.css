@@ -1,0 +1,113 @@
+/* ================================
+   Estilos para Listado de Pacientes
+   ================================ */
+
+/* Contenedor principal */
+.container {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Título principal */
+h1 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+}
+
+/* Botón "Nuevo Paciente" */
+a.btn.btn-success {
+  font-weight: 500;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+a.btn.btn-success:hover {
+  transform: scale(1.05);
+  background-color: #218838; /* verde más oscuro */
+}
+
+/* Formulario de búsqueda */
+#formBuscarPaciente .input-group {
+  max-width: 400px;
+  margin: auto;
+}
+
+#formBuscarPaciente input {
+  border-radius: 5px 0 0 5px;
+}
+
+#formBuscarPaciente button {
+  border-radius: 0 5px 5px 0;
+}
+
+/* Tabla de pacientes */
+.table-responsive {
+  margin-top: 20px;
+}
+
+table {
+  font-size: 0.95rem;
+}
+
+thead.table-dark th {
+  text-align: center;
+}
+
+tbody td {
+  vertical-align: middle;
+}
+
+/* Mensaje cuando no hay pacientes */
+td[colspan="6"] {
+  font-style: italic;
+  color: #6c757d;
+}
+
+/* Botones de acción */
+.btn-group .btn {
+  margin: 0 3px;
+  font-size: 0.85rem;
+  transition: transform 0.2s ease;
+}
+
+.btn-group .btn:hover {
+  transform: scale(1.1);
+}
+
+/* Botón Editar */
+.btn-warning {
+  background-color: #ffc107;
+  border: none;
+  color: #212529;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+  color: #fff;
+}
+
+/* Botón Historial */
+.btn-info {
+  background-color: #17a2b8;
+  border: none;
+  color: #fff;
+}
+
+.btn-info:hover {
+  background-color: #117a8b;
+}
+
+/* Botón Eliminar */
+.btn-danger {
+  background-color: #dc3545;
+  border: none;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}

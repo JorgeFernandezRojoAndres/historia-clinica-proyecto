@@ -220,13 +220,37 @@ exports.verAgenda = (req, res) => {
             return res.status(403).send('No tiene permiso para acceder a esta clínica.');
         }
 
-        // Si la verificación es exitosa, continuar con la lógica de turnos regulares
-        console.log(`El médico con ID ${idMedico} está asociado a la clínica con ID ${idClinica}.`);
-        obtenerTurnosRegulares(idMedico, fechaSeleccionada, usuario, res);
+        // 🔹 Verificar si el médico está de vacaciones en la fecha seleccionada
+        const sqlVacaciones = `
+            SELECT * FROM vacaciones
+            WHERE idMedico = ? 
+              AND ? BETWEEN fechaInicio AND fechaFin
+        `;
+
+        db.query(sqlVacaciones, [idMedico, fechaSeleccionada], (errVac, vacRows) => {
+            if (errVac) {
+                console.error("Error al verificar vacaciones:", errVac);
+                return res.status(500).send("Error al verificar vacaciones del médico.");
+            }
+
+            if (vacRows.length > 0) {
+                console.log(`⛔ El médico con ID ${idMedico} está de vacaciones el día ${fechaSeleccionada}`);
+                return res.render('agenda_medico', {
+                    regulares: [],
+                    sobreturnos: [],
+                    horariosLibres: [],
+                    fechaHoy: fechaSeleccionada,
+                    medicoId: idMedico,
+                    vacaciones: vacRows // 👈 para mostrar mensaje en la vista
+                });
+            }
+
+            // Si no está de vacaciones, continuar con la lógica de turnos regulares
+            console.log(`El médico con ID ${idMedico} está asociado a la clínica con ID ${idClinica} y disponible.`);
+            obtenerTurnosRegulares(idMedico, fechaSeleccionada, usuario, res);
+        });
     });
 };
-
-
 const obtenerTurnosRegulares = (idMedico, fechaSeleccionada, usuario, res) => {
     // Consulta para obtener los turnos regulares
     const sqlRegulares = `

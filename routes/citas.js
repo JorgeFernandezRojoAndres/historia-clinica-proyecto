@@ -35,5 +35,7 @@ router.get('/buscar-paciente', isAuthenticated, isPacienteOrSecretaria, citasCon
 
 
 router.post('/confirmar-pendientes', isAuthenticated, isSecretaria, citasController.confirmarPendientes);
+// Cancelar cita (paciente o secretaria)
+router.get('/cancelar/:id', isAuthenticated, citasController.cancelarCita);
 
 module.exports = router;

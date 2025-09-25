@@ -2,17 +2,23 @@ extends layout
 
 block content
   h1 Bienvenido, #{user.username} (Administrador)
-  p Aquí puedes gestionar configuraciones administrativas.
+  link(rel="stylesheet", href="/css/escritorioAdministrador.css")
 
-  // Botones adicionales para funciones administrativas
+
   h2 Funciones Administrativas
-  .form-group
-    button(type="button" onclick="window.location.href='/admin/formulario-registrar-usuario'") Registrar Usuario
-  .form-group
-    button(type="button" onclick="window.location.href='/admin/formulario-asignar-clinica'") Asignar Clínica a Médico
-  .form-group
-    button(type="button" onclick="window.location.href='/admin/pacientes-pendientes'") Ver Pacientes Pendientes de Confirmación
-  .form-group
-    button(type="button" onclick="window.location.href='/admin/ver-medicos'") Ver Médicos
-  .form-group
-    button(type="button" onclick="window.location.href='/admin/dias-no-laborables'") 📅 Gestionar Días No Laborables
+  .funciones-container
+    .form-group
+      button(type="button" onclick="window.location.href='/admin/formulario-registrar-usuario'")
+        img(src="/images/adminbotonregistrarusuario.png" alt="Registrar Usuario")
+    .form-group
+      button(type="button" onclick="window.location.href='/admin/formulario-asignar-clinica'")
+        img(src="/images/adminbotonasiganrclinicaamedico.png" alt="Asignar Clínica a Médico")
+    .form-group
+      button(type="button" onclick="window.location.href='/admin/pacientes-pendientes'")
+        img(src="/images/adminbotonverpacientependientes.png" alt="Ver Pacientes Pendientes de Confirmación")
+    .form-group
+      button(type="button" onclick="window.location.href='/admin/ver-medicos'")
+        img(src="/images/adminbotovermedico.png" alt="Ver Médicos")
+    .form-group
+      button(type="button" onclick="window.location.href='/admin/dias-no-laborables'")
+        img(src="/images/adminbotongestiodiasno.png" alt="Gestionar Días No Laborables")

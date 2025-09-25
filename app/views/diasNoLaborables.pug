@@ -5,7 +5,9 @@ block content
     .card.shadow-lg
       .card-header.bg-primary.text-white.d-flex.justify-content-between.align-items-center
         h3.mb-0 📅 Días No Laborables
-        a.btn.btn-light.btn-sm(href="/admin/dashboard") ← Volver al Dashboard
+        div.d-flex.gap-2
+          a.btn.btn-light.btn-sm(href="/admin/dashboard") ← Volver al Dashboard
+          a.btn.btn-warning.btn-sm(href="/admin/vacaciones") 🌴 Cargar Vacaciones
 
       .card-body
         // Formulario para agregar día no laborable
@@ -44,7 +46,6 @@ block content
           .alert.alert-info.text-center
             | No hay días no laborables cargados aún.
   
-  // Script SweetAlert2
   script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
 
   script.
@@ -68,7 +69,6 @@ block content
       return false;
     }
 
-    // Feedback cuando se agrega un día
     if (window.location.search.includes("success=true")) {
       Swal.fire({
         icon: 'success',

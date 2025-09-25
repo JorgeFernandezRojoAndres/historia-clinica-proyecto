@@ -26,16 +26,12 @@ exports.listAll = (req, res) => {
   
 
   exports.showRegisterForm = (req, res) => {
-    // Obtener el idClinica desde la sesión
     const idClinica = req.session.idClinica;
 
-    // Verificar si se ha seleccionado una clínica
     if (!idClinica) {
-        console.log('No se ha seleccionado una clínica, redirigiendo a la selección de clínica.');
-        return res.redirect('/seleccion-clinica'); // Redirige a la selección de clínica si no hay una clínica seleccionada
+        return res.redirect('/seleccion-clinica');
     }
 
-    // Consulta para obtener médicos de la clínica seleccionada
     const query = `
         SELECT m.*
         FROM medicos AS m
@@ -46,27 +42,24 @@ exports.listAll = (req, res) => {
     db.query(query, [idClinica], (error, medicos) => {
         if (error) {
             console.error('Error al obtener los médicos:', error);
-            return res.status(500).send('Error al obtener los médicos');
+            return res.render('new_pacientes', { medicos: [], error: 'No se pudieron cargar los médicos.' });
         }
 
-        // Verificar si se encontraron médicos
-        if (medicos.length === 0) {
-            console.log('No se encontraron médicos para la clínica seleccionada.');
-            return res.status(404).send('No se encontraron médicos para la clínica seleccionada.');
-        }
-
-        // Renderizar el formulario de nuevo paciente con la lista de médicos de la clínica seleccionada
-        res.render('new_pacientes', { medicos });
+        res.render('new_pacientes', { 
+            medicos: medicos || [],
+            warning: (medicos.length === 0 ? 'No hay médicos disponibles en esta clínica.' : null)
+        });
     });
 };
-
-
 
 exports.create = (req, res) => {
     const { nombre, fechaNacimiento, dni, direccion, telefono } = req.body;
     console.log('Creando nuevo paciente:', { nombre, fechaNacimiento, dni, direccion, telefono });
 
-    const sql = 'INSERT INTO pacientes (nombre, fechaNacimiento, dni, direccion, telefono, estado) VALUES (?, ?, ?, ?, ?, "Pendiente")';
+    const sql = `
+        INSERT INTO pacientes (nombre, fechaNacimiento, dni, direccion, telefono, estado)
+        VALUES (?, ?, ?, ?, ?, "Pendiente")
+    `;
     
     db.query(sql, [nombre, fechaNacimiento, dni, direccion, telefono], (error, results) => {
         if (error) {
@@ -76,17 +69,14 @@ exports.create = (req, res) => {
         
         console.log('Paciente creado exitosamente');
 
-        // Redirige dependiendo de si el usuario está autenticado y su rol
+        // 🔹 Redirigir según el rol
         if (req.session.user && req.session.user.role === 'secretaria') {
-            return res.redirect('/register/paciente'); // Redirige a la ruta para secretarias
+            return res.redirect('/secretaria/pacientes'); // 👈 Lista/escritorio de la secretaria
         } else {
-            return res.redirect('/registro-pendiente'); // Redirige a la ruta para anónimos
+            return res.redirect('/registro-pendiente');   // 👈 Para registro externo
         }
     });
 };
-
-
-
 
 exports.showEditForm = (req, res) => {
     const id = req.params.id;
@@ -148,9 +138,6 @@ exports.delete = (req, res) => {
     });
 };
 
-
-
-
 exports.buscarPaciente = (req, res) => {
     const dni = req.params.dni;
     const sql = `SELECT p.nombre, hc.detalles 
@@ -203,9 +190,6 @@ exports.search = (req, res) => {
     });
 };
 
-
-
-
 exports.showProfile = (req, res) => { 
     const idPaciente = req.session.user.id; // Obtiene el ID del paciente de la sesión
 
@@ -223,8 +207,6 @@ exports.showProfile = (req, res) => {
         }
     });
 };
-
-
 
 
 exports.showPendingPatients = (req, res) => {

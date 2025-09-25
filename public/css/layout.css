@@ -1,0 +1,269 @@
+/* ===========================
+   Estilos generales del layout
+   =========================== */
+
+/* Reset y base */
+/* ===========================
+   Estilos generales del layout
+   =========================== */
+
+/* Reset y base */
+.logout-btn {
+  margin-left: auto;
+}
+
+.Btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 45px;
+  height: 45px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition-duration: .3s;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+  background-color: rgb(255, 65, 65);
+  text-decoration: none; /* <- para que no aparezca subrayado */
+}
+
+/* icono */
+.sign {
+  width: 100%;
+  transition-duration: .5s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sign svg { width: 17px; }
+.sign svg path { fill: white; }
+
+/* texto oculto */
+.text {
+  position: absolute;
+  right: 0%;
+  width: 0%;
+  opacity: 0;
+  color: white;
+  font-size: 1.1em;
+  font-weight: 600;
+  transition-duration: .3s;
+}
+
+/* animación hover */
+.Btn:hover {
+  width: 125px;
+  border-radius: 40px;
+  transition-duration: .3s;
+}
+.Btn:hover .sign {
+  width: 30%;
+  transition-duration: .3s;
+  padding-left: 20px;
+}
+.Btn:hover .text {
+  opacity: 1;
+  width: 70%;
+  transition-duration: .3s;
+  padding-right: 10px;
+}
+
+/* click efecto */
+.Btn:active { transform: translate(2px ,2px); }
+
+/* ----------------- 
+   Resto de tu layout
+   ----------------- */
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background: #f5ecc7;
+  color: #000000;
+}
+header, main, footer {
+  width: 80%;
+  margin: auto;
+  padding: 20px;
+  background: #fff;
+  border: 5px solid #000000;
+  margin-top: 20px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+/* ... resto de tus estilos como los tenías ... */
+
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background: #f5ecc7;
+  color: #000000;
+}
+
+/* Header, Main y Footer */
+header, main, footer {
+  width: 80%;
+  margin: auto;
+  padding: 20px;
+  background: #fff;
+  border: 5px solid #000000;
+  margin-top: 20px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+header {
+  background: #ffffff;
+  color: #000;
+  text-align: center;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+footer {
+  background: #fdfdfd;
+  color: #333;
+  text-align: center;
+  padding: 10px 0;
+  margin-top: 20px;
+  border-radius: 5px;
+}
+
+/* Navegación */
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  display: inline-block;
+}
+
+/* Íconos de login */
+.icono-boton {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  margin: 0 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.icono-boton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+/* Botones generales */
+.btn {
+  display: inline-block;
+  padding: 10px 15px;
+  font-size: 16px;
+  color: white;
+  background-color: #f2a52a;
+  text-decoration: none;
+  border-radius: 5px;
+  border: none;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+.btn:hover {
+  background-color: #000000;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Botones específicos */
+.btn-warning { background-color: #ffc107; color: white; }
+.btn-danger { background-color: #dc3545; color: white; }
+.btn-success { background-color: green; color: white; }
+.btn-primary {
+  background-color: #f1dd80e7;
+  color: #000;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn-primary:hover { background-color: #0b0b0b; color: #fff; }
+
+/* Tablas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+table, th, td { border: 1px solid #000; padding: 12px; }
+th { background-color: #333; color: #fff; }
+tr:nth-child(even) { background-color: #f9f9f9; }
+tr:hover { background-color: #ddd; }
+table td { text-align: center; padding: 10px; }
+
+/* Formularios */
+form {
+  margin: 20px 0;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+form:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+input[type="text"], input[type="date"], textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+input:focus, textarea:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0px 1px 3px rgba(0,123,255,0.5);
+}
+
+/* Accesos rápidos */
+.accesos-rapidos { text-align: center; margin: 20px 0; }
+.accesos-titulo { font-size: 1.5em; margin-bottom: 10px; }
+.botones-rapidos {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+.btn-rapido {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.btn-rapido:hover { background-color: #0056b3; transform: scale(1.05); }
+
+/* Notificaciones */
+.notificacion {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ffcc00;
+  padding: 10px;
+  border: 1px solid #333;
+  border-radius: 5px;
+  z-index: 1000;
+}
+.badge {
+  background-color: #dc3545;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-left: 5px;
+  display: none;
+}

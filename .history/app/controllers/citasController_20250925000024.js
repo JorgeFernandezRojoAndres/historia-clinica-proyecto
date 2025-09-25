@@ -325,7 +325,21 @@ exports.delete = (req, res) => {
 };
 
 // Crear una nueva cita
+const moment = require('moment'); // asegurate de tener este require arriba
+
 exports.createCita = (req, res) => {
+
+    const sqlVac = `
+  SELECT 1 FROM vacaciones 
+  WHERE idMedico = ? AND ? BETWEEN fechaInicio AND fechaFin
+`;
+db.query(sqlVac, [sanitizedIdMedico, fechaSolo], (err2, vac) => {
+  if (vac.length > 0) {
+    return res.status(400).send("El médico está de vacaciones en esa fecha.");
+  }
+  // seguir con insert...
+});
+
     const { idPaciente, idMedico, fechaHora, motivoConsulta, tipoTurno } = req.body;
 
     if (!idPaciente || !idMedico || !fechaHora || !motivoConsulta || !tipoTurno) {
@@ -351,30 +365,47 @@ exports.createCita = (req, res) => {
         }
     }
 
-    const sqlCita = `
-        INSERT INTO citas (idPaciente, idMedico, fechaHora, motivoConsulta, estado, tipoTurno) 
-        VALUES (?, ?, ?, ?, ?, ?)
-    `;
+    // 🔹 Validación contra días no laborables
+    const fechaSolo = moment(fechaHora).format("YYYY-MM-DD");
+    const sqlCheck = "SELECT 1 FROM dias_no_laborables WHERE fecha = ?";
 
-    db.query(
-        sqlCita,
-        [sanitizedIdPaciente, sanitizedIdMedico, fechaHora, sanitizedMotivoConsulta, estadoInicial, sanitizedTipoTurno],
-        (error) => {
-            if (error) {
-                console.error('Error al crear la cita:', error);
-                return res.status(500).send('Error al crear la cita.');
-            }
-
-            if (req.session.user.role === 'paciente') {
-                return res.redirect('/turnos/mis-turnos');
-            } else if (req.session.user.role === 'secretaria') {
-                return res.redirect('/secretaria/citas');
-            } else {
-                return res.redirect('/');
-            }
+    db.query(sqlCheck, [fechaSolo], (err, rows) => {
+        if (err) {
+            console.error("Error al validar día no laborable:", err);
+            return res.status(500).send("Error interno en validación");
         }
-    );
+
+        if (rows.length > 0) {
+            return res.status(400).send("No se pueden agendar turnos en días no laborables.");
+        }
+
+        // 👉 Si pasa la validación, insertar la cita
+        const sqlCita = `
+            INSERT INTO citas (idPaciente, idMedico, fechaHora, motivoConsulta, estado, tipoTurno) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+
+        db.query(
+            sqlCita,
+            [sanitizedIdPaciente, sanitizedIdMedico, fechaHora, sanitizedMotivoConsulta, estadoInicial, sanitizedTipoTurno],
+            (error) => {
+                if (error) {
+                    console.error('Error al crear la cita:', error);
+                    return res.status(500).send('Error al crear la cita.');
+                }
+
+                if (req.session.user.role === 'paciente') {
+                    return res.redirect('/turnos/mis-turnos');
+                } else if (req.session.user.role === 'secretaria') {
+                    return res.redirect('/secretaria/citas');
+                } else {
+                    return res.redirect('/');
+                }
+            }
+        );
+    });
 };
+
 
 // Editar una cita
 exports.showEditForm = (req, res) => {

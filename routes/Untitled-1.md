@@ -1,6 +1,6 @@
 # File Tree: historia-clinica-proyecto-master
 
-Generated on: 9/22/2025, 11:57:07 AM
+Generated on: 9/23/2025, 9:32:26 AM
 Root path: `f:\Proyectos\historia-clinica-proyecto-master`
 
 ```
@@ -80,6 +80,10 @@ Root path: `f:\Proyectos\historia-clinica-proyecto-master`
 ├── 📁 node_modules/ 🚫 (auto-hidden)
 ├── 📁 public/
 │   ├── 📁 css/
+│   │   ├── 🎨 escritorioAdministrador.css
+│   │   ├── 🎨 layout.css
+│   │   ├── 🎨 login.css
+│   │   ├── 🎨 paciente.css
 │   │   └── 🎨 style.css
 │   ├── 📁 images/
 │   │   ├── 🖼️ Captura.JPG
@@ -126,6 +130,7 @@ Root path: `f:\Proyectos\historia-clinica-proyecto-master`
 │   │   ├── 📄 escritorioMedico.js
 │   │   ├── 📄 filtrarCitas.js
 │   │   ├── 📄 gestionCitasCombinado.js
+│   │   ├── 📄 login.js
 │   │   ├── 📄 searchPaciente.js
 │   │   ├── 📄 secretaria.js
 │   │   └── 📄 seleccionarClinica.js

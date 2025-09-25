@@ -49,7 +49,14 @@ exports.checkRole = (role) => {
 
 // Definición de middleware específicos para cada rol usando checkRole
 exports.isMedico = exports.checkRole('medico');
-exports.isSecretaria = exports.checkRole('secretaria');
+exports.isSecretaria = (req, res, next) => {
+    const role = req.session.user?.role;
+    if (role === 'secretaria' || role === 'administrador') {
+        return next();
+    }
+    return res.status(403).send('Acceso denegado: Solo para secretarias o administradores');
+};
+
 exports.isPaciente = exports.checkRole('paciente');
 exports.isAdministrador = exports.checkRole('administrador');
 exports.isAdmin = exports.isAdministrador;

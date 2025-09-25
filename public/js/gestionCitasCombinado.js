@@ -1,4 +1,5 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
+
     const especialidadSelector = document.getElementById('especialidadSelector');
     const medicoSelector = document.getElementById('idMedico');
     const verAgendaButton = document.getElementById('verAgendaButton');
@@ -8,6 +9,28 @@ document.addEventListener('DOMContentLoaded', function () {
     const idPacienteInput = document.getElementById('idPaciente');
     const fechaHoraInput = document.getElementById('fechaHora'); // Campo de fecha y hora
     
+     // 🔹 Paso 1: obtener lista de días no laborables
+    let diasNoLaborables = [];
+    try {
+        const resp = await fetch('/admin/dias-no-laborables');
+        if (resp.ok) {
+            diasNoLaborables = await resp.json();
+        }
+    } catch (err) {
+        console.error("Error al cargar días no laborables:", err);
+    }
+
+    const feriados = new Set(diasNoLaborables.map(d => d.fecha.slice(0,10)));
+    // 🔹 Paso 2: bloquear selección en el input de fecha
+    if (fechaHoraInput) {
+        fechaHoraInput.addEventListener('change', e => {
+            const fechaSeleccionada = e.target.value.split('T')[0]; // YYYY-MM-DD
+            if (feriados.has(fechaSeleccionada)) {
+                alert("⛔ La clínica no atiende en esta fecha (día no laborable).");
+                e.target.value = "";
+            }
+        });
+    }
     // Cargar datos de médicos desde el script en el Pug
     let medicos = [];
     try {

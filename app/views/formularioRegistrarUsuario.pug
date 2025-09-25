@@ -3,12 +3,96 @@ extends layout
 block content
   h2 Registrar Usuario
   form(action="/admin/registrar-usuario" method="POST")
-    label(for="username") Nombre de Usuario:
-    input(type="text" name="username" required)
-    label(for="password") Contraseña:
-    input(type="password" name="password" required)
     label(for="role") Rol:
-    select(name="role" required)
+    select#role(name="role" required)
+      option(value="") Seleccionar rol
       option(value="medico") Médico
       option(value="secretaria") Secretaria
+
+    .secretaria-fields(style="display:none;")
+      label(for="username") Nombre de Usuario:
+      input#username(type="text" name="username")
+      label(for="password") Contraseña:
+      input#password(type="password" name="password")
+
+    .medico-fields(style="display:none;")
+      label(for="nombre") Nombre:
+      input#nombre(type="text" name="nombre")
+      label(for="dni") DNI:
+      input#dni(type="text" name="dni")
+      label(for="telefono") Teléfono:
+      input#telefono(type="text" name="telefono")
+      label(for="email") Email:
+      input#email(type="email" name="email")
+      label(for="idEspecialidad") Especialidad:
+      select#idEspecialidad(name="idEspecialidad")
+        option(value="") Seleccionar especialidad
+        each esp in especialidades
+          option(value=esp.idEspecialidad)= esp.nombre
+      button#btnNuevaEspecialidad(type="button") ➕ Nueva especialidad
+
     button(type="submit") Registrar Usuario
+
+  script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
+  script.
+    const roleSelect = document.getElementById('role');
+    const secretariaFields = document.querySelector('.secretaria-fields');
+    const medicoFields = document.querySelector('.medico-fields');
+
+    roleSelect.addEventListener('change', function() {
+      if (this.value === 'secretaria') {
+        secretariaFields.style.display = 'block';
+        medicoFields.style.display = 'none';
+      } else if (this.value === 'medico') {
+        secretariaFields.style.display = 'none';
+        medicoFields.style.display = 'block';
+      } else {
+        secretariaFields.style.display = 'none';
+        medicoFields.style.display = 'none';
+      }
+    });
+
+    if ("#{message}" && "#{message}" !== "undefined") {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: "#{message}",
+        confirmButtonText: 'Entendido'
+      });
+    }
+
+    const btnNuevaEspecialidad = document.getElementById('btnNuevaEspecialidad');
+    if (btnNuevaEspecialidad) {
+      btnNuevaEspecialidad.addEventListener('click', async () => {
+        const { value: nombre } = await Swal.fire({
+          title: 'Nueva especialidad',
+          input: 'text',
+          inputLabel: 'Ingrese el nombre de la especialidad',
+          inputPlaceholder: 'Ej. Cardiología',
+          showCancelButton: true,
+          confirmButtonText: 'Guardar'
+        });
+
+        if (nombre) {
+          fetch('/admin/especialidades', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              const select = document.getElementById('idEspecialidad');
+              const option = document.createElement('option');
+              option.value = data.idEspecialidad;
+              option.textContent = nombre;
+              select.appendChild(option);
+              select.value = data.idEspecialidad;
+              Swal.fire('Guardado', 'Especialidad agregada con éxito', 'success');
+            } else {
+              Swal.fire('Error', data.message || 'No se pudo guardar', 'error');
+            }
+          });
+        }
+      });
+    }

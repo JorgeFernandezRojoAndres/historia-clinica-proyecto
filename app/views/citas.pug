@@ -1,44 +1,49 @@
 extends layout
 
 block content
-  h2 Listado de Citas
+  h2.mb-4 Listado de Citas
 
-  div.filtros
-    label(for="filtroMedico") Filtrar por Médico:
-    input(type="text" id="filtroMedico" placeholder="Ingresa el nombre del médico")
+  .card.mb-4
+    .card-body
+      form.row.g-3
+        .col-md-3
+          label.form-label(for="filtroMedico") Filtrar por Médico
+          input.form-control(type="text" id="filtroMedico" placeholder="Ingresa el nombre del médico")
 
-    if user.role === 'secretaria'
-      label(for="filtroEstado") Filtrar por Estado:
-      select(id="filtroEstado" name="estado")
-        option(value="") Todos
-        each estado in ['Pendiente', 'En proceso', 'Confirmado', 'Completado', 'Cancelado']
-          option(
-            value=estado 
-            selected=(estadoSeleccionado && estadoSeleccionado.toLowerCase() === estado.toLowerCase())
-          )= estado
+        if user.role === 'secretaria'
+          .col-md-3
+            label.form-label(for="filtroEstado") Filtrar por Estado
+            select.form-select(id="filtroEstado" name="estado")
+              option(value="") Todos
+              each estado in ['Pendiente', 'En proceso', 'Confirmado', 'Completado', 'Cancelado']
+                option(
+                  value=estado 
+                  selected=(estadoSeleccionado && estadoSeleccionado.toLowerCase() === estado.toLowerCase())
+                )= estado
 
-      label(for="filtroClasificacion") Filtrar por Clasificación:
-      select(id="filtroClasificacion")
-        option(value="") Todos
-        option(value="VIP" selected=(clasificacionSeleccionada === 'VIP')) VIP
-        option(value="especial" selected=(clasificacionSeleccionada === 'especial')) Especial
-        option(value="regular" selected=(clasificacionSeleccionada === 'regular')) Regular
-      
-    label(for="filtroClinica") Filtrar por Clínica:
-    select(id="filtroClinica" name="clinica")
-      option(value="") Todas
-      option(value="1" selected=(clinicaSeleccionada == 1)) Clínica 1
-      option(value="2" selected=(clinicaSeleccionada == 2)) Clínica 2
+          .col-md-3
+            label.form-label(for="filtroClasificacion") Filtrar por Clasificación
+            select.form-select(id="filtroClasificacion")
+              option(value="") Todos
+              option(value="VIP" selected=(clasificacionSeleccionada === 'VIP')) VIP
+              option(value="especial" selected=(clasificacionSeleccionada === 'especial')) Especial
+              option(value="regular" selected=(clasificacionSeleccionada === 'regular')) Regular
+
+        .col-md-3
+          label.form-label(for="filtroClinica") Filtrar por Clínica
+          select.form-select(id="filtroClinica" name="clinica")
+            option(value="") Todas
+            option(value="1" selected=(clinicaSeleccionada == 1)) Clínica 1
+            option(value="2" selected=(clinicaSeleccionada == 2)) Clínica 2
 
   if user.role === 'secretaria' && hayPendientes
-    form(action="/secretaria/citas/confirmar-pendientes" method="POST" style="margin: 15px 0;")
-
+    form(action="/citas/confirmar-pendientes" method="POST" class="mb-4")
       if clinicaSeleccionada
         input(type="hidden" name="clinica" value=clinicaSeleccionada)
       button.btn.btn-success(type="submit" onclick="return confirm('¿Confirmar todas las citas pendientes?')") Confirmar todas las pendientes
 
-  table.table.table-striped#tablaCitas
-    thead
+  table.table.table-striped.table-hover#tablaCitas
+    thead.table-dark
       tr
         th Médico
         th Paciente
@@ -62,12 +67,12 @@ block content
             td= cita.estado
             td= cita.clasificacion
             td.acciones
-              a.btn.btn-primary(href=`/citas/edit/${cita.idCita}`) Editar
-              a.btn.btn-danger(href=`/citas/delete/${cita.idCita}` onclick="return confirm('¿Estás seguro de que deseas eliminar esta cita?')") Eliminar
+              a.btn.btn-sm.btn-primary(href=`/citas/edit/${cita.idCita}`) Editar
+              a.btn.btn-sm.btn-danger(href=`/citas/delete/${cita.idCita}` onclick="return confirm('¿Estás seguro de que deseas eliminar esta cita?')") Eliminar
               if cita.estado === 'Pendiente'
-                button.btn.btn-success.btn-confirmar(data-id=cita.idCita) Confirmar
+                button.btn.btn-sm.btn-success.btn-confirmar(data-id=cita.idCita) Confirmar
       else
         tr
-          td(colspan="7") No hay citas disponibles.
+          td(colspan="7" class="text-center") No hay citas disponibles.
 
   script(src="/js/filtrarCitas.js")

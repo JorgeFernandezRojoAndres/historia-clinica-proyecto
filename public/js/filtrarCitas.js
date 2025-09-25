@@ -57,10 +57,11 @@ document.addEventListener('DOMContentLoaded', function () {
     boton.addEventListener('click', function () {
       const idCita = this.getAttribute('data-id');
       if (confirm('¿Confirmar esta cita pendiente?')) {
-        fetch('/secretaria/citas/confirmar-pendientes', {
+        fetch('/citas/confirmar-pendientes', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json' // 👈 agregado para que backend devuelva JSON
           },
           body: JSON.stringify({ idCita })
         })
@@ -72,7 +73,11 @@ document.addEventListener('DOMContentLoaded', function () {
           })
           .then(data => {
             console.log('Respuesta:', data);
-            window.location.reload();
+
+            // Cambiar el estado en la tabla sin recargar
+            const fila = boton.closest('tr');
+            fila.querySelector('td:nth-child(5)').textContent = 'Confirmado'; // columna Estado
+            boton.remove(); // quitar el botón de confirmar
           })
           .catch(error => {
             console.error('Error en la confirmación:', error);

@@ -1,28 +1,34 @@
 extends layout
 
 block content
-  h2 Listado de Médicos
+  .container.mt-5
+    .row.justify-content-center
+      .col-md-8
+        .card.shadow
+          .card-header.bg-primary.text-white
+            h3.mb-0 Editar Médico
+          .card-body
+            form(method="POST" action=`/admin/medicos/${medico.idMedico}`)
+              .mb-3
+                label.form-label(for="nombre") Nombre
+                input.form-control(type="text" name="nombre" id="nombre" value=medico.nombre required)
 
-  table
-    thead
-      tr
-        th ID
-        th Nombre
-        th Especialidad
-        th Teléfono
-        th Email
-        th DNI
-        th Acciones
-    tbody
-      each medico in medicos
-        tr
-          td= medico.idMedico
-          td= medico.nombre
-          td= medico.especialidad
-          td= medico.telefono
-          td= medico.email
-          td= medico.dni
-          td
-            a.btn.btn-warning(href=`/medicos/${medico.idMedico}/edit`) Editar
-            a.btn.btn-danger(href=`/medicos/${medico.idMedico}/delete`) Eliminar
-            a.btn.btn-primary(href=`/medicos/${medico.idMedico}/agenda`) Ver Agenda
+              .mb-3
+                label.form-label(for="especialidad") Especialidad
+                input.form-control(type="text" name="especialidad" id="especialidad" value=medico.especialidad required)
+
+              .mb-3
+                label.form-label(for="dni") DNI
+                input.form-control(type="text" name="dni" id="dni" value=medico.dni required)
+
+              .mb-3
+                label.form-label(for="telefono") Teléfono
+                input.form-control(type="text" name="telefono" id="telefono" value=medico.telefono required)
+
+              .mb-3
+                label.form-label(for="email") Email
+                input.form-control(type="email" name="email" id="email" value=medico.email required)
+
+              .d-flex.justify-content-between
+                a.btn.btn-secondary(href="/admin/ver-medicos") Cancelar
+                button.btn.btn-success(type="submit") Guardar Cambios

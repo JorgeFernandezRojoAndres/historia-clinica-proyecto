@@ -1,4 +1,5 @@
 const db = require('../../config/database');
+const moment = require('moment'); // 👈 solo una vez arriba
 
 // 📅 Renderizar vista con listado
 exports.renderList = (req, res) => {
@@ -21,7 +22,18 @@ exports.getAll = (req, res) => {
 
 // 📅 Crear
 exports.create = (req, res) => {
-  const { fecha, descripcion } = req.body;
+  let { fecha, descripcion } = req.body;
+
+  // 🔹 Normalizar la fecha: aceptar DD/MM/YYYY o YYYY-MM-DD y guardar siempre YYYY-MM-DD
+  if (fecha) {
+    const parsed = moment(fecha, ["DD/MM/YYYY", "YYYY-MM-DD"], true);
+    if (parsed.isValid()) {
+      fecha = parsed.format("YYYY-MM-DD");
+    } else {
+      return res.status(400).json({ error: "Formato de fecha inválido" });
+    }
+  }
+
   db.query(
     "INSERT INTO dias_no_laborables (fecha, descripcion) VALUES (?, ?)",
     [fecha, descripcion],
@@ -30,7 +42,6 @@ exports.create = (req, res) => {
         console.error("Error al insertar día no laborable:", err);
         return res.status(400).json({ error: "Ya existe esa fecha o datos inválidos" });
       }
-      // Si la petición viene del form -> redirect
       if (req.headers.accept.includes("text/html")) {
         return res.redirect("/admin/dias-no-laborables?success=true");
       }
